@@ -7,6 +7,7 @@ def main():
     args = parser.parse_args()
     o0 = manifest(args.file);
 
+    print("Elements:");
     def print_elem(e):
         print (str(e));
     o0.traverse(['elem'], lambda x: print_elem(x))
