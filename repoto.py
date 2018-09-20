@@ -21,6 +21,7 @@ def flatten(args):
     projects = sorted(p.p, key=lambda x: x.name)
     for p in projects:
         print (" "+str(p));
+    o0.write(args.output)
     
 def parse(args):
 

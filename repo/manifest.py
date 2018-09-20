@@ -33,9 +33,11 @@ class mh_default(mh_base):
         
 class mh_project(mh_base):
     def __init__(self,m,xml):
-        super(mh_project,self).__init__('priject',m,xml,['elem'],['name','path','revision'])
+        super(mh_project,self).__init__('project',m,xml,['elem'],['name','path','revision'])
     def __str__(self):
         return "project name={}".format(self.name)
+    def get_xml(self):
+        return "<project/>"
 
 class mh_remove_project(mh_base):
     def __init__(self,m,xml):
@@ -102,3 +104,14 @@ class manifest(object):
             if (e.match(tags)):
                 fn(e)
     
+    def write(self, fn):
+        with open(fn,"w") as f:
+            f.write("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+<manifest>   
+""");
+            def write_elem(e):
+                f.write(" " + e.get_xml()+"\n");
+            self.traverse(['project'], lambda x: write_elem(x))
+
+            f.write("</manifest>\n");
+
