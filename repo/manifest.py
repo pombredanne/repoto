@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ET
+from xml.etree.ElementTree import tostring
 import os;
 
 ############# hirarchical model ##############
@@ -22,6 +23,8 @@ class mh_base(object):
             if i in self.tags:
                 return True
         return False
+    def get_xml(self):
+        return tostring(self.xml).rstrip()
 
 class mh_remote(mh_base):
     def __init__(self,m,xml):
@@ -36,8 +39,6 @@ class mh_project(mh_base):
         super(mh_project,self).__init__('project',m,xml,['elem'],['name','path','revision'])
     def __str__(self):
         return "project name={}".format(self.name)
-    def get_xml(self):
-        return "<project/>"
 
 class mh_remove_project(mh_base):
     def __init__(self,m,xml):
@@ -109,9 +110,27 @@ class manifest(object):
             f.write("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>
 <manifest>   
 """);
-            def write_elem(e):
+            class ctx():
+                def __init__(self):
+                    self.a = [];
+                    self.r = [];
+                def addproject(self, e):
+                    self.a.append(e)
+                def addremote(self, e):
+                    self.r.append(e)
+            
+            c = ctx()
+            def add_elem(e):
+                c.addproject(e)
+            self.traverse(['project'], lambda x: add_elem(x))
+            def add_remote(e):
+                c.addremote(e)
+            self.traverse(['remote','default'], lambda x: add_remote(x))
+
+            for e in c.r:
                 f.write(" " + e.get_xml()+"\n");
-            self.traverse(['project'], lambda x: write_elem(x))
+            for e in sorted(c.a, key=lambda x: x.name):
+                f.write(" " + e.get_xml()+"\n");
 
             f.write("</manifest>\n");
 
