@@ -29,7 +29,10 @@ class mh_base(object):
 
 class mh_remote(mh_base):
     def __init__(self,m,xml,depth=0):
-        super(mh_remote,self).__init__('remote',m,xml,['elem'],['name','pushurl','review'],depth=depth)
+        super(mh_remote,self).__init__('remote',m,xml,['elem'],['name','pushurl','review','fetch'],depth=depth)
+        if self.xml.fetch == "../../":
+            if 'GITBASE' in os.environ:
+                self.xml.fetch =os.environ['GITBASE']
 
 class mh_default(mh_base):
     def __init__(self,m,xml,depth=0):
