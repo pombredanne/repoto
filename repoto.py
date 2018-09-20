@@ -8,7 +8,7 @@ class projar():
         self.p.append(e)
     def rem(self,e):
         self.p = [ p for p in self.p if not (p.name ==  e.name) ]
-
+    
 def flatten(args):
     o0 = manifest(args.file);
     p = projar()
