@@ -18,7 +18,7 @@ def flatten(args):
         elif isinstance(e,mh_remove_project):
             p.rem(e)
     o0.traverse(['elem'], lambda x: touchproj(x))
-    projects = sorted(p.p, key=lambda x: x.name)
+    projects = p.p #sorted(p.p, key=lambda x: x.name)
     for p in projects:
         print (" "+str(p));
     o0.write(args.output)

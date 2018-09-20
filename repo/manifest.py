@@ -77,6 +77,7 @@ class mh_manifest(mh_base):
         return "maifest name={}".format(self.abspath)
 
 def ftomanifest(n,mp):
+    print("parse: %s" %(n))
     afn = os.path.abspath(n);
     tree = ET.parse(n)
     root = tree.getroot()  
