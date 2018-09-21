@@ -129,10 +129,10 @@ class manifest(object):
             c = ctx()
             def add_elem(e):
                 if isinstance(e,mh_project):
-                    print("Add "+e.name)
+                    #print("Add "+e.name)
                     c.addproject(e)
                 elif isinstance(e,mh_remove_project):
-                    print("Remove "+e.name)
+                    #print("Remove "+e.name)
                     c.remproject(e)
             self.traverse(['elem'], lambda x: add_elem(x))
             def add_remote(e):

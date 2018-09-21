@@ -18,10 +18,38 @@ def flatten(args):
         elif isinstance(e,mh_remove_project):
             p.rem(e)
     o0.traverse(['elem'], lambda x: touchproj(x))
-    projects = p.p #sorted(p.p, key=lambda x: x.name)
+    projects = p.p
+    if args.sort:
+        projects = sorted(projects, key=lambda x: x.name)
+    
     for p in projects:
-        print (" "+str(p));
+        n = str(p)
+        if not (args.removepath is None):
+            n = n.replace(args.removepath,"")
+        print (" "+n);
     o0.write(args.output)
+
+def update(args):
+    a0 = manifest(args.aosp);
+    o0 = manifest(args.file);
+    p = projar()
+    def touchproj(e):
+        if isinstance(e,mh_project):
+            p.add(e)
+        elif isinstance(e,mh_remove_project):
+            p.rem(e)
+    o0.traverse(['elem'], lambda x: touchproj(x))
+    projects = p.p
+    if args.sort:
+        projects = sorted(projects, key=lambda x: x.name)
+    
+    for p in projects:
+        n = str(p)
+        if not (args.removepath is None):
+            n = n.replace(args.removepath,"")
+        print (" "+n);
+    o0.write(args.output)
+    
     
 def parse(args):
 
@@ -49,9 +77,20 @@ def main():
     
     # create the parser for the "flatten" command
     parser_a = subparsers.add_parser('flatten', help='flatten and sort projects')
+    parser_a.add_argument('--sort', '-x', action='count')
+    parser_a.add_argument('--remove-path', '-r', dest='removepath', default=None)
     parser_a.add_argument('file', type=str, help='root maifest')
     parser_a.add_argument('output', type=str, help='flattend output')
     parser_a.set_defaults(func=flatten)
+
+    # create the parser for the "update" command
+    parser_a = subparsers.add_parser('update', help='update shas')
+    parser_a.add_argument('--sort', '-x', action='count')
+    parser_a.add_argument('--remove-path', '-r', dest='removepath', default=None)
+    parser_a.add_argument('--aosp', '-a', dest='aosp', default=None)
+    parser_a.add_argument('file', type=str, help='root maifest')
+    parser_a.add_argument('output', type=str, help='flattend output')
+    parser_a.set_defaults(func=update)
     
     # create the parser for the "parse" command
     parser_b = subparsers.add_parser('parse', help='parse and print info on projects')
