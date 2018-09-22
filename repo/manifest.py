@@ -19,6 +19,17 @@ class mh_base(object):
             return None
         else:
             raise AttributeError
+    def setxml(self,n,v):
+        if n in self.attrs:
+            if n in self.xml.attrib:
+                self.xml.attrib[n] = v
+        else:
+            raise AttributeError
+    def addxml(self,n,v):
+        if n in self.attrs:
+            self.xml.attrib[n] = v
+        else:
+            raise AttributeError
     def match(self, tags):
         for i in tags:
             if i in self.tags:
@@ -40,7 +51,7 @@ class mh_default(mh_base):
         
 class mh_project(mh_base):
     def __init__(self,m,xml,depth=0):
-        super(mh_project,self).__init__('project',m,xml,['elem'],['name','path','revision'],depth=depth)
+        super(mh_project,self).__init__('project',m,xml,['elem'],['name','path','revision','remote'],depth=depth)
     def __str__(self):
         return "project name={}".format(self.name)
 
@@ -100,10 +111,12 @@ class logclass(object):
                 f.write(l + "\n")
         
 class projar(logclass):
-    def __init__(self,args):
+    def __init__(self,up,args):
         super(projar,self).__init__(args)
+        self.up = up
         self.args = args
         self.p = []
+        self.added = []
     def add(self,e):
         self.p.append(e)
     def uniformname(self,n):
@@ -118,15 +131,24 @@ class projar(logclass):
         a = [ p for p in self.p if (self.uniformname(p.name) ==  self.uniformname(e.name)) ]
         return (len(a) >= 1)
     def addproject(self,p):
-        n = p.name
+        norig = p.name
         if not (self.args.removepath is None):
-            n = self.args.removepath + n
+            n = self.args.removepath + norig
+        if p.path is None:
+            p.addxml('path',norig)
+        if p.remote is None and not (self.args.defserver is None):
+            p.addxml('remote',self.args.defserver)
         self.log("Add {}".format(n))
+        p.setxml('name',n)
+        if not (self.up is None):
+            self.up.tree[0]._c.append(p)
+        
     def updateshawith(self,e):
         a = [ p for p in self.p if (self.uniformname(p.name) ==  self.uniformname(e.name)) ]
         if not (len(a) == 1):
             raise Exception("Project not present");
         self.log("Update {} {}".format(a[0].name, e.revision))
+        a[0].setxml('revision',e.revision)
         
 # clearcase like git handling via repo:
 class manifest(object):
@@ -139,7 +161,7 @@ class manifest(object):
         self.m = self.flatten()
         
     def flatten(self):
-        p = projar(self.args)
+        p = projar(self,self.args)
         def touchproj(e):
             if isinstance(e,mh_project):
                 p.add(e)

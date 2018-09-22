@@ -3,7 +3,7 @@ from repo.manifest import manifest, mh_project, mh_remove_project, projar
 
 def flatten(args):
     o0 = manifest(args, args.file);
-    p = projar(args)
+    p = projar(None,args)
     def touchproj(e):
         if isinstance(e,mh_project):
             p.add(e)
@@ -75,6 +75,7 @@ def main():
     parser_a.add_argument('--sort', '-x', action='count')
     parser_a.add_argument('--remove-path', '-r', dest='removepath', default=None)
     parser_a.add_argument('--aosp', '-a', dest='aosp', default=None)
+    parser_a.add_argument('--defserver', '-A', dest='defserver', default=None)
     parser_a.add_argument('file', type=str, help='root maifest')
     parser_a.add_argument('output', type=str, help='flattend output')
     parser_a.set_defaults(func=update)
