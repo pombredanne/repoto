@@ -88,19 +88,66 @@ def ftomanifest(n,mp,depth=0):
     return [ mh_manifest({'abspath': afn }, mp, xml, depth) for xml in root.iter('manifest') ];
     
 #################################################
-    
+
+
+class logclass(object):
+    def __init__(self, args):
+        super(logclass,self).__init__()
+        self.args = args
+    def log(self,l):
+        if not (self.args.log is None):
+            with open(self.args.log,"a") as f:
+                f.write(l + "\n")
+        
+class projar(logclass):
+    def __init__(self,args):
+        super(projar,self).__init__(args)
+        self.args = args
+        self.p = []
+    def add(self,e):
+        self.p.append(e)
+    def uniformname(self,n):
+        if not (self.args.removepath is None):
+            n = n.replace(self.args.removepath,"")
+        return n;
+    def rem(self,e):
+        self.p = [ p for p in self.p if not (p.name ==  e.name) ]
+    def projects(self):
+        return self.p
+    def contain(self,e):
+        a = [ p for p in self.p if (self.uniformname(p.name) ==  self.uniformname(e.name)) ]
+        return (len(a) >= 1)
+    def addproject(self,p):
+        n = p.name
+        if not (self.args.removepath is None):
+            n = self.args.removepath + n
+        self.log("Add {}".format(n))
+    def updateshawith(self,e):
+        a = [ p for p in self.p if (self.uniformname(p.name) ==  self.uniformname(e.name)) ]
+        if not (len(a) == 1):
+            raise Exception("Project not present");
+        self.log("Update {} {}".format(a[0].name, e.revision))
+        
 # clearcase like git handling via repo:
 class manifest(object):
     
-    def flatten(self,p):
-        pass
-    
-    def __init__(self, fn):
+    def __init__(self, args, fn):
+        self.args = args
         self.fn = fn;
         self.doc = None
         self.tree = ftomanifest(fn, None, depth=0)
-        self.m = self.flatten(self.tree)
+        self.m = self.flatten()
         
+    def flatten(self):
+        p = projar(self.args)
+        def touchproj(e):
+            if isinstance(e,mh_project):
+                p.add(e)
+            elif isinstance(e,mh_remove_project):
+                p.rem(e)
+        self.traverse(['elem'], lambda x: touchproj(x))
+        return p
+    
     def traverse(self,tags,fn):
         a = [] + self.tree
         while len(a):

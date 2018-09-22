@@ -1,17 +1,9 @@
 import os, sys, re, argparse
-from repo.manifest import manifest, mh_project, mh_remove_project
+from repo.manifest import manifest, mh_project, mh_remove_project, projar
 
-class projar():
-    def __init__(self):
-        self.p = []
-    def add(self,e):
-        self.p.append(e)
-    def rem(self,e):
-        self.p = [ p for p in self.p if not (p.name ==  e.name) ]
-    
 def flatten(args):
-    o0 = manifest(args.file);
-    p = projar()
+    o0 = manifest(args, args.file);
+    p = projar(args)
     def touchproj(e):
         if isinstance(e,mh_project):
             p.add(e)
@@ -30,30 +22,24 @@ def flatten(args):
     o0.write(args.output)
 
 def update(args):
-    a0 = manifest(args.aosp);
-    o0 = manifest(args.file);
-    p = projar()
-    def touchproj(e):
-        if isinstance(e,mh_project):
-            p.add(e)
-        elif isinstance(e,mh_remove_project):
-            p.rem(e)
-    o0.traverse(['elem'], lambda x: touchproj(x))
-    projects = p.p
-    if args.sort:
-        projects = sorted(projects, key=lambda x: x.name)
+    a0 = manifest(args, args.aosp);
+    o0 = manifest(args, args.file);
     
-    for p in projects:
-        n = str(p)
-        if not (args.removepath is None):
-            n = n.replace(args.removepath,"")
-        print (" "+n);
+    a0_p = a0.flatten()
+    o0_p = o0.flatten()
+
+    for p in a0_p.projects():
+        if (o0_p.contain(p)):
+            o0_p.updateshawith(p)
+        else:
+            o0_p.addproject(p)
+    
     o0.write(args.output)
     
     
 def parse(args):
 
-    o0 = manifest(args.file);
+    o0 = manifest(args, args.file);
     print("Elements:");
     def print_elem(e):
         print (" "+str(e));
@@ -73,6 +59,7 @@ def main():
 
     parser = argparse.ArgumentParser(prog='repoto')
     parser.add_argument('--verbose', action='store_true', help='verbose')
+    parser.add_argument('--log', type=str, default=None, help='logfile')
     subparsers = parser.add_subparsers(help='sub-commands help')
     
     # create the parser for the "flatten" command
