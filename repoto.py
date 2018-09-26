@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import os, sys, re, argparse
 from repo.manifest import manifest, mh_project, mh_remove_project, projar
 
@@ -141,6 +142,38 @@ def parse(args):
         print (" "+str(e));
     o0.traverse(['remove_project'], lambda x: print_remove(x))
 
+def getaosp_projects(args):
+    if (args.aosp is None):
+        raise("--aosp required")
+    a0 = manifest(args, args.aosp);
+    a0_p = a0.flatten()
+    return a0_p
+
+    
+def isaosp(args):
+    a = getaosp_projects(args)
+    n = args.repo
+    found=0
+    for p in a.projects():
+        if p.nameorpath(args) == n:
+            found=1
+            break;
+    if found:
+        sys.stdout.write("yes");
+    else:
+        sys.stdout.write("no");
+    
+
+def getrev(args):
+    a = getaosp_projects(args)
+    n = args.repo
+    found=0
+    for p in a.projects():
+        if p.nameorpath(args) == n:
+            sys.stdout.write(p.revision)
+            break;
+    
+    
 def main():
 
     parser = argparse.ArgumentParser(prog='repoto')
@@ -189,6 +222,17 @@ def main():
     parser_f.add_argument('file1', type=str, help='root maifest 1')
     parser_f.add_argument('file2', type=str, help='root maifest 2')
     parser_f.set_defaults(func=diff)
+
+    # "isaosp" command
+    parser_g = subparsers.add_parser('isaosp', help='is aosp repo')
+    parser_g.add_argument('repo', type=str, help='repo')
+    parser_g.set_defaults(func=isaosp)
+
+    # "getrev" command
+    parser_g = subparsers.add_parser('getrev', help='getrev repo')
+    parser_g.add_argument('repo', type=str, help='repo')
+    parser_g.set_defaults(func=getrev)
+    
     
     opt = parser.parse_args()
     opt.func(opt)

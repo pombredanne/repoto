@@ -65,7 +65,11 @@ class mh_project(mh_base):
         return "project name={}".format(self.name)
     def changed(self,p,args):
         return not (self.revision == p.revision)
-        
+    def nameorpath(self,args):
+        if 'path' in self.xml.attrib:
+            return self.xml.attrib['path']
+        return self.shortname(args)
+    
 
 class mh_remove_project(mh_base):
     def __init__(self,m,xml,depth=0):
@@ -79,7 +83,7 @@ class mh_include(mh_base):
         n = self.name
         if not n.startswith("/"):
             n = os.path.join(os.path.dirname(m.abspath),n);
-        self._c = ftomanifest(n,m,depth);
+        self._c = ftomanifest(m.args,n,m,depth);
     def __str__(self):
         return "include name={}".format(self.name)
         
@@ -103,8 +107,9 @@ class mh_manifest(mh_base):
     def __str__(self):
         return "maifest name={}".format(self.abspath)
 
-def ftomanifest(n,mp,depth=0):
-    print((" " * depth)+("+%s" %(n)))
+def ftomanifest(args,n,mp,depth=0):
+    if (args.verbose > 0):
+        print((" " * depth)+("+%s" %(n)))
     afn = os.path.abspath(n);
     tree = ET.parse(n)
     root = tree.getroot()  
@@ -172,7 +177,7 @@ class manifest(object):
         self.args = args
         self.fn = fn;
         self.doc = None
-        self.tree = ftomanifest(fn, None, depth=0)
+        self.tree = ftomanifest(args,fn, None, depth=0)
         self.m = self.flatten()
         
     def flatten(self):
