@@ -21,6 +21,26 @@ def flatten(args):
         print (" "+n);
     o0.write(args.output)
 
+def convbare(args):
+    o0 = manifest(args, args.file);
+    p = projar(None,args)
+    def touchproj(e):
+        if isinstance(e,mh_project):
+            p.add(e)
+        elif isinstance(e,mh_remove_project):
+            p.rem(e)
+    o0.traverse(['elem'], lambda x: touchproj(x))
+    projects = p.p
+    
+    for p in projects:
+        n = p.name
+        pa = p.path
+        if not (args.removepath is None):
+            n = n.replace(args.removepath,"")
+        if pa is None:
+            pa = n
+        print ("{} {}".format(n,pa));
+    
 def update(args):
     a0 = manifest(args, args.aosp);
     o0 = manifest(args, args.file);
@@ -36,7 +56,36 @@ def update(args):
     
     o0.write(args.output)
     
+def removed(args):
+    o0 = manifest(args, args.file);
+    o0_p = o0.flatten()
     
+    p = projar(None,args)
+
+    def searchremoved(e):
+        if isinstance(e,mh_remove_project):
+            p.rem(e)
+            p.add(e)
+    o0.traverse(['elem'], lambda x: searchremoved(x))
+    projects = p.p
+    removed_projects={}
+    for p in projects:
+        n = p.name
+        if not (args.removepath is None):
+            n = n.replace(args.removepath,"")
+        removed_projects[n] = p
+        print ( " + "+str(p))
+
+    if not (args.aosp is None):
+        print ("Removed aosp projects")
+        a0 = manifest(args, args.aosp);
+        a0_p = a0.flatten()
+        for p in a0_p.projects():
+            n = p.name
+            a2 = [ e for e in o0_p.projects() if e.shortname(args) == n]
+            if n in removed_projects:
+                print ( " + aos-rev:{} ihu-rev:{} aosp/{} {}".format(p.revision,a2[0].revision,str(removed_projects[n]),p.path))
+        
 def parse(args):
 
     o0 = manifest(args, args.file);
@@ -60,6 +109,8 @@ def main():
     parser = argparse.ArgumentParser(prog='repoto')
     parser.add_argument('--verbose', action='store_true', help='verbose')
     parser.add_argument('--log', type=str, default=None, help='logfile')
+    parser.add_argument('--sort', '-x', action='count')
+    parser.add_argument('--remove-path', '-r', dest='removepath', default=None)
     subparsers = parser.add_subparsers(help='sub-commands help')
     
     # create the parser for the "flatten" command
@@ -71,19 +122,29 @@ def main():
     parser_a.set_defaults(func=flatten)
 
     # create the parser for the "update" command
-    parser_a = subparsers.add_parser('update', help='update shas')
-    parser_a.add_argument('--sort', '-x', action='count')
-    parser_a.add_argument('--remove-path', '-r', dest='removepath', default=None)
-    parser_a.add_argument('--aosp', '-a', dest='aosp', default=None)
-    parser_a.add_argument('--defserver', '-A', dest='defserver', default=None)
-    parser_a.add_argument('file', type=str, help='root maifest')
-    parser_a.add_argument('output', type=str, help='flattend output')
-    parser_a.set_defaults(func=update)
+    parser_b = subparsers.add_parser('update', help='update shas')
+    parser_b.add_argument('--defserver', '-A', dest='defserver', default=None)
+    parser_b.add_argument('--aosp', '-a', dest='aosp', default=None)
+    parser_b.add_argument('file', type=str, help='root maifest')
+    parser_b.add_argument('output', type=str, help='flattend output')
+    parser_b.set_defaults(func=update)
+
+    # "removed" command
+    parser_c = subparsers.add_parser('removed', help='list removed aosp projects')
+    parser_c.add_argument('--defserver', '-A', dest='defserver', default=None)
+    parser_c.add_argument('--aosp', '-a', dest='aosp', default=None)
+    parser_c.add_argument('file', type=str, help='root maifest')
+    parser_c.set_defaults(func=removed)
+    
+    # convert repo sync tree to bare repos
+    parser_d = subparsers.add_parser('convbare', help='convert')
+    parser_d.add_argument('file', type=str, help='root maifest')
+    parser_d.set_defaults(func=convbare)
     
     # create the parser for the "parse" command
-    parser_b = subparsers.add_parser('parse', help='parse and print info on projects')
-    parser_b.add_argument('file', type=str, help='root manifest')
-    parser_b.set_defaults(func=parse)
+    parser_e = subparsers.add_parser('parse', help='parse and print info on projects')
+    parser_e.add_argument('file', type=str, help='root manifest')
+    parser_e.set_defaults(func=parse)
 
     opt = parser.parse_args()
     opt.func(opt)

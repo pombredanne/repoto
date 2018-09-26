@@ -12,6 +12,7 @@ class mh_base(object):
         self.tags = [n]+tags 
         self.attrs = attrs
         self.depth = depth
+        
     def __getattr__(self,n):
         if n in self.attrs:
             if n in self.xml.attrib:
@@ -49,11 +50,18 @@ class mh_default(mh_base):
     def __init__(self,m,xml,depth=0):
         super(mh_default,self).__init__('default',m,xml,['elem'],['remote','sync-c','sync-j'],depth=depth)
         
+        
 class mh_project(mh_base):
     def __init__(self,m,xml,depth=0):
         super(mh_project,self).__init__('project',m,xml,['elem'],['name','path','revision','remote'],depth=depth)
     def __str__(self):
         return "project name={}".format(self.name)
+    def shortname(self,args):
+        n = self.name
+        if not (args.removepath is None):
+            n = n.replace(args.removepath,"")
+        return n
+        
 
 class mh_remove_project(mh_base):
     def __init__(self,m,xml,depth=0):
