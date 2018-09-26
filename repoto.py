@@ -55,6 +55,43 @@ def update(args):
             o0_p.addproject(p)
     
     o0.write(args.output)
+
+def diff(args):
+    a0 = None
+    if not (args.aosp is None):
+        a0 = manifest(args, args.aosp);
+        a0_p = a0.flatten()
+    o0 = manifest(args, args.file1);
+    target = manifest(args, args.file2);
+    
+    o0_p = o0.flatten()
+    target_p = target.flatten()
+
+    a_removed = projar(None,args)
+    a_changed = projar(None,args)
+    a_added   = projar(None,args)
+
+    for p in target_p.projects():
+        if (o0_p.contain(p)):
+            if (o0_p.changed(p)):
+                a_changed.add(p)
+            else:
+                pass
+        else:
+            a_added.addproject(p)
+    
+    for p in o0_p.projects():
+        if not (target_p.contain(p)):
+            a_removed.add(p)
+
+    print ("Remove:");
+    for p in a_removed.projects() + a_changed.projects():
+        print(" "+str(p))
+
+    print ("Change:");
+    for p in a_added.projects() + a_changed.projects():
+        print(" "+str(p))
+
     
 def removed(args):
     o0 = manifest(args, args.file);
@@ -111,6 +148,7 @@ def main():
     parser.add_argument('--log', type=str, default=None, help='logfile')
     parser.add_argument('--sort', '-x', action='count')
     parser.add_argument('--remove-path', '-r', dest='removepath', default=None)
+    parser.add_argument('--aosp', '-a', dest='aosp', default=None)
     subparsers = parser.add_subparsers(help='sub-commands help')
     
     # create the parser for the "flatten" command
@@ -124,7 +162,6 @@ def main():
     # create the parser for the "update" command
     parser_b = subparsers.add_parser('update', help='update shas')
     parser_b.add_argument('--defserver', '-A', dest='defserver', default=None)
-    parser_b.add_argument('--aosp', '-a', dest='aosp', default=None)
     parser_b.add_argument('file', type=str, help='root maifest')
     parser_b.add_argument('output', type=str, help='flattend output')
     parser_b.set_defaults(func=update)
@@ -135,7 +172,7 @@ def main():
     parser_c.add_argument('--aosp', '-a', dest='aosp', default=None)
     parser_c.add_argument('file', type=str, help='root maifest')
     parser_c.set_defaults(func=removed)
-    
+
     # convert repo sync tree to bare repos
     parser_d = subparsers.add_parser('convbare', help='convert')
     parser_d.add_argument('file', type=str, help='root maifest')
@@ -146,6 +183,13 @@ def main():
     parser_e.add_argument('file', type=str, help='root manifest')
     parser_e.set_defaults(func=parse)
 
+    # "diff" command
+    parser_f = subparsers.add_parser('diff', help='diff projects')
+    parser_f.add_argument('--defserver', '-A', dest='defserver', default=None)
+    parser_f.add_argument('file1', type=str, help='root maifest 1')
+    parser_f.add_argument('file2', type=str, help='root maifest 2')
+    parser_f.set_defaults(func=diff)
+    
     opt = parser.parse_args()
     opt.func(opt)
 

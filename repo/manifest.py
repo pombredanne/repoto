@@ -6,6 +6,7 @@ import os;
 
 class mh_base(object):
     def __init__(self,n,m,xml,tags=[],attrs=[],depth=0):
+        super(mh_base,self).__init__()
         self.n = n
         self.m = m;
         self.xml = xml;
@@ -19,6 +20,7 @@ class mh_base(object):
                 return self.xml.attrib[n]
             return None
         else:
+            #print(str(self))
             raise AttributeError
     def setxml(self,n,v):
         if n in self.attrs:
@@ -38,6 +40,11 @@ class mh_base(object):
         return False
     def get_xml(self):
         return tostring(self.xml).rstrip()
+    def shortname(self,args):
+        n = self.name
+        if not (args.removepath is None):
+            n = n.replace(args.removepath,"")
+        return n
 
 class mh_remote(mh_base):
     def __init__(self,m,xml,depth=0):
@@ -56,11 +63,8 @@ class mh_project(mh_base):
         super(mh_project,self).__init__('project',m,xml,['elem'],['name','path','revision','remote'],depth=depth)
     def __str__(self):
         return "project name={}".format(self.name)
-    def shortname(self,args):
-        n = self.name
-        if not (args.removepath is None):
-            n = n.replace(args.removepath,"")
-        return n
+    def changed(self,p,args):
+        return not (self.revision == p.revision)
         
 
 class mh_remove_project(mh_base):
@@ -108,7 +112,6 @@ def ftomanifest(n,mp,depth=0):
     
 #################################################
 
-
 class logclass(object):
     def __init__(self, args):
         super(logclass,self).__init__()
@@ -117,7 +120,8 @@ class logclass(object):
         if not (self.args.log is None):
             with open(self.args.log,"a") as f:
                 f.write(l + "\n")
-        
+
+
 class projar(logclass):
     def __init__(self,up,args):
         super(projar,self).__init__(args)
@@ -132,14 +136,17 @@ class projar(logclass):
             n = n.replace(self.args.removepath,"")
         return n;
     def rem(self,e):
-        self.p = [ p for p in self.p if not (p.name ==  e.name) ]
+        self.p = [ p for p in self.p if not (p.shortname(self.args) ==  e.shortname(self.args)) ]
     def projects(self):
         return self.p
     def contain(self,e):
-        a = [ p for p in self.p if (self.uniformname(p.name) ==  self.uniformname(e.name)) ]
+        a = [ p for p in self.p if (p.shortname(self.args) ==  e.shortname(self.args)) ]
         return (len(a) >= 1)
+    def changed(self,e):
+        a = [ p for p in self.p if (p.shortname(self.args) ==  e.shortname(self.args)) ]
+        return a[0].changed(e,self.args)
     def addproject(self,p):
-        norig = p.name
+        n = norig = p.name
         if not (self.args.removepath is None):
             n = self.args.removepath + norig
         if p.path is None:

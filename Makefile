@@ -10,6 +10,11 @@ flat:
 conv	:
 	python repoto.py convbare ${MAINMANIFESTGOGOLE}  | tee convbare0.txt
 
+
+diff	:
+	python repoto.py diff ${MDIFF0} ${MDIFF1}  | tee diff.txt
+
+
 fmt	:
 	python repoto.py format --fmt="%n %p" ${MAINMANIFESTGOGOLE}  | tee fmt0.txt
 
