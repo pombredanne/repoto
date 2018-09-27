@@ -1,12 +1,14 @@
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import tostring
 import os;
+from pprint import pprint
 
 ############# hirarchical model ##############
 
 class mh_base(object):
-    def __init__(self,n,m,xml,tags=[],attrs=[],depth=0):
+    def __init__(self,args,n,m,xml,tags=[],attrs=[],depth=0):
         super(mh_base,self).__init__()
+        self.args = args
         self.n = n
         self.m = m;
         self.xml = xml;
@@ -47,20 +49,20 @@ class mh_base(object):
         return n
 
 class mh_remote(mh_base):
-    def __init__(self,m,xml,depth=0):
-        super(mh_remote,self).__init__('remote',m,xml,['elem'],['name','pushurl','review','fetch'],depth=depth)
+    def __init__(self,args,m,xml,depth=0):
+        super(mh_remote,self).__init__(args,'remote',m,xml,['elem'],['name','pushurl','review','fetch'],depth=depth)
         if ('fetch' in self.xml.attrib) and (self.xml.attrib['fetch'] == "../../"):
             if 'GITBASE' in os.environ:
                 self.xml.attrib['fetch']=os.environ['GITBASE']
 
 class mh_default(mh_base):
-    def __init__(self,m,xml,depth=0):
-        super(mh_default,self).__init__('default',m,xml,['elem'],['remote','sync-c','sync-j'],depth=depth)
+    def __init__(self,args,m,xml,depth=0):
+        super(mh_default,self).__init__(args,'default',m,xml,['elem'],['remote','sync-c','sync-j'],depth=depth)
         
         
 class mh_project(mh_base):
-    def __init__(self,m,xml,depth=0):
-        super(mh_project,self).__init__('project',m,xml,['elem'],['name','path','revision','remote'],depth=depth)
+    def __init__(self,args,m,xml,depth=0):
+        super(mh_project,self).__init__(args,'project',m,xml,['elem'],['name','path','revision','remote'],depth=depth)
     def __str__(self):
         return "project name={}".format(self.name)
     def changed(self,p,args):
@@ -72,18 +74,18 @@ class mh_project(mh_base):
     
 
 class mh_remove_project(mh_base):
-    def __init__(self,m,xml,depth=0):
-        super(mh_remove_project,self).__init__('remove_project',m,xml,['elem'],['name'],depth=depth)
+    def __init__(self,args,m,xml,depth=0):
+        super(mh_remove_project,self).__init__(args,'remove_project',m,xml,['elem'],['name'],depth=depth)
     def __str__(self):
         return "remove-project name={}".format(self.name)
 
 class mh_include(mh_base):
-    def __init__(self,m,xml,depth=0):
-        super(mh_include,self).__init__('include',m,xml,['rec'],['name'],depth=depth)
+    def __init__(self,args,m,xml,depth=0):
+        super(mh_include,self).__init__(args,'include',m,xml,['rec'],['name'],depth=depth)
         n = self.name
         if not n.startswith("/"):
             n = os.path.join(os.path.dirname(m.abspath),n);
-        self._c = ftomanifest(m.args,n,m,depth);
+        self._c = ftomanifest(args,n,m,depth);
     def __str__(self):
         return "include name={}".format(self.name)
         
@@ -96,10 +98,10 @@ tags = {
 }
 
 class mh_manifest(mh_base):
-    def __init__(self,ctx,m,xml,depth=0):
+    def __init__(self,args,ctx,m,xml,depth=0):
         super(mh_manifest,self).__init__('manifest',m,xml,['rec'],[],depth=depth)
         self.ctx = ctx;
-        self._c = [ tags[c1.tag](self,c1,depth=self.depth+1) for c1 in [ c0 for c0 in xml if c0.tag in tags ] ]
+        self._c = [ tags[c1.tag](args,self,c1,depth=self.depth+1) for c1 in [ c0 for c0 in xml if c0.tag in tags ] ]
     def __getattr__(self,n):
         if n in self.ctx:
             return self.ctx[n];
@@ -113,7 +115,7 @@ def ftomanifest(args,n,mp,depth=0):
     afn = os.path.abspath(n);
     tree = ET.parse(n)
     root = tree.getroot()  
-    return [ mh_manifest({'abspath': afn }, mp, xml, depth) for xml in root.iter('manifest') ];
+    return [ mh_manifest(args,{'abspath': afn }, mp, xml, depth) for xml in root.iter('manifest') ];
     
 #################################################
 
@@ -150,6 +152,9 @@ class projar(logclass):
     def changed(self,e):
         a = [ p for p in self.p if (p.shortname(self.args) ==  e.shortname(self.args)) ]
         return a[0].changed(e,self.args)
+    def getProject(self,e):
+        a = [ p for p in self.p if (p.shortname(self.args) ==  e.shortname(self.args)) ]
+        return a[0]
     def addproject(self,p):
         n = norig = p.name
         if not (self.args.removepath is None):
@@ -177,7 +182,7 @@ class manifest(object):
         self.args = args
         self.fn = fn;
         self.doc = None
-        self.tree = ftomanifest(args,fn, None, depth=0)
+        self.tree = ftomanifest(args, fn, None, depth=0)
         self.m = self.flatten()
         
     def flatten(self):

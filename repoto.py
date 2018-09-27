@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import os, sys, re, argparse
 from repo.manifest import manifest, mh_project, mh_remove_project, projar
+from xml.etree.ElementTree import tostring
 
 def flatten(args):
     o0 = manifest(args, args.file);
@@ -76,6 +77,8 @@ def diff(args):
         if (o0_p.contain(p)):
             if (o0_p.changed(p)):
                 a_changed.add(p)
+                f = o0_p.getProject(p)
+                print ("change {}->{}:{}".format(f.revision,p.revision,p.name)) 
             else:
                 pass
         else:
@@ -84,15 +87,23 @@ def diff(args):
     for p in o0_p.projects():
         if not (target_p.contain(p)):
             a_removed.add(p)
-
+            
     print ("Remove:");
-    for p in a_removed.projects() + a_changed.projects():
+    for p in a_removed.projects():
         print(" "+str(p))
 
-    print ("Change:");
-    for p in a_added.projects() + a_changed.projects():
+    print ("Changed:");
+    for p in a_changed.projects():
         print(" "+str(p))
-
+        
+    print ("Added:");
+    for p in a_added.projects():
+        print(" "+str(p))
+    
+    for p in a_changed.projects() + a_removed.projects():
+        print( "<remove-project name=\"{}\"/>".format(p.name))
+    for p in a_changed.projects() + a_added.projects():
+        sys.stdout.write(tostring(p.xml))
     
 def removed(args):
     o0 = manifest(args, args.file);
