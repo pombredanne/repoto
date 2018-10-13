@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import re
 
 class mdefine(mline):
@@ -84,3 +85,8 @@ class makefile(object):
         while (len(c.lines) > 0):
             self.tree.append(c.classify());
         
+=======
+
+
+
+>>>>>>> all
