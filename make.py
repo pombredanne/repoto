@@ -8,7 +8,6 @@ def flatten(args):
     o0 = makefile(args.file);
     
 def parse(args):
-
     o0 = makefile(args.file);
 
 def main():

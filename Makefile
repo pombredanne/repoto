@@ -1,5 +1,5 @@
 mk:
-	python make.py flatten ${BASEMK2} flat.mk
+	python make.py flatten t/grammar.mk flat.mk
 
 .PHONY: mk
 
