@@ -6,6 +6,7 @@ class projar():
 
 def flatten(args):
     o0 = makefile(args.file);
+    o0.parse(o0.ctx)
     
 def parse(args):
     o0 = makefile(args.file);

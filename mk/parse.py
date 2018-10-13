@@ -1,8 +1,31 @@
-?import re
+import re
 
+class ctx(object):
+    def __init__(self,content):
+        self.cur = 0
+        self.lines = content
+        self.lnr = 1
+    def classify(self):
+        pass
+    def hasMore(self):
+        pass
+    def getNext(self):
+        c = self.cur
+        if (len(self.lines) > c):
+            self.cur+=1
+            return self.lines[c]
+        return None
+
+class filectx(ctx):
+    def __init__(self,fn,content):
+        self.fn = fn
+        super(filectx,self).__init__(content)
+    def __str__(self):
+        return "{}".format(self.fn)
+    
 class mline(object):
     def __init__(self,ctx):
-        pass
+        self.ctx = ctx
     def slurp(self,ctx):
         self.lnr = ctx.lnr
         self.l = ""
@@ -18,20 +41,29 @@ class mline(object):
         self.l += l.rstrip()
         return self
     def __str__(self):
-        return "{:03}:{}".format(self.lnr,self.l);
-
-    def is_assign():
-        pass
-    def is_define():
-        pass
-    def is_if():
-        pass
-    def is_include():
-        pass
-    def is_comment():
-        pass
-    def is_rule():
-        pass
+        return "{}{:03}:{}".format(str(self.ctx),self.lnr,self.l);
+    def is_assign(self):
+        return False
+    def is_define(self):
+        return False
+    def is_if(self):
+        return False
+    def is_fi(self):
+        return False
+    def is_elif(self):
+        return False
+    def is_endif(self):
+        return False
+    def is_else(self):
+        return False
+    def is_include(self):
+        return False
+    def is_comment(self):
+        return False
+    def is_rule(self):
+        return False
+    def is_rulepart(self):
+        return False
 
 class mdefine(mline):
     def __init__(self,ctx):
@@ -50,15 +82,7 @@ class makefile(object):
         content = []
         with open(fn,"r") as f:
             content = f.readlines()
-        class ctx():
-            def __init__(self,content):
-                self.lines = content
-                self.lnr = 1
-            def classify(self):
-                pass
-            def hasMore(self):
-                pass
-        c = ctx(content)
+        c = filectx(fn, content)
         # read line by line, merge multiline backspace
         self.lines = []
         while (len(c.lines) > 0):
@@ -82,7 +106,7 @@ class makefile(object):
                 pass
             elif (n.is_define()):
                 self.defineOpen()
-            elif (n.is_endef()):
+            elif (n.is_endif()):
                 self.defineClose()
             elif (n.is_if()):
                 self.ifPush()
@@ -101,6 +125,6 @@ class makefile(object):
             elif (n.is_rulepart()):
                 self.ruleaddTo()
             else:
-                raise(Exception("Unparsable line '%s'\n" %(self.l)))
+                raise(Exception("Un-parsable line '%s'\n" %(str(n))))
 
         
