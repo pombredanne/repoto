@@ -1,5 +1,5 @@
 mk:
-	python make.py flatten t/grammar.mk flat.mk
+	python make.py unit t/grammar.mk
 
 .PHONY: mk
 

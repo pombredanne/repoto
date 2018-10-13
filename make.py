@@ -1,5 +1,5 @@
 import os, sys, re, argparse
-from mk.parse import makefile
+from mk.parse import makefile, ctx
 
 class projar():
     pass
@@ -11,6 +11,11 @@ def flatten(args):
 def parse(args):
     o0 = makefile(args.file);
 
+def unit(args):
+    o0 = makefile(args.file);
+    p = o0.parseStr(ctx([]),"$(call a,$1,$(v))")
+    print(p.dbgstr())
+    
 def main():
 
     parser = argparse.ArgumentParser(prog='repoto')
@@ -28,6 +33,13 @@ def main():
     parser_b.add_argument('file', type=str, help='root makefile')
     parser_b.set_defaults(func=parse)
 
+
+    # create the parser for the "parse" command
+    parser_c = subparsers.add_parser('unit', help='parse and print makefile info')
+    parser_c.add_argument('file', default=None, type=str, help='root makefile')
+    parser_c.set_defaults(func=unit)
+
+    
     opt = parser.parse_args()
     opt.func(opt)
 
