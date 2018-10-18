@@ -58,6 +58,22 @@ def update(args):
     
     o0.write(args.output)
 
+def filteraosp(args):
+    a0 = manifest(args, args.aosp);
+    o0 = manifest(args, args.file);
+    
+    a0_p = a0.flatten()
+    o0_p = o0.flatten()
+    
+    aout = projar(None,args)
+    
+    for p in o0_p.projects():
+        if (a0_p.contain(p)):
+            aout.add(p)
+    
+    for p in aout.projects():
+        sys.stdout.write(tostring(p.xml))
+    
 def diff(args):
     a0 = None
     if not (args.aosp is None):
@@ -243,7 +259,11 @@ def main():
     parser_g = subparsers.add_parser('getrev', help='getrev repo')
     parser_g.add_argument('repo', type=str, help='repo')
     parser_g.set_defaults(func=getrev)
-    
+
+    # "getrev" command
+    parser_h = subparsers.add_parser('filter', help='filter aosp')
+    parser_h.add_argument('file', type=str, help='repo')
+    parser_h.set_defaults(func=filteraosp)
     
     opt = parser.parse_args()
     opt.func(opt)
