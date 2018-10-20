@@ -19,6 +19,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <map>
+#include <string>
 
 #include "loc.h"
 #include "stmt.h"
@@ -82,6 +84,9 @@ class Evaluator {
     return used_undefined_vars_;
   }
 
+  string stackDump(void);
+  void dumpmapelements(void);
+
   int eval_depth() const { return eval_depth_; }
   void IncrementEvalDepth() { eval_depth_++; }
   void DecrementEvalDepth() { eval_depth_--; }
@@ -109,6 +114,10 @@ class Evaluator {
     export_error_ = true;
   }
 
+  vector<Loc> evalstack;
+  map<string,int> mapfn;
+  int mapidx;
+
  private:
   Var* EvalRHS(Symbol lhs,
                Value* rhs,
@@ -116,7 +125,7 @@ class Evaluator {
                AssignOp op,
                bool is_override,
                bool *needs_assign);
-  void DoInclude(const string& fname);
+  void DoInclude(const string& fname, const IncludeStmt* stmt);
 
   Var* LookupVarGlobal(Symbol name);
 

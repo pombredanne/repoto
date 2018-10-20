@@ -35,10 +35,24 @@ extern string* g_last_error;
 #ifdef NOLOG
 #define LOG(args...)
 #else
-#define LOG(args...)                                             \
-  do {                                                           \
-    fprintf(stderr, "*kati*: %s\n", StringPrintf(args).c_str()); \
-  } while (0)
+#define LOG(args...)							\
+    do {								\
+	fprintf(stderr, "*kati*: %s\n", StringPrintf(args).c_str());	\
+    } while (0)
+#endif
+
+#ifdef NOLOGL
+#define LOGL(args...)
+#else
+#define LOGL(args...)							\
+    do {								\
+	FILE *f;							\
+	f = fopen("/tmp/kati.log","a");					\
+	if (f) {							\
+	    fprintf(f, "*kati*: %s\n", StringPrintf(args).c_str());	\
+	}								\
+	fclose(f);							\
+    } while (0)
 #endif
 
 #define LOG_STAT(args...)                                          \

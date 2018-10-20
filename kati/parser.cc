@@ -17,6 +17,7 @@
 #include "parser.h"
 
 #include <stack>
+#include <sstream>
 #include <unordered_map>
 
 #include "expr.h"
@@ -54,7 +55,9 @@ class Parser {
         num_define_nest_(0),
         num_if_nest_(0),
         loc_(filename, 0),
-        fixed_lineno_(false) {}
+        fixed_lineno_(false) {
+      LOGL("LOAD-file: %s : <{%s}>", filename, buf.as_string().c_str());
+  }
 
   Parser(StringPiece buf, const Loc& loc, vector<Stmt*>* stmts)
       : buf_(buf),
@@ -63,7 +66,9 @@ class Parser {
         out_stmts_(stmts),
         num_if_nest_(0),
         loc_(loc),
-        fixed_lineno_(true) {}
+        fixed_lineno_(true) {
+      LOG("EVAL-snippet: %s : %s", loc.as_string().c_str(), buf.as_string().c_str());
+  }
 
   ~Parser() {}
 
@@ -276,6 +281,7 @@ class Parser {
     stmt->rhs = ParseExpr(rhs);
     stmt->orig_rhs = rhs;
     stmt->op = op;
+    stmt->markDefine = false;
     stmt->directive = current_directive_;
     stmt->is_final = is_final;
     out_stmts_->push_back(stmt);
@@ -301,6 +307,7 @@ class Parser {
     define_start_ = 0;
     define_start_line_ = loc_.lineno;
     state_ = ParserState::NOT_AFTER_RULE;
+
   }
 
   void ParseInsideDefine(StringPiece line) {
@@ -325,12 +332,26 @@ class Parser {
     AssignStmt* stmt = new AssignStmt();
     stmt->set_loc(Loc(loc_.filename, define_start_line_));
     stmt->lhs = ParseExpr(define_name_);
+    /*
+    {
+	stringstream s; int c;
+	const char *p = define_name_.data();
+	while ((c = *p++)) {
+	    if (isspace(c))
+		break;
+	    s<<(char)c;
+	}
+	LOGL("LOAD-file-define: %s : %s : ", s.str().c_str(), loc_.as_string().c_str(), define_name_.data());
+    }
+    */
+
     StringPiece rhs;
     if (define_start_)
       rhs = buf_.substr(define_start_, l_ - define_start_ - 1);
     stmt->rhs = ParseExpr(rhs, ParseExprOpt::DEFINE);
     stmt->orig_rhs = rhs;
     stmt->op = AssignOp::EQ;
+    stmt->markDefine = true;
     stmt->directive = current_directive_;
     out_stmts_->push_back(stmt);
     define_name_.clear();

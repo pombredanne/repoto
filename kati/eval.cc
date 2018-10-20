@@ -19,6 +19,8 @@
 #include <errno.h>
 #include <pthread.h>
 #include <string.h>
+#include <sstream>
+#include <map>
 
 #include "expr.h"
 #include "file.h"
@@ -31,8 +33,121 @@
 #include "symtab.h"
 #include "var.h"
 
+
+const char *_product_var_list[] = {
+    "PRODUCT_NAME",
+    "PRODUCT_MODEL",
+    "PRODUCT_LOCALES",
+    "PRODUCT_AAPT_CONFIG",
+    "PRODUCT_AAPT_PREF_CONFIG",
+    "PRODUCT_AAPT_PREBUILT_DPI",
+    "PRODUCT_PACKAGES",
+    "PRODUCT_PACKAGES_DEBUG",
+    "PRODUCT_PACKAGES_ENG",
+    "PRODUCT_PACKAGES_TESTS",
+    "PRODUCT_DEVICE",
+    "PRODUCT_MANUFACTURER",
+    "PRODUCT_BRAND",
+    "PRODUCT_PROPERTY_OVERRIDES",
+    "PRODUCT_DEFAULT_PROPERTY_OVERRIDES",
+    "PRODUCT_PRODUCT_PROPERTIES",
+    "PRODUCT_CHARACTERISTICS",
+    "PRODUCT_COPY_FILES",
+    "PRODUCT_OTA_PUBLIC_KEYS",
+    "PRODUCT_EXTRA_RECOVERY_KEYS",
+    "PRODUCT_PACKAGE_OVERLAYS",
+    "DEVICE_PACKAGE_OVERLAYS",
+    "PRODUCT_ENFORCE_RRO_EXCLUDED_OVERLAYS",
+    "PRODUCT_ENFORCE_RRO_TARGETS",
+    "PRODUCT_SDK_ATREE_FILES",
+    "PRODUCT_SDK_ADDON_NAME",
+    "PRODUCT_SDK_ADDON_COPY_FILES",
+    "PRODUCT_SDK_ADDON_COPY_MODULES",
+    "PRODUCT_SDK_ADDON_DOC_MODULES",
+    "PRODUCT_SDK_ADDON_SYS_IMG_SOURCE_PROP",
+    "PRODUCT_SOONG_NAMESPACES",
+    "PRODUCT_DEFAULT_WIFI_CHANNELS",
+    "PRODUCT_DEFAULT_DEV_CERTIFICATE",
+    "PRODUCT_RESTRICT_VENDOR_FILES",
+    "PRODUCT_VENDOR_KERNEL_HEADERS",
+    "PRODUCT_BOOT_JARS",
+    "PRODUCT_SUPPORTS_BOOT_SIGNER",
+    "PRODUCT_SUPPORTS_VBOOT",
+    "PRODUCT_SUPPORTS_VERITY",
+    "PRODUCT_SUPPORTS_VERITY_FEC",
+    "PRODUCT_OEM_PROPERTIES",
+    "PRODUCT_SYSTEM_DEFAULT_PROPERTIES",
+    "PRODUCT_SYSTEM_PROPERTY_BLACKLIST",
+    "PRODUCT_VENDOR_PROPERTY_BLACKLIST",
+    "PRODUCT_SYSTEM_SERVER_APPS",
+    "PRODUCT_SYSTEM_SERVER_JARS",
+    "PRODUCT_ALWAYS_PREOPT_EXTRACTED_APK",
+    "PRODUCT_DEXPREOPT_SPEED_APPS",
+    "PRODUCT_LOADED_BY_PRIVILEGED_MODULES",
+    "PRODUCT_VBOOT_SIGNING_KEY",
+    "PRODUCT_VBOOT_SIGNING_SUBKEY",
+    "PRODUCT_VERITY_SIGNING_KEY",
+    "PRODUCT_SYSTEM_VERITY_PARTITION",
+    "PRODUCT_VENDOR_VERITY_PARTITION",
+    "PRODUCT_PRODUCT_VERITY_PARTITION",
+    "PRODUCT_SYSTEM_SERVER_DEBUG_INFO",
+    "PRODUCT_OTHER_JAVA_DEBUG_INFO",
+    "PRODUCT_DEX_PREOPT_MODULE_CONFIGS",
+    "PRODUCT_DEX_PREOPT_DEFAULT_COMPILER_FILTER",
+    "PRODUCT_DEX_PREOPT_DEFAULT_FLAGS",
+    "PRODUCT_DEX_PREOPT_BOOT_FLAGS",
+    "PRODUCT_DEX_PREOPT_PROFILE_DIR",
+    "PRODUCT_DEX_PREOPT_BOOT_IMAGE_PROFILE_LOCATION",
+    "PRODUCT_DEX_PREOPT_GENERATE_DM_FILES",
+    "PRODUCT_USE_PROFILE_FOR_BOOT_IMAGE",
+    "PRODUCT_SYSTEM_SERVER_COMPILER_FILTER",
+    "PRODUCT_SANITIZER_MODULE_CONFIGS",
+    "PRODUCT_SYSTEM_BASE_FS_PATH",
+    "PRODUCT_VENDOR_BASE_FS_PATH",
+    "PRODUCT_PRODUCT_BASE_FS_PATH",
+    "PRODUCT_SHIPPING_API_LEVEL",
+    "VENDOR_PRODUCT_RESTRICT_VENDOR_FILES",
+    "VENDOR_EXCEPTION_MODULES",
+    "VENDOR_EXCEPTION_PATHS",
+    "PRODUCT_ART_TARGET_INCLUDE_DEBUG_BUILD",
+    "PRODUCT_ART_USE_READ_BARRIER",
+    "PRODUCT_IOT",
+    "PRODUCT_SYSTEM_HEADROOM",
+    "PRODUCT_MINIMIZE_JAVA_DEBUG_INFO",
+    "PRODUCT_INTEGER_OVERFLOW_EXCLUDE_PATHS",
+    "PRODUCT_ADB_KEYS",
+    "PRODUCT_CFI_INCLUDE_PATHS",
+    "PRODUCT_CFI_EXCLUDE_PATHS",
+    "PRODUCT_COMPATIBLE_PROPERTY_OVERRIDE",
+    "PRODUCT_ACTIONABLE_COMPATIBLE_PROPERTY_DISABLE",
+    NULL };
+
+map<string,int> product_var_list;
+
+void init_product_var_list(void) {
+    const char **p = _product_var_list;
+    const char *p_;
+    while ((p_ = *p++)) {
+	product_var_list[string(p_)] = 1;
+    }
+}
+
+bool isprojectvar(Symbol *sym)
+{
+    const char *needle = sym->c_str();
+    const char **p = _product_var_list;
+    const char *p_;
+    while ((p_ = *p++)) {
+	if (strstr(needle,p_))
+	    return true;
+    }
+    return false;
+}
+
+
+
 Evaluator::Evaluator()
-    : last_rule_(NULL),
+    : mapidx(1), last_rule_(NULL),
       current_scope_(NULL),
       avoid_io_(false),
       eval_depth_(0),
@@ -119,6 +234,8 @@ Var* Evaluator::EvalRHS(Symbol lhs,
     }
   }
 
+
+
   LOG("Assign: %s=%s", lhs.c_str(), result->DebugString().c_str());
   return result;
 }
@@ -143,6 +260,9 @@ void Evaluator::EvalAssign(const AssignStmt* stmt) {
     }
     return;
   }
+  if (stmt->markDefine) {
+      LOGL("LOAD-file-define: %s : %s : ", lhs.c_str(), stmt->loc().as_string().c_str());
+  }
 
   bool needs_assign;
   Var* var = EvalRHS(lhs, stmt->rhs, stmt->orig_rhs, stmt->op,
@@ -155,6 +275,15 @@ void Evaluator::EvalAssign(const AssignStmt* stmt) {
     if (readonly) {
       Error(StringPrintf("*** cannot assign to readonly variable: %s",
                          lhs.c_str()));
+    }
+
+    if (isprojectvar(&lhs))
+    {
+	evalstack.push_back(stmt->loc());
+
+	LOGL("LOAD-file-proj-assign: %s=<{%s}> : %s", lhs.c_str(), stackDump().c_str(), var->DebugString().c_str());
+
+	evalstack.pop_back();
     }
   }
 
@@ -401,8 +530,10 @@ void Evaluator::EvalIf(const IfStmt* stmt) {
   }
 }
 
-void Evaluator::DoInclude(const string& fname) {
+void Evaluator::DoInclude(const string& fname, const IncludeStmt* stmt) {
   CheckStack();
+
+  LOGL("LOAD-file-dep: %s -> %s", stmt->loc().as_string().c_str(), fname.c_str());
 
   Makefile* mk = MakefileCacheManager::Get()->ReadMakefile(fname);
   if (!mk->Exists()) {
@@ -420,6 +551,8 @@ void Evaluator::DoInclude(const string& fname) {
 void Evaluator::EvalInclude(const IncludeStmt* stmt) {
   loc_ = stmt->loc();
   last_rule_ = NULL;
+
+  evalstack.push_back(stmt->loc());
 
   const string&& pats = stmt->expr->Eval(this);
   for (StringPiece pat : WordScanner(pats)) {
@@ -439,9 +572,12 @@ void Evaluator::EvalInclude(const IncludeStmt* stmt) {
           Pattern(g_flags.ignore_optional_include_pattern).Match(fname)) {
         continue;
       }
-      DoInclude(fname);
+      DoInclude(fname, stmt);
     }
   }
+
+  evalstack.pop_back();
+
 }
 
 void Evaluator::EvalExport(const ExportStmt* stmt) {
@@ -546,6 +682,28 @@ string Evaluator::GetShellAndFlag() {
 
 void Evaluator::Error(const string& msg) {
   ERROR_LOC(loc_, "%s", msg.c_str());
+}
+
+void Evaluator::dumpmapelements(void) {
+  for(auto &i: mapfn) {
+      LOGL("LOAD-file-map-entry: %s=%d", i.first.c_str(), i.second);
+  }
+}
+
+string Evaluator::stackDump()
+{
+    stringstream str; int idx = 0;
+    for (auto &i: evalstack) {
+	string fn(i.filename);
+	if (mapfn.find(fn) == mapfn.end()) {
+	    idx = ++mapidx;
+	    mapfn[fn] = idx;
+	} else {
+	    idx = mapfn[fn];
+	}
+	str << idx << ":" << i.lineno << " ";
+    }
+    return str.str();
 }
 
 void Evaluator::DumpStackStats() const {

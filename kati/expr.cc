@@ -17,6 +17,8 @@
 #include "expr.h"
 
 #include <vector>
+#include <string>
+#include <map>
 
 #include "eval.h"
 #include "func.h"
@@ -24,6 +26,7 @@
 #include "stringprintf.h"
 #include "strutil.h"
 #include "var.h"
+
 
 Evaluable::Evaluable() {}
 
@@ -207,7 +210,8 @@ class VarSubst : public Value {
 
 class Func : public Value {
  public:
-  explicit Func(FuncInfo* fi) : fi_(fi) {}
+    explicit Func(FuncInfo* fi, const Loc &loc) : fi_(fi), loc_(loc) {
+    }
 
   ~Func() {
     for (Value* a : args_)
@@ -218,6 +222,7 @@ class Func : public Value {
     ev->CheckStack();
     LOG("Invoke func %s(%s)", name(), JoinValues(args_, ",").c_str());
     ev->IncrementEvalDepth();
+    ev->set_loc(loc_);
     fi_->func(args_, ev, s);
     ev->DecrementEvalDepth();
   }
@@ -235,6 +240,7 @@ class Func : public Value {
   bool trim_space() const { return fi_->trim_space; }
   bool trim_right_space_1st() const { return fi_->trim_right_space_1st; }
 
+    Loc loc_;
  private:
   FuncInfo* fi_;
   vector<Value*> args_;
@@ -399,7 +405,7 @@ Value* ParseDollar(const Loc& loc, StringPiece s, size_t* index_out) {
         Literal* lit = static_cast<Literal*>(vname);
         if (FuncInfo* fi = GetFuncInfo(lit->val())) {
           delete lit;
-          Func* func = new Func(fi);
+          Func* func = new Func(fi, loc);
           ParseFunc(loc, func, s, i + 1, terms, index_out);
           return func;
         } else {

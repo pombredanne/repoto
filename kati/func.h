@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "expr.h"
+#include "loc.h"
 
 using namespace std;
 

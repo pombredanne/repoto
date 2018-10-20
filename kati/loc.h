@@ -16,6 +16,7 @@
 #define LOC_H_
 
 #include <string>
+#include <sstream>
 
 #include "stringprintf.h"
 
@@ -25,6 +26,13 @@ struct Loc {
 
   const char* filename;
   int lineno;
+
+
+    string as_string() const {
+	stringstream m;
+	m << (filename?filename:"<undef>") << ":" << lineno;
+	return m.str();
+    }
 };
 
 #define LOCF(x) (x).filename, (x).lineno

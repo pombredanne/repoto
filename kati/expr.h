@@ -74,4 +74,6 @@ Value* ParseExpr(const Loc& loc,
 
 string JoinValues(const vector<Value*>& vals, const char* sep);
 
+void init_product_var_list(void);
+
 #endif  // EXPR_H_

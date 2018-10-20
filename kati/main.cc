@@ -55,6 +55,7 @@ static void Init() {
   InitFuncTable();
   InitDepNodePool();
   InitParser();
+  init_product_var_list();
 }
 
 static void Quit() {
@@ -315,6 +316,7 @@ static int Run(const vector<Symbol>& targets,
   }
 
   ev->DumpStackStats();
+  ev->dumpmapelements();
 
   for (Stmt* stmt : bootstrap_asts)
     delete stmt;
@@ -350,6 +352,9 @@ int main(int argc, char* argv[]) {
     HandleRealpath(argc - 2, argv + 2);
     return 0;
   }
+
+  LOGL("LOAD-file-start");
+
   Init();
   string orig_args;
   for (int i = 0; i < argc; i++) {
