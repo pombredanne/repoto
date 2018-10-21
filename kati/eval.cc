@@ -277,14 +277,14 @@ void Evaluator::EvalAssign(const AssignStmt* stmt) {
                          lhs.c_str()));
     }
 
-    if (isprojectvar(&lhs))
-    {
-	evalstack.push_back(stmt->loc());
+  }
+  if (isprojectvar(&lhs))
+  {
+      evalstack.push_back(stmt->loc());
 
-	LOGL("LOAD-file-proj-assign: %s=<{%s}> : %s", lhs.c_str(), stackDump().c_str(), var->DebugString().c_str());
+      LOGL("LOAD-file-proj-assign: %s=<{%s}> : %s", lhs.c_str(), stackDump().c_str(), var->DebugString().c_str());
 
-	evalstack.pop_back();
-    }
+      evalstack.pop_back();
   }
 
   if (stmt->is_final) {
@@ -698,6 +698,7 @@ string Evaluator::stackDump()
 	if (mapfn.find(fn) == mapfn.end()) {
 	    idx = ++mapidx;
 	    mapfn[fn] = idx;
+	    LOGL("LOAD-file-map-entry: %s=%d", fn.c_str(), idx);
 	} else {
 	    idx = mapfn[fn];
 	}
