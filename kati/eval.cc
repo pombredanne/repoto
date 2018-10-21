@@ -147,7 +147,7 @@ bool isprojectvar(Symbol *sym)
 
 
 Evaluator::Evaluator()
-    : mapidx(1), last_rule_(NULL),
+    : mapidx(1), ctxidx(1), ctx(0), last_rule_(NULL),
       current_scope_(NULL),
       avoid_io_(false),
       eval_depth_(0),
@@ -280,11 +280,12 @@ void Evaluator::EvalAssign(const AssignStmt* stmt) {
   }
   if (isprojectvar(&lhs))
   {
-      evalstack.push_back(stmt->loc());
+      int ctx = registerCtx(stmt->DebugString());
+      PushEvalStack(stmt->loc(), ctx);
 
       LOGL("LOAD-file-proj-assign: %s=<{%s}> : %s", lhs.c_str(), stackDump().c_str(), var->DebugString().c_str());
 
-      evalstack.pop_back();
+      PopEvalStack();
   }
 
   if (stmt->is_final) {
@@ -552,7 +553,7 @@ void Evaluator::EvalInclude(const IncludeStmt* stmt) {
   loc_ = stmt->loc();
   last_rule_ = NULL;
 
-  evalstack.push_back(stmt->loc());
+  PushEvalStack(stmt->loc(), registerCtx(stmt->DebugString()));
 
   const string&& pats = stmt->expr->Eval(this);
   for (StringPiece pat : WordScanner(pats)) {
@@ -576,7 +577,7 @@ void Evaluator::EvalInclude(const IncludeStmt* stmt) {
     }
   }
 
-  evalstack.pop_back();
+  PopEvalStack();
 
 }
 
@@ -694,7 +695,7 @@ string Evaluator::stackDump()
 {
     stringstream str; int idx = 0;
     for (auto &i: evalstack) {
-	string fn(i.filename);
+	string fn(i.l.filename);
 	if (mapfn.find(fn) == mapfn.end()) {
 	    idx = ++mapidx;
 	    mapfn[fn] = idx;
@@ -702,9 +703,17 @@ string Evaluator::stackDump()
 	} else {
 	    idx = mapfn[fn];
 	}
-	str << idx << ":" << i.lineno << " ";
+	str << idx << ":" << i.l.lineno << ":" << i.ctx << " ";
     }
     return str.str();
+}
+
+int Evaluator::registerCtx(string str)
+{
+    int idx = ctxidx++;
+    mapctx[idx] = str;
+    LOGL("LOAD-file-map-ctx: %d=%s",  idx, str.c_str());
+    return idx;
 }
 
 void Evaluator::DumpStackStats() const {

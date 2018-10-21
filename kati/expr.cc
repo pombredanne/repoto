@@ -210,7 +210,7 @@ class VarSubst : public Value {
 
 class Func : public Value {
  public:
-    explicit Func(FuncInfo* fi, const Loc &loc) : fi_(fi), loc_(loc) {
+    explicit Func(FuncInfo* fi, const Loc &loc) : loc_(loc), fi_(fi) {
     }
 
   ~Func() {

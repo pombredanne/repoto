@@ -47,6 +47,7 @@ sub search_fn {
 %defines=();
 %stackmap=();
 %assign=();
+%ctxmap=();
 
 $projroot = new kati::projelem({'n'=>'Projelem'});
 
@@ -61,6 +62,9 @@ while(<$fh>) {
     } elsif (/LOAD-file-map-entry: ([A-Za-z0-9_\-\/\.\+\\]+)=([0-9]+)/) {
 	my ($defname,$idx) = ($1,$2);
 	$stackmap{$idx} = $defname;
+    } elsif (/LOAD-file-map-ctx: ([0-9]+)=(.*)/) {
+	my ($idx,$defname) = ($1,$2);
+	$ctxmap{$idx} = $defname;
     } elsif (/LOAD-file-proj-assign: ([\[\]A-Za-z0-9_\-\/\.\+]+)=<\{(.*)\}> :(.*)/) {
 	my ($defname,$evalstk,$content) = ($1,$2,$3);
 	$assign{$defname} = [] if (!exists($assign{$defname}));
@@ -156,7 +160,8 @@ $r = new kati::top($base,$r, {
     'zipdata'=>$d,
 	'defines'=>encode_json(\%defines),
 	'stackmap'=>encode_json(\%stackmap),
-	'assignpages'=>encode_json(\%assignpages)
+	'assignpages'=>encode_json(\%assignpages),
+	'ctxmap' => encode_json(\%ctxmap)
 		   });
 my $filename = $outdir."/".$ARGV[1];
 $r->saveTo($outdir."/".$ARGV[1]);

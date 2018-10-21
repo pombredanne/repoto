@@ -114,11 +114,30 @@ class Evaluator {
     export_error_ = true;
   }
 
-  vector<Loc> evalstack;
+  struct Loc_ctx {
+      Loc l;
+      int ctx;
+  };
+
+  void PushEvalStack(Loc loc, int ctx) {
+      Loc_ctx l{loc,ctx};
+      evalstack.push_back(l);
+  }
+  void PopEvalStack(void) {
+      evalstack.pop_back();
+  }
+
   map<string,int> mapfn;
   int mapidx;
+  map<int,string> mapctx;
+  int ctxidx;
+  int ctx; // save for func invocation
+
+  int registerCtx(string str);
 
  private:
+  vector<Loc_ctx> evalstack;
+
   Var* EvalRHS(Symbol lhs,
                Value* rhs,
                StringPiece orig_rhs,

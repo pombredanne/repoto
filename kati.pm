@@ -34,6 +34,7 @@ $ptxt=<<'PEOF';
      var defines={{defines}};
      var zipdata={{zipdata}};
      var assignpages={{assignpages}};
+     var ctxmap={{ctxmap}};
     </script>
   </body>
 </html>
@@ -43,7 +44,7 @@ sub new {
     my ($c,$fn,$a,$opts) = @_;
     my $s = {'fn'=>$fn,'txt'=>$ptxt,'tree'=>$a};
     bless $s,$c;
-    $s->merge($opts,['zipdata','defines','projelem','assignpages','stackmap']) if ($opts);
+    $s->merge($opts,['zipdata','defines','projelem','assignpages','stackmap','ctxmap']) if ($opts);
     return $s;
 }
 

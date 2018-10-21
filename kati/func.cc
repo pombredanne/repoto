@@ -639,9 +639,19 @@ void CallFunc(const vector<Value*>& args, Evaluator* ev, string* s) {
     }
   }
 
+  int ctx = 0;
+  {
+      stringstream str;
+      str << "call " << JoinValues(args, ",");
+      ctx = ev->registerCtx(str.str());
+  }
+  ev->PushEvalStack(ev->loc(), ctx);
+
   ev->DecrementEvalDepth();
   func->Eval(ev, s);
   ev->IncrementEvalDepth();
+
+  ev->PopEvalStack();
 }
 
 void ForeachFunc(const vector<Value*>& args, Evaluator* ev, string* s) {
