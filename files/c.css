@@ -36,9 +36,9 @@
     /*background-image: url(page.png);
     background-position: 0 1px;
     background-repeat: no-repeat;*/
-    padding-left: 20px; 
+    padding-left: 20px;
 }
-.menu-tree li.folder { 
+.menu-tree li.folder {
 }
 
 .menu-tree span {
@@ -87,15 +87,36 @@
     overflow: auto;
 }
 
+/* https://stackoverflow.com/questions/90178/make-a-div-fill-the-height-of-the-remaining-screen-space */
 .detail {
     float: left;
     width: 40%;
     height: 100%;
+
+    display: flex;
+    flex-flow: column;
+    /*overflow: auto;*/
+}
+
+.detailfloatinfo {
+    float: left;
+    flex: 0 1 40px;
+}
+
+.detailfileview {
+    float: left;
+    flex: 1 1 auto;
+    /*height: 100%;*/
     overflow: auto;
 }
 
+
 .fileview {
-    margin-top: 25px;
+    margin-top: 100px;
+}
+
+.detailfileview {
+    margin-top: 2px;
 }
 
 .floatinfo {
@@ -127,6 +148,13 @@ span.code {
     white-space: pre;
     font-family: monospace;
     margin: 0;
+}
+
+span.assign {
+    white-space: pre;
+    font-family: monospace;
+    margin: 0;
+    display: block;
 }
 
 pre {

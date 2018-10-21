@@ -64,7 +64,7 @@ while(<$fh>) {
     } elsif (/LOAD-file-proj-assign: ([\[\]A-Za-z0-9_\-\/\.\+]+)=<\{(.*)\}> :(.*)/) {
 	my ($defname,$evalstk,$content) = ($1,$2,$3);
 	$assign{$defname} = [] if (!exists($assign{$defname}));
-	push(@{$assign{$defname}}, 
+	push(@{$assign{$defname}},
 	     new kati::assign($evalstk,$content));
 	my @p = kati::projelem::split_tree_path($defname);
 	my $p = $projroot->instantiate_path($defname, @p);
@@ -167,5 +167,3 @@ $r->saveTo($outdir."/".$ARGV[1]);
 `cp -r files $outdir/`;
 
 #print ($fhout $m);
-
-

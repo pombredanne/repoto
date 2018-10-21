@@ -21,7 +21,7 @@ while(<>) {
     $line = $_;
     $line =~ s/\n$//;
     $lnv=sprintf("%04d", $ln);
-    print( "<span class=\"code\" id=\"line${ln}\" >${lnv}: ${line}<a onClick=''>test</a></span><br>\n");
+    print( "<span class=\"code\" id=\"line${ln}\" >${lnv}: ${line}</span><br>\n");
     $ln+=1;
 }
 

@@ -24,12 +24,13 @@ $ptxt=<<'PEOF';
       <div id="fninfo" class="floatinfo"></div>
       <div id="fileview" class="fileview"></div>
      </div>
-     <div class="detail">
-      <div id="detailfninfo" class="floatinfo"></div>
-      <div id="detailfileview" class="fileview"></div>
+     <div class="detail flex">
+      <div id="detailfninfo" class="detailfloatinfo"></div>
+      <div id="detailfileview" class="detailfileview"></div>
      </div>
-    </div> 
+    </div>
     <script>
+     var stackmap={{stackmap}};
      var defines={{defines}};
      var zipdata={{zipdata}};
      var assignpages={{assignpages}};
@@ -42,7 +43,7 @@ sub new {
     my ($c,$fn,$a,$opts) = @_;
     my $s = {'fn'=>$fn,'txt'=>$ptxt,'tree'=>$a};
     bless $s,$c;
-    $s->merge($opts,['zipdata','defines','projelem','assignpages']) if ($opts);
+    $s->merge($opts,['zipdata','defines','projelem','assignpages','stackmap']) if ($opts);
     return $s;
 }
 
@@ -52,9 +53,9 @@ package kati::treeelem;
 $ptxt=<<'PEOF';
 <li>
     <span class="expanded">
-    <a onclick='openfn("{{target_from}}.html",{{target_from_ln}})'
+    <a onclick='openfn("{{target_from}}",{{target_from_ln}})'
        >[+]</a>
-    <a onclick='openfn("{{fn}}.html",0)' >{{fn}}</a>
+    <a onclick='openfn("{{fn}}",0)' >{{fn}}</a>
    </span>
    <ul>
      {{childs}}
@@ -66,7 +67,7 @@ sub new {
     my ($c,$opts) = @_;
     my $s =
     {
-	'fn'=>'<undef>', 
+	'fn'=>'<undef>',
 	'txt'=>$ptxt,
 	'childs'=>[]
     };
@@ -103,7 +104,7 @@ sub split_tree_path
     my @b = ();
     foreach my $e (@a) {
 	if ((($e eq 'mk') || ($e eq 'mk]]')) && scalar(@b)) {
-	    $b[$#b] = $b[$#b].$e;
+	    $b[$#b] = $b[$#b].".".$e;
 	} else {
 	    push(@b, $e);
 	}
@@ -133,7 +134,7 @@ sub new {
     my ($c,$opts) = @_;
     my $s =
     {
-	'n'=>'...', 
+	'n'=>'...',
 	'txt'=>$ptxt,
 	'childs'=>[],
 	'_childs'=>{},
@@ -155,7 +156,7 @@ package kati::assign;
 @ISA = ('templ::template');
 
 $ptxt=<<'PEOF';
-<pre><code>{{evalstk}} : {{content}}</code><pre>
+{{evalstk}} : {{content}}
 PEOF
 
 sub new {
