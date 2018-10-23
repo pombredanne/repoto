@@ -42,6 +42,10 @@ runtest 200 $* 2>&1 | (
     IFS="${CR}"
     while read line; do
 	case ${line} in
+	    *prebuilts/ninja/linux-x86/ninja\ \ -C\ .\ -f\ *build-lineage_jfltexx.ninja*)
+		echo "Found ${line}: pid ${PID}";
+		kill -9 ${PID}
+		;;
 	    *prebuilts/build-tools/linux-x86/bin/ninja*-f\ out/combined-*.ninja\ -v\ -w*)
 		echo "Found ${line}: pid ${PID}";
 		kill -9 ${PID}

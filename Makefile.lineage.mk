@@ -1,12 +1,20 @@
 all:
 
+LINEAGE_BASE?=$(HOME)/lineage
+
 lineage:
 	echo "lineage needs to be prepared"
 	-rm /tmp/kati.log
 	mkdir -p $(CURDIR)/$(DATE)
 	cd kati; make
-	cp kati/ckati ~/lineage/prebuilts/build-tools/linux-x86/bin/ckati
-	cd ~/lineage/; source build/envsetup.sh; lunch lineage_jfltexx-userdebug; make clean; \
+	-cp kati/ckati $(LINEAGE_BASE)/prebuilts/build-tools/linux-x86/bin/ckati
+	-cp kati/ckati $(LINEAGE_BASE)/out/host/linux-x86/bin/ckati
+	if [ -d $(LINEAGE_BASE)/build/kati ]; then \
+		cp kati/*cc $(LINEAGE_BASE)/build/kati/;  \
+		cp kati/*h $(LINEAGE_BASE)/build/kati/;  \
+		cp kati/Makefile* $(LINEAGE_BASE)/build/kati/;  \
+	fi
+	cd $(LINEAGE_BASE); source build/envsetup.sh; lunch lineage_jfltexx-userdebug; make clean; \
 		$(CURDIR)/monitor.sh make showcommands 2>&1 | tee $(CURDIR)/$(DATE)/compile_kati.txt
 
 lineage-process:
