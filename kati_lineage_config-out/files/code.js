@@ -1,4 +1,3 @@
-/* https://www.gnu.org/licenses/gpl-3.0.html */
 
 function decodeFn(fn) {
     fn = fn + ".html";
@@ -116,14 +115,21 @@ function sub_links(e) {
             for (var j in bk) {
                 var i = bk[j];
                 var n = i.split(":");
-                if (n.length == 2) {
+                if (n.length == 3) {
                     fid = n[0]; //parseInt(m[1],10);
                     if (fid in stackmap) {
                         fid = stackmap[fid];
                     }
+                    var ctx = ""
+                    if (n[2] in ctxmap) {
+                        ctx = ctxmap[n[2]];
+                    }
                     fnr = n[1]; //parseInt(m[2],10);
                     p += "<a onClick='openStackFrameBt("+n[0]+","+fnr+","+stackframetmpidx+")'>" + i + "</a> ";
-                    b.push("<a onClick='selectStackFrame("+n[0]+","+fnr+")'>" + fid + ":" + fnr + "</a> ");
+                    if (ctx.length > 128) {
+                        ctx = ctx.substr(0,128) + "...";
+                    }
+                    b.push("<a onClick='selectStackFrame("+n[0]+","+fnr+")'>" + fid + ":" + fnr + ":" + ctx + "</a> ");
                 }
             }
             stackframetmp[stackframetmpidx++] = b;
