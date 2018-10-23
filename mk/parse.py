@@ -1,16 +1,16 @@
 import re
 
 class color:
-       PURPLE = '\033[95m'
-       CYAN = '\033[96m'
-       DARKCYAN = '\033[36m'
-       BLUE = '\033[94m'
-       GREEN = '\033[92m'
-       YELLOW = '\033[93m'
-       RED = '\033[91m'
-       BOLD = '\033[1m'
-       UNDERLINE = '\033[4m'
-       END = '\033[0m'
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    DARKCYAN = '\033[36m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+    END = '\033[0m'
 
 class ctx(object):
     def __init__(self,content):
@@ -90,14 +90,16 @@ class mline(object):
         return False
     def openVar(self):
         self.elements.append(mlinepart_var(self.ctx))
+    def lastOpen(self):
+        for i in reversed(range(len(self.elements))):
+            if self.elements[i].isOpen():
+                return i
+        return -1
     def closeVar(self):
         found = 0
         lcnt = len(self.elements)
-        for i in reversed(range(lcnt)):
-            if self.elements[i].isOpen():
-                found = 1
-                break;
-        if (found):
+        i = self.lastOpen()
+        if (i != -1):
             out = self.elements[i+1:]
             self.elements = self.elements[:i+1]
             self.elements[i].close(out)
@@ -111,6 +113,7 @@ class mline(object):
     def addStr(self,l):
         e = self.lastStr()
         e.addStr(l)
+        
 
 class mlinepart(mline):
     def __init__(self,ctx):
@@ -140,6 +143,13 @@ class mlinepart_var(mlinepart):
         return self.isOpen_
     def dbgstr(self,color=False):
         return "$({})".format(self.dbgelements(color))
+
+class mlinepart_func(mlinepart_var):
+    def __init__(self,ctx):
+        super(mlinepart_func,self).__init__(ctx)
+    def dbgstr(self,color=False):
+        return "$({})".format(self.dbgelements(color))
+
     
 class mdefine(mline):
     def __init__(self,ctx):
