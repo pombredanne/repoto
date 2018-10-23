@@ -1,1 +1,1 @@
-BSD license
+The GNU General Public License

@@ -1,3 +1,5 @@
+#https://www.gnu.org/licenses/gpl-3.0.html
+
 import os, sys, re, argparse
 from repo.manifest import manifest
 
@@ -21,7 +23,6 @@ def main():
     def print_remove(e):
         print (str(e));
     o0.traverse(['remove_project'], lambda x: print_remove(x))
-    
+
 if __name__ == "__main__":
     main()
-    

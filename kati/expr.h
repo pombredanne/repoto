@@ -30,6 +30,9 @@ class Evaluable {
   virtual void Eval(Evaluator* ev, string* s) const = 0;
   string Eval(Evaluator*) const;
 
+  virtual string substOneLevel(Evaluator*ev) const { (void)ev; return string("undef"); };
+  virtual bool isVarRef() const { return false; };
+
  protected:
   Evaluable();
   virtual ~Evaluable();

@@ -280,7 +280,13 @@ void Evaluator::EvalAssign(const AssignStmt* stmt) {
   }
   if (isprojectvar(&lhs))
   {
-      int ctx = registerCtx(stmt->DebugString());
+      int ctx = 0;
+      {
+	  stringstream str;
+	  str << lhs.c_str() << ":=" << var->DebugString().c_str();
+	  ctx = registerCtx(str.str());
+      }
+
       PushEvalStack(stmt->loc(), ctx);
 
       LOGL("LOAD-file-proj-assign: %s=<{%s}> : %s", lhs.c_str(), stackDump().c_str(), var->DebugString().c_str());
@@ -553,7 +559,22 @@ void Evaluator::EvalInclude(const IncludeStmt* stmt) {
   loc_ = stmt->loc();
   last_rule_ = NULL;
 
-  PushEvalStack(stmt->loc(), registerCtx(stmt->DebugString()));
+  int ctx = 0;
+  {
+      stringstream str;
+      str << "include ";
+      const string&& pats = stmt->expr->Eval(this);
+      for (StringPiece pat : WordScanner(pats)) {
+	  ScopedTerminator st(pat);
+	  vector<string>* files;
+	  Glob(pat.data(), &files);
+	  for (const string& fname : *files) {
+	      str << fname << " ";
+	  }
+      }
+      ctx = registerCtx(str.str());
+  }
+  PushEvalStack(stmt->loc(), ctx);
 
   const string&& pats = stmt->expr->Eval(this);
   for (StringPiece pat : WordScanner(pats)) {
@@ -708,9 +729,20 @@ string Evaluator::stackDump()
     return str.str();
 }
 
-int Evaluator::registerCtx(string str)
+int Evaluator::registerCtxIdGet(void)
 {
     int idx = ctxidx++;
+    return idx;
+}
+
+int Evaluator::registerCtx(string str)
+{
+    int idx = registerCtxIdGet();
+    return registerCtx_(str, idx);
+}
+
+int Evaluator::registerCtx_(string str, int idx)
+{
     mapctx[idx] = str;
     LOGL("LOAD-file-map-ctx: %d=%s",  idx, str.c_str());
     return idx;

@@ -57,6 +57,7 @@ class Evaluator {
 
   const Loc& loc() const { return loc_; }
   void set_loc(const Loc& loc) { loc_ = loc; }
+  void set_caller(string callerstr) { caller_ = callerstr; }
 
   const vector<const Rule*>& rules() const { return rules_; }
   const unordered_map<Symbol, Vars*>& rule_vars() const { return rule_vars_; }
@@ -127,13 +128,16 @@ class Evaluator {
       evalstack.pop_back();
   }
 
+  string caller_;
   map<string,int> mapfn;
   int mapidx;
   map<int,string> mapctx;
   int ctxidx;
   int ctx; // save for func invocation
 
+  int registerCtxIdGet(void);
   int registerCtx(string str);
+  int registerCtx_(string str,int idx);
 
  private:
   vector<Loc_ctx> evalstack;

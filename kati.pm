@@ -1,3 +1,5 @@
+# https://www.gnu.org/licenses/gpl-3.0.html
+
 package kati::top;
 @ISA = ('templ::template');
 

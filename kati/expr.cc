@@ -104,6 +104,8 @@ class ValueList : public Value {
     }
   }
 
+  virtual string substOneLevel(Evaluator*ev) const;
+
   virtual string DebugString_() const override {
     string r;
     for (Value* v : vals_) {
@@ -148,6 +150,8 @@ class VarRef : public Value {
   explicit VarRef(Value* n) : name_(n) {}
   virtual ~VarRef() { delete name_; }
 
+  virtual bool isVarRef() const { return true; };
+
   virtual void Eval(Evaluator* ev, string* s) const override {
     ev->CheckStack();
     ev->IncrementEvalDepth();
@@ -165,6 +169,21 @@ class VarRef : public Value {
 
  private:
   Value* name_;
+};
+
+string ValueList::substOneLevel(Evaluator*ev) const {
+    return "ValueList";
+    stringstream str; (void) ev;
+    str << "vals len:" << vals_.size();
+    for (Value* v : vals_) {
+	if (v->isVarRef()) {
+	    VarRef *r = dynamic_cast<VarRef*>(v);
+	    str << Value::DebugString(v) << " ";
+	} else {
+	    str << Value::DebugString(v) << " ";
+	}
+    }
+    return str.str();
 };
 
 class VarSubst : public Value {
@@ -219,9 +238,12 @@ class Func : public Value {
   }
 
   virtual void Eval(Evaluator* ev, string* s) const override {
+    stringstream str;
     ev->CheckStack();
     LOG("Invoke func %s(%s)", name(), JoinValues(args_, ",").c_str());
     ev->IncrementEvalDepth();
+    str << name() << ( JoinValues(args_, ","));
+    ev->set_caller(str.str()); /* log caller */
     ev->set_loc(loc_);
     fi_->func(args_, ev, s);
     ev->DecrementEvalDepth();

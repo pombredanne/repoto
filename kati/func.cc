@@ -599,6 +599,8 @@ void CallFunc(const vector<Value*>& args, Evaluator* ev, string* s) {
       Intern("0"), Intern("1"), Intern("2"), Intern("3"), Intern("4"),
       Intern("5"), Intern("6"), Intern("7"), Intern("8"), Intern("9")};
 
+  string caller_ = ev->caller_;
+  Loc callerloc = ev->loc();
   ev->CheckStack();
   const string&& func_name_buf = args[0]->Eval(ev);
   Symbol func_sym = Intern(TrimSpace(func_name_buf));
@@ -639,16 +641,24 @@ void CallFunc(const vector<Value*>& args, Evaluator* ev, string* s) {
     }
   }
 
-  int ctx = 0;
-  {
-      stringstream str;
-      str << "call " << JoinValues(args, ",");
-      ctx = ev->registerCtx(str.str());
-  }
-  ev->PushEvalStack(ev->loc(), ctx);
+
+
+  int ctx = ev->registerCtxIdGet();
+  ev->PushEvalStack(callerloc, ctx);
 
   ev->DecrementEvalDepth();
   func->Eval(ev, s);
+
+  {
+      stringstream str;
+      //str << "call: '" << caller_ << "::" <<  func->DebugString() /*substOneLevel(ev)*/ << "':"; //substOneLevel(ev);
+      //str << s->c_str();
+      ctx = ev->registerCtx_(str.str(), ctx);
+  }
+
+
+
+
   ev->IncrementEvalDepth();
 
   ev->PopEvalStack();

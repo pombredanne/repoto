@@ -1,3 +1,5 @@
+# https://www.gnu.org/licenses/gpl-3.0.html
+
 package templ::hashMerge;
 use Carp;
 use Data::Dumper;
