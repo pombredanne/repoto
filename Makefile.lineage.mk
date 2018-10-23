@@ -1,5 +1,8 @@
 all:
 
+prepare:
+	sudo perl -MCPAN -e 'install(JSON::MaybeXS)'
+
 LINEAGE_BASE?=$(HOME)/lineage
 
 lineage:
@@ -27,7 +30,7 @@ lineage-process-config:
 	mkdir -p kati_lineage_config-out
 	/usr/bin/perl kati-dep-tree.pl \
 		--lineage $(HOME)/lineage \
-		--base build/make/core/config.mk \
+		--base build/core/config.mk \
 		--out kati_lineage_config-out  \
 		kati_jfltexx_list_first.txt index.html
 	google-chrome --allow-file-access-from-files kati_lineage_config-out/index.html
@@ -38,7 +41,7 @@ lineage-process-main:
 	mkdir -p kati_lineage_main-out
 	/usr/bin/perl kati-dep-tree.pl \
 		--lineage $(HOME)/lineage \
-		--base build/make/core/main.mk \
+		--base build/core/main.mk \
 		--out kati_lineage_main-out  \
 		kati_jfltexx_list_last.txt index.html
 	google-chrome --allow-file-access-from-files kati_lineage_main-out/index.html

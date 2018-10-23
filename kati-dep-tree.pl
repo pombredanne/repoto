@@ -15,14 +15,14 @@ Getopt::Long::Configure(qw(bundling));
 GetOptions(\%OPT,qw{
     quiet|q+
     verbose|v+
-    ihu=s
+    lineage=s
     base=s
     out=s
-} ,@g_more) or usage(\*STDERR);
-
-$ihu=$OPT{'ihu'};
-$base=$OPT{'base'} || "build/make/core/config.mk";
-$outdir=$OPT{'out'} || "gen";
+  } ,@g_more) or usage(\*STDERR);
+  
+  $lineage=$OPT{'lineage'};
+  $base=$OPT{'base'} || "build/make/core/config.mk";
+  $outdir=$OPT{'out'} || "gen";
 
 
 my $filename = $ARGV[0];
@@ -142,9 +142,9 @@ for my $k (keys(%f)) {
     my $cmd = "mkdir -p ".$outdir."/".$d;
     `$cmd`;
     if (! -f $outdir."/".$fn.".html") {
-	print("Convert $fn\n");
-	my $cmd = "(echo ".$fn."; cat ".$ihu."/".$fn.") | perl tex2html.pl > ".$outdir."/".$fn.".html";
-	`$cmd`;
+      print("Convert $fn\n");
+      my $cmd = "(echo ".$fn."; cat ".$lineage."/".$fn.") | perl tex2html.pl > ".$outdir."/".$fn.".html";
+      `$cmd`;
     }
     $cmd = "gzip -c ${outdir}/${fn}.html | base64 -w0";
     my $d = `$cmd`;
