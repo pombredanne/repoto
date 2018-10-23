@@ -21,8 +21,8 @@ GetOptions(\%OPT,qw{
   } ,@g_more) or usage(\*STDERR);
   
   $lineage=$OPT{'lineage'};
-  $base=$OPT{'base'} || "build/make/core/config.mk";
-  $outdir=$OPT{'out'} || "gen";
+  $base=$OPT{'base'};
+  $outdir=$OPT{'out'};
 
 
 my $filename = $ARGV[0];
