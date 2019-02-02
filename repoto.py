@@ -3,6 +3,19 @@ import os, sys, re, argparse
 from repo.manifest import manifest, mh_project, mh_remove_project, projar
 from xml.etree.ElementTree import tostring
 
+def listrepos(args):
+    o0 = manifest(args, args.file);
+    p = projar(None,args)
+    def touchproj(e):
+        if isinstance(e,mh_project):
+            p.add(e)
+    o0.traverse(['elem'], lambda x: touchproj(x))
+    projects = p.p
+    for p in projects:
+        n = str(p)
+        print (p.name);
+
+
 def flatten(args):
     o0 = manifest(args, args.file);
     p = projar(None,args)
@@ -265,6 +278,11 @@ def main():
     parser_h.add_argument('file', type=str, help='repo')
     parser_h.set_defaults(func=filteraosp)
     
+    # create the parser for the "flatten" command
+    parser_list = subparsers.add_parser('list', help='list repos')
+    parser_list.add_argument('file', type=str, help='root manifest')
+    parser_list.set_defaults(func=listrepos)
+
     opt = parser.parse_args()
     opt.func(opt)
 
