@@ -1,7 +1,19 @@
 #!/usr/bin/python
-import os, sys, re, argparse
+import os, sys, re, argparse, json
 from repo.manifest import manifest, mh_project, mh_remove_project, projar
+from repo.html import repohtml
 from xml.etree.ElementTree import tostring
+from json import dumps, loads, JSONEncoder, JSONDecoder
+import pickle
+import pystache
+
+class PythonObjectEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (list, dict, str, unicode, int, float, bool, type(None))):
+            return JSONEncoder.encode(self, obj)
+        elif isinstance(obj, set):
+            return JSONEncoder.encode(self, list(obj)) #str(obj) #"set([{}])".format(",".join([ PythonObjectEncoder.default(self,i) for i in list(obj)]))
+        return pickle.dumps(obj)
 
 def listrepos(args):
     o0 = manifest(args, args.file);
@@ -11,9 +23,16 @@ def listrepos(args):
             p.add(e)
     o0.traverse(['elem'], lambda x: touchproj(x))
     projects = p.p
+    a = []
     for p in projects:
         n = str(p)
-        print (p.name);
+        if (args.json):
+            a.append({ 'n' : p.name });
+        else:
+            print (p.name);
+    if (args.json):
+        j = repohtml(args, a);
+        j.generate(args.output);
 
 
 def flatten(args):
@@ -280,7 +299,9 @@ def main():
     
     # create the parser for the "flatten" command
     parser_list = subparsers.add_parser('list', help='list repos')
+    parser_list.add_argument('--json', '-j', dest='json', action='store_true')
     parser_list.add_argument('file', type=str, help='root manifest')
+    parser_list.add_argument('output', type=str, help='output')
     parser_list.set_defaults(func=listrepos)
 
     opt = parser.parse_args()
