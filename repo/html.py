@@ -82,7 +82,7 @@ class repohtml(object):
         i = os.path.join(d, "index.html")
         if not (os.path.isdir(d)):
             os.makedirs(d)
-        srcdir = os.path.join(os.path.dirname(__file__), 'files')
+        srcdir = os.path.join(os.path.dirname(__file__), '../files')
         dstdir = os.path.join(d, "files")
         if (os.path.isdir(dstdir)):
             shutil.rmtree(dstdir)
