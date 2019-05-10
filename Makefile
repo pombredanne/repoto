@@ -32,9 +32,10 @@ prep:
 
 prep-repo:
 	mkdir -p r
-	cd r; python $(CURDIR)/git-repo/repo init -u $(CURDIR)/r.git -b master -m manifest.xml
+	cd r; python $(CURDIR)/git-repo/repo init -u $(CURDIR)/r.git -b master -m manifest.xml; \
+		$(CURDIR)/git-repo/repo sync
 
 scan:
 	cd r; \
-		$(CURDIR)/repoto.py list --json .repo/manifests/manifest.xml .
+		$(CURDIR)/repoto.py list --json .repo/manifests/manifest.xml .; \
 	google-chrome r/index.html

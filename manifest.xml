@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <manifest>
   <notice>repo</notice>
-  <remote name="origin"
-          fetch="https://github.com/eiselekd"
-          review="https://github.com/eiselekd"
-          alias="origin" />
+  <remote name="origin" fetch="https://github.com/" review="https://github.com/" alias="origin" />
 
   <default remote="origin" sync-c="true"   sync-j="5"/>
-  <project name="repoto"   path="repoto"   revision="b100105d66cf17a27ad7c3e408d9fb2ee7ed1a6a"/>
-  <project name="dotfiles" path="dotfiles" revision="1d8c2bf408d2536e9444311af0090f13cdef1580"/>
+  <project name="eiselekd/repoto"   path="e/repoto"   revision="b100105d66cf17a27ad7c3e408d9fb2ee7ed1a6a"/>
+  <project name="eiselekd/dotfiles" path="e/dotfiles" revision="1d8c2bf408d2536e9444311af0090f13cdef1580"/>
+  <project name="whitequark/ov_ftdi" path="w/ov_ftdi" revision="ee68757feffdecbe91d3ab76231083d0b04ab6cd"/>
+
 </manifest>
