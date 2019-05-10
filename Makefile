@@ -22,3 +22,10 @@ all:
 	python test_m.py -f ${MAINMANIFEST}
 	python test_m.py -f ${MAINMANIFESTGOGOLE}
 
+
+prep:
+	rm -rf r.git _r
+	mkdir -p r.git
+	cd r.git; git init --bare
+	git clone r.git _r
+	cp manifest.xml _r/; cd _r; git add manifest.xml; git commit -m 'all' --all;  git push origin master
