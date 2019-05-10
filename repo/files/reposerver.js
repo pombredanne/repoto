@@ -4,7 +4,7 @@ exports.__esModule = true;
 var express   = require("express");
 var http      = require("http");
 var WebSocket = require("ws");
-var spawn     = require("child_process");
+const { spawn }  = require("child_process");
 
 var app       = express();
 
@@ -18,19 +18,18 @@ wss.on('connection', function (ws) {
         ws.send("request -> " + message);
 
         function git_log(r) {
-
-            ls = spawn( 'git', [ 'log', '--no-color', '-z', '--pretty=raw', '--show-notes', '--parents', '--boundary' ] );
+            const ls = spawn( 'git', [ 'log', '--no-color', '-z', '--pretty=raw', '--show-notes', '--parents', '--boundary' ] );
             ls.stdout.on( 'data', data => {
                 ws.send( `stdout: ${data}` );
-            } );
+            });
             ls.stderr.on( 'data', data => {
                 ws.send( `stderr: ${data}` );
-            } );
+            });
             ls.on( 'close', code => {
                 ws.send( `child process exited with code ${code}` );
-            } );
+            });
         };
-
+        git_log();
     });
     ws.send('Connect ack');
 });

@@ -12,9 +12,8 @@ gen_tree.prototype.gen = function(na) {
         c = new gen_tree(n);
         this.c.push(c);
     }
-    this.c.sort(function(a, b){
-        return ('' + a.n).localeCompare(b.n);
-    });
+    this.c.sort(
+        function(a, b) { return ('' + a.n).localeCompare(b.n); });
     if (_n.length != 0) {
         gen_tree(c, _n);
     }
@@ -30,10 +29,12 @@ gen_tree.prototype.html = function(na) {
 
 function init_repo_tree(b,a) {
     treear = new gen_tree('root')
-    for (v in a) {
+    for (v in a)
+    {
         n = a[v]['n']
         na = n.split("/");
-        if (na[0] == "a") {
+        if (na[0] == "a")
+        {
             na.shift();
         }
         treear.gen( ['by-repos'].concat(na));
