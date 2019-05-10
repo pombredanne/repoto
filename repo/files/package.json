@@ -1,0 +1,25 @@
+{
+   "name": "wsgit",
+   "version": "1.0.0",
+   "description": "rest",
+   "homepage": "test.com",
+   "license": "BSD-3-Clause",
+   "preferGlobal": true,
+   "directories": {
+      "bin": "bin"
+   },
+   "dependencies": {
+      "body-parser": "*",
+      "chai": "*",
+      "chai-http": "*",
+      "express": "*",
+      "https": "*",
+      "later": "^1.2.0",
+      "mocha": "*",
+      "mongodb": "^2.2.24",
+      "ws": "*"
+   },
+   "engines": {
+      "node": ">=6.9.2"
+   }
+}

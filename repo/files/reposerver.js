@@ -4,7 +4,7 @@ exports.__esModule = true;
 var express   = require("express");
 var http      = require("http");
 var WebSocket = require("ws");
-var spawn     = require( 'child_process' );
+var spawn     = require("child_process");
 
 var app       = express();
 
