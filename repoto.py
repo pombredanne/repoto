@@ -27,7 +27,7 @@ def listrepos(args):
     for p in projects:
         n = str(p)
         if (args.json):
-            a.append({ 'n' : p.name });
+            a.append({ 'n' : p.name, 'sha' : p.revision , 'path' : p.path });
         else:
             print (p.name);
     if (args.json):
