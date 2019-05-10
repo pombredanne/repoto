@@ -1,26 +1,21 @@
 "use strict";
 exports.__esModule = true;
 
-var express = require("express");
-var http = require("http");
+var express   = require("express");
+var http      = require("http");
 var WebSocket = require("ws");
-var spawn = require( 'child_process' );
+var spawn     = require( 'child_process' );
 
-var app = express();
+var app       = express();
 
-//initialize a simple http server
-var server = http.createServer(app);
-
-//initialize the WebSocket server instance
-var wss = new WebSocket.Server({ server: server });
+var server    = http.createServer(app);
+var wss       = new WebSocket.Server({ server: server });
 
 wss.on('connection', function (ws) {
     //connection is up, let's add a simple simple event
     ws.on('message', function (message) {
-
-        //log the received message and send it back to the client
         console.log('received: %s', message);
-        ws.send("Hello, you sent -> " + message);
+        ws.send("request -> " + message);
 
         function git_log(r) {
 
@@ -37,8 +32,7 @@ wss.on('connection', function (ws) {
         };
 
     });
-    //send immediatly a feedback to the incoming connection
-    ws.send('Hi there, I am a WebSocket server');
+    ws.send('Connect ack');
 });
 //start our server
 server.listen(process.env.PORT || 8999, function () {
