@@ -29,3 +29,12 @@ prep:
 	cd r.git; git init --bare
 	git clone r.git _r
 	cp manifest.xml _r/; cd _r; git add manifest.xml; git commit -m 'all' --all;  git push origin master
+
+prep-repo:
+	mkdir -p r
+	cd r; python $(CURDIR)/git-repo/repo init -u $(CURDIR)/r.git -b master -m manifest.xml
+
+scan:
+	cd r; \
+		$(CURDIR)/repoto.py list --json .repo/manifests/manifest.xml .
+	google-chrome r/index.html
