@@ -28,7 +28,7 @@ prep:
 	mkdir -p r.git
 	cd r.git; git init --bare
 	git clone r.git _r
-	cp manifest.xml _r/; cd _r; git add manifest.xml; git commit -m 'all' --all;  git push origin master
+	cp manifest*.xml _r/; cd _r; git add manifest*.xml; git commit -m 'all' --all;  git push origin master
 
 prep-repo:
 	mkdir -p r
@@ -38,4 +38,4 @@ prep-repo:
 scan:
 	cd r; \
 		$(CURDIR)/repoto.py list --json .repo/manifests/manifest.xml .; \
-	google-chrome r/index.html
+	google-chrome file://$(CURDIR)/r/index.html
