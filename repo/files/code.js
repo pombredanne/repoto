@@ -40,7 +40,7 @@ function init_repo_tree(b,a) {
         na = a[v]['path'].split("/");
         treear.gen( ['by-path'].concat(na));
     }
-
     $(b).append(treear.html());
+
     console.log(treear)
 }
