@@ -15,6 +15,15 @@ class PythonObjectEncoder(JSONEncoder):
             return JSONEncoder.encode(self, list(obj)) #str(obj) #"set([{}])".format(",".join([ PythonObjectEncoder.default(self,i) for i in list(obj)]))
         return pickle.dumps(obj)
 
+treeElemSnippet="""
+<li>
+    <span class=\"expanded\">
+    <a onclick='{{func}}(\"{{arg0}}\",\"{{arg1}}\",\"{{arg2}}\",\"{{arg3}}\",\"{{arg4}}\",\"{{arg5}}\")' >{{n}}</a>
+   </span>
+   <ul>
+     {{{childs}}}
+   </ul>
+</li>""";
 
 index="""
 <html>
