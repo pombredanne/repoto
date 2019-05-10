@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<manifest>
+  <notice>repo</notice>
+  <remote name="origin"    fetch="."       review="https://github.com/eiselekd"/>
+  <default remote="origin" sync-c="true"   sync-j="5"/>
+  <project name="repoto"   path="repoto"   revision="b100105d66cf17a27ad7c3e408d9fb2ee7ed1a6a"/>
+  <project name="dotfiles" path="dotfiles" revision="1d8c2bf408d2536e9444311af0090f13cdef1580"/>
+</manifest>
