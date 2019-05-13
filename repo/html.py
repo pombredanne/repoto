@@ -32,7 +32,7 @@ index="""
     <script src="files/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
     <script src="files/code.js"></script>
     <script src="files/pako.js"></script>
-    <script src="files/pako.js"></script>
+    <script src="files/d3.js"></script>
     <link rel="stylesheet" type="text/css" href="files/jquery-ui-1.12.1.custom/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="files/jquery-ui-1.12.1.custom/jquery-ui.structure.css">
     <link rel="stylesheet" type="text/css" href="files/c.css">
@@ -66,7 +66,7 @@ index="""
      var zipdata={{{zipdata}}};
     </script>
     <script>
-     init_repo_tree(repodef);
+     init_repo_tree('#browser',repodef);
     </script>
   </body>
 </html>

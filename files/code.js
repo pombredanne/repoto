@@ -5,9 +5,9 @@ function gen_tree(n) {
 }
 
 gen_tree.prototype.gen = function(na) {
-    _n = [...na]
-    n = _n.shift();
-    c = this.c.find(function(a) { return a.n == n });
+    var _n = [...na]
+    var n = _n.shift();
+    var c = this.c.find(function(a) { return a.n == n });
     if (c == undefined) {
         c = new gen_tree(n);
         this.c.push(c);
@@ -15,21 +15,23 @@ gen_tree.prototype.gen = function(na) {
     this.c.sort(
         function(a, b) { return ('' + a.n).localeCompare(b.n); });
     if (_n.length != 0) {
-        gen_tree(c, _n);
+        c.gen(_n);
     }
 }
 
 gen_tree.prototype.html = function(na) {
-    c = [];
-    for (i in this.c) {
-        c.push(this.c[i].html(na));
+    var c = [];
+    for (var i in this.c) {
+        var e = this.c[i];
+        c.push(e.html(na));
     }
-    return "";
+    var l = c.join("\n");
+    return "<li><span class=\"expanded\"><a onclick='{{func}}(\"{{arg0}}\",\"{{arg1}}\",\"{{arg2}}\",\"{{arg3}}\",\"{{arg4}}\",\"{{arg5}}\")' >" + this.n + "</a></span><ul> " + l + "</ul></li>";
 }
 
 function init_repo_tree(b,a) {
-    treear = new gen_tree('root')
-    for (v in a)
+    var treear = new gen_tree('root')
+    for (var v in a)
     {
         n = a[v]['n']
         na = n.split("/");
@@ -41,7 +43,8 @@ function init_repo_tree(b,a) {
         na = a[v]['path'].split("/");
         treear.gen( ['by-path'].concat(na));
     }
-    $(b).append(treear.html());
+    var p = treear.html();
+    $(b).append(p);
 
     console.log(treear)
 }

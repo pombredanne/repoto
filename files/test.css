@@ -1,0 +1,26 @@
+
+div#svgcontainer {
+    /*
+  height: 1400px;
+  width: 400px;
+  border:2px solid #000;
+  overflow: scroll;
+*/
+}
+
+.commitcircle {
+    r: 8px;
+    z-index: 0;
+    stroke: black;
+    fill : white;
+    transform-origin: center center;
+
+}
+
+.commit {
+    r: 8px;
+    z-index: 0;
+    stroke: black;
+    fill : white;
+
+}
