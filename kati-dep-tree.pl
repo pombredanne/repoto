@@ -51,11 +51,10 @@ sub search_fn {
 
 $projroot = new kati::projelem({'n'=>'Projelem'});
 
-
 while(<$fh>) {
     if (/LOAD-file: ([A-Za-z0-9_\-\/\.\+]+) : <\{/) {
 	my ($fn) = ($1);
-	print("$fn"."\n");
+	print("$fn"."\n") if ($OPT{'verbose'});
     } elsif (/LOAD-file-define: ([A-Za-z0-9_\-\/\.\+\\]+) : ([^:]+):/) {
 	my ($defname,$fn) = ($1,$2);
 	$defines{$defname} = { 'fn' => $fn };
@@ -65,15 +64,15 @@ while(<$fh>) {
     } elsif (/LOAD-file-map-ctx: ([0-9]+)=(.*)/) {
 	my ($idx,$defname) = ($1,$2);
 	$ctxmap{$idx} = $defname;
-    } elsif (/LOAD-file-proj-assign: ([\[\]A-Za-z0-9_\-\/\.\+]+)=<\{(.*)\}> :(.*)/) {
+    } elsif (/LOAD-file-proj-assign: ([\[\]A-Za-z\@0-9_\-\/\.\+]+)=<\{(.*)\}> :(.*)/) {
 	my ($defname,$evalstk,$content) = ($1,$2,$3);
 	$assign{$defname} = [] if (!exists($assign{$defname}));
 	push(@{$assign{$defname}},
 	     new kati::assign($evalstk,$content));
 	my @p = kati::projelem::split_tree_path($defname);
 	my $p = $projroot->instantiate_path($defname, @p);
-	print($content);
-	print(": $defname\n");
+	print($content) if ($OPT{'verbose'});
+	print(": $defname\n") if ($OPT{'verbose'});
     } elsif (/LOAD-file-dep: ([A-Za-z0-9_\-\/\.\+]+):([0-9]+) -> ([A-Za-z0-9_\-\/\.\+]+)/) {
 	my ($fnfrom,$fnfromln,$fnto) = ($1,$2,$3);
 	my $from = search_fn($fnfrom,0);
@@ -90,9 +89,9 @@ while(<$fh>) {
 	if ($found == 0) {
 	    push(@{$$from{'c'}},$to);
 	}
-	print("$fnfrom->$fnto"."\n");
+	print("$fnfrom->$fnto"."\n") if ($OPT{'verbose'});
     } else {
-	print("Error '$_'\n");
+	print("Error :: '$_'\n");
 	exit(1);
     }
 }
