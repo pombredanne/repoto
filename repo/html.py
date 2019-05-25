@@ -31,13 +31,13 @@ index="""
   <head>
     <script src="files/jquery-ui-1.12.1.custom/external/jquery/jquery.js"></script>
     <script src="files/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
-    <script src="files/code.js"></script>
+    <script src="files/coderepo.js"></script>
     <script src="files/pako.js"></script>
     <script src="files/d3.js"></script>
     <script src="files/{{extracode}}.js"></script>
     <link rel="stylesheet" type="text/css" href="files/jquery-ui-1.12.1.custom/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="files/jquery-ui-1.12.1.custom/jquery-ui.structure.css">
-    <link rel="stylesheet" type="text/css" href="files/c.css">
+    <link rel="stylesheet" type="text/css" href="files/crepo.css">
     <style></style>
   </head>
   <body>

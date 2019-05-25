@@ -1,143 +1,164 @@
-function viewOnlyChanged() {
-    var a = $("#d2_a");
+
+function decodeFn(fn) {
+    fn = fn + ".html";
+    if (fn in zipdata) {
+        var data = zipdata[fn]
+        var x = pako.ungzip(atob(data), {to: 'string'})
+        return x;
+    }
+    return "not found: '" + fn + "'";
 }
 
-function gen_tree(n) {
-    this.c = [];
-    this.n = n;
-    this.e = {'color':0,'attr':{'class':[]}};
-    this.color = 0;
-}
+window.onload = function () {
+    $.fx.off = true;
+    $(function() {
+        // Find list items representing folders and
+        // style them accordingly.  Also, turn them
+        // into links that can expand/collapse the
+        // tree leaf.
+        $('.menu-tree li > ul').each(function(i) {
+            // Find this list's parent list item.
+            var parent_li = $(this).parent('li');
 
-function ismember(a,n) {
-    for (var i in a) {
-        if (a[i] == n)
-            return 1;
-    }
-    return 0;
-}
+            // Temporarily remove the list from the
+            // parent list item, wrap the remaining
+            // text in an anchor, then reattach it.
+            var sub_ul = $(this).remove();
+            parent_li.wrapInner('<a/>').find('a').click(function() {
+                // Make the anchor toggle the leaf display.
+                sub_ul.toggle(300);
 
-gen_tree.prototype.gen = function(na,e) {
-    var _n = [...na]
-    var n = _n.shift();
-    var c = this.c.find(function(a) { return a.n == n });
-    if (c == undefined) {
-        c = new gen_tree(n);
-        this.c.push(c);
-    }
-    this.c.sort(
-        function(a, b) { return ('' + a.n).localeCompare(b.n); });
-    if (_n.length != 0) {
-        c.gen(_n,e);
-        c.e.color |= e.color;
-    } else {
-        c.e = e;
-    }
-}
+                //Add class to change folder image when clicked on
+                $(this).find('span:first-child').toggleClass('expanded');
 
-function converthexcolor(a) {
-    var k = ""; var i;
-    for (i = 0; i < 6;  i++ ) {
-        var j = a & 0xf; a >>= 4;
-        k = j.toString(16)+k;
-    }
-    return k;
-}
-
-gen_tree.prototype.html = function(na) {
-    var c = [];
-    for (var i in this.c) {
-        var e = this.c[i];
-        c.push(e.html(na));
-    }
-    var func = 'noop'; var arg0 = ""; var arg1 = "file";
-    var a = ['expanded'];
-    if ('attr' in this.e &&
-        'class' in this.e['attr']) {
-        var toadd = this.e['attr']['class'];
-        func = toadd[0];
-        if ('dir' in toadd) {
-            arg1 = 'dir';
-        }
-        arg0 = this.e['path'];
-        a = a.concat(toadd);
-    }
-    var col = "";
-    if (this.e.color && !ismember(this.e.attr.class,'file')) {
-        col = 0xffffff;
-        if (this.e.color & 0x2) { // grey
-            col -= 0x101010;
-        } else if (this.e.color & 0x4) { // green
-            col -= 0x300030;
-        } else if (this.e.color & 0x1) { // red
-            col -= 0x003030;
-        }
-        col = converthexcolor(col);
-        console.log(col);
-        col = "background-color:#"+col;
-    }
-
-    var l = c.join("\n");
-    var id = "";
-    if ('path' in this.e) {
-        id = this.e['path'];
-        id = id.replace(/[\/\s\.@]/ig, "_");
-    }
-    var args = [arg0, arg1].map(function(a) { return "\""+a+"\""; }).join(",");
-    return "<li><span class=\""+a.join(" ")+"\"><a style=\""+col+"\" id=\""+id+"\" onclick='"+func+"("+args+")' >" + this.n + "</a></span><ul> " + l + "</ul></li>";
-}
-
-function init_repo_tree(b,a) {
-    var treear = new gen_tree('root')
-    for (var v in a)
-    {
-        n = a[v]['n']
-        na = n.split("/");
-        if (na[0] == "a")
-        {
-            na.shift();
-        }
-        treear.gen( ['by-repos'].concat(na));
-        na = a[v]['path'].split("/");
-        treear.gen( ['by-path'].concat(na));
-    }
-    var p = treear.html();
-    $(b).append(p);
-
-    console.log(treear)
-}
-
-function init_diff_tree(b,a) {
-    var treear = new gen_tree('root')
-    for (var v in a)
-    {
-        var e = a[v];
-        na = e['path'].split("/");
-        e.color = 0;
-        if (ismember(e.attr.class,'diffnew')) {
-            e.color = 0x4;
-        } else if (ismember(e.attr.class,'diffremainchanged')) {
-            e.color = 0x2;
-        } else if (ismember(e.attr.class,'diffremoved')) {
-            e.color = 0x1;
-        }
-        treear.gen(na, e);
-    }
-    var p = treear.html();
-    $(b).append(p);
-
-    $(".diffnew").each(function(i,e) {
-        propagate(e,0,0x10,0);
+            });
+            parent_li.append(sub_ul);
+        });
+        // Hide all lists except the outermost.
+        //$('.menu-tree ul ul').hide();
     });
-    $(".diffremoved").each(function(i,e) {
-        propagate(e,0x10,0,0);
-    });
-    $(".diffremainchanged").each(function(i,e) {
-        propagate(e,0x10,0x10,0x10);
-    });
-    console.log(treear)
+    //$("#browser").resizable();
 }
 
-function propagate(e,r,g,b) {
+function expandAll(fn, ln) {
+    $('.menu-tree li > ul').each(function(i) {
+        $(this).show();
+    });
+    $(".menu-tree").find("span").addClass("expanded");
+}
 
+function openfn_(elem, statuselem, fn, ln) {
+    var x = decodeFn(fn);
+    $("#"+elem).each(function() {
+        $(this).html(x);
+    });
+    var all = $("span.code").each(function() {
+        console.log($(this).text());
+    });
+    if (statuselem !== undefined) {
+        $("#"+statuselem).text(fn);
+    }
+    setTimeout(function(){
+        var id = '#line'+ln;
+        $('#line'+ln).each(function(i) {
+            console.log(this);
+            $(this).css('background-color', 'powderblue');
+            $(this)[0].scrollIntoView({block: "center"});
+        });
+    }, 500);
+}
+
+function openfn(fn, ln) {
+    openfn_("fileview", "fninfo", fn, ln);
+}
+
+var stackframetmp = {}
+var stackframetmpidx = 1;
+
+function openStackFrame(fn, ln) {
+    if (fn in stackmap) {
+        fn = stackmap[fn];
+    }
+    openfn_("detailfileview", "detailfninfo", fn, ln);
+}
+
+function selectStackFrame(fn, ln) {
+    if (fn in stackmap) {
+        fn = stackmap[fn];
+    }
+    openfn_("detailfileview", undefined, fn, ln);
+}
+
+function openStackFrameBt(fn, ln, backtrace) {
+    openStackFrame(fn, ln);
+    if (fn in stackmap) {
+        fn = "<strong>"+stackmap[fn]+"</strong>";
+    }
+    if (backtrace in stackframetmp) {
+        var b = stackframetmp[backtrace];
+        var b_ = b.slice();
+        b_.unshift(fn);
+        var v = b_.join("<br>");
+        $("#detailfninfo").html(v);
+    }
+}
+
+function sub_links(e) {
+    var reright = /^(.*) : (.*)$/m;
+    var p = "";
+    do {
+        m = reright.exec(e);
+        if (m) {
+            p += "<span class='assign'>";
+            var bk = m[1].trim().split(/\s+/);
+            var b = [];
+            for (var j in bk) {
+                var i = bk[j];
+                var n = i.split(":");
+                if (n.length == 3) {
+                    fid = n[0]; //parseInt(m[1],10);
+                    if (fid in stackmap) {
+                        fid = stackmap[fid];
+                    }
+                    var ctx = ""
+                    if (n[2] in ctxmap) {
+                        ctx = ctxmap[n[2]];
+                    }
+                    fnr = n[1]; //parseInt(m[2],10);
+                    p += "<a onClick='openStackFrameBt("+n[0]+","+fnr+","+stackframetmpidx+")'>" + i + "</a> ";
+                    if (ctx.length > 128) {
+                        ctx = ctx.substr(0,128) + "...";
+                    }
+                    b.push("<a onClick='selectStackFrame("+n[0]+","+fnr+")'>" + fid + ":" + fnr + ":" + ctx + "</a> ");
+                }
+            }
+            stackframetmp[stackframetmpidx++] = b;
+
+            ln = m[2]; //parseInt(m[1],10);
+            p += " : ";
+            p += "<code onClick='valueTable(this)'>" + m[2] + "</code>";
+            p += "</span>";
+            e = e.substr(m.index+m[0].length);
+        }
+    } while (m);
+
+    return p+e;
+}
+
+function openProjElem(fn, ln) {
+    if (fn in assignpages) {
+        var v = assignpages[fn];
+        v = sub_links(v);
+        $("#fileview").each(function() {
+            $(this).html(v);
+        });
+    }
+}
+
+function valueTable(e) {
+    v = $(e).text();
+    console.log(v);
+    a = v.split(/\s+/);
+    v = a.sort().join("<br>");
+    $("#detailfileview").html(v);
 }

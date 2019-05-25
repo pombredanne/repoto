@@ -59,7 +59,6 @@
   background-position: -4px -4px;
 }
 
-
 .menu-tree span:hover {
   text-decoration: underline;
   background-color:#ccc;
@@ -74,7 +73,7 @@
 }
 
 .column {
-    width: 20%;
+    width: 40%;
     height: 100%;
     overflow: auto;
     float: left;
@@ -82,7 +81,7 @@
 
 .mainpane {
     float: left;
-    width: 40%;
+    width: 60%;
     height: 100%;
     overflow: auto;
 }
@@ -100,7 +99,8 @@
 
 .detailfloatinfo {
     float: left;
-    flex: 0 1 40px;
+    flex: 0 1 50%;
+    overflow: auto;
 }
 
 .detailfileview {
@@ -113,6 +113,7 @@
 
 .fileview {
     margin-top: 100px;
+    width: 100%;
 }
 
 .detailfileview {
@@ -158,5 +159,51 @@ span.assign {
 }
 
 pre {
+    margin: 0;
+}
+
+/************************/
+
+.menu-tree span.diffremain {
+}
+
+.menu-tree span.diffremainchanged {
+    background-color: lightgrey;
+}
+
+.menu-tree span.diffnew {
+    background-color: lightgreen;
+}
+
+.menu-tree span.diffremoved {
+    background-color: red;
+}
+
+
+
+
+span.diffadd {
+    background-color: #eeffee;
+}
+
+span.diffdel {
+    background-color: #ffeeee;
+}
+
+span.diffpossrc {
+    background-color: #eeeeee;
+}
+span.diffpos {
+    background-color: #eeeeee;
+}
+span.diffposdst {
+    background-color: #eeeeee;
+}
+
+
+span.diffline {
+    display: block;
+    white-space: pre;
+    font-family: monospace;
     margin: 0;
 }
