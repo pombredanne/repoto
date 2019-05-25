@@ -59,8 +59,13 @@ class filesunder(object):
             usediff = 0;
             if re.search("ASCII", typea):
                 usediff=1
+            elif re.search("x86-64", typea):
+                usediff=2
             if usediff:
-                d = os.popen('diff -Naur {} {}'.format(ap,bp)).readlines()
+                if (usediff==1):
+                    d = os.popen('diff -Naur {} {}'.format(ap,bp)).readlines()
+                elif (usediff==2):
+                    d = os.popen('bash -c "diff -Naur <( strings {} ) <( strings {})"'.format(ap,bp)).readlines()
                 if (len(d)):
                     print("{} changed: {}".format(ap, len(d)));
                     _d = []; l = 0;

@@ -179,22 +179,25 @@ pre {
     background-color: red;
 }
 
+
+
+
 span.diffadd {
-    background-color: lightgreen;
+    background-color: #eeffee;
 }
 
 span.diffdel {
-    background-color: red;
+    background-color: #ffeeee;
 }
 
 span.diffpossrc {
-    background-color: lightgrey;
+    background-color: #eeeeee;
 }
 span.diffpos {
-    background-color: lightgrey;
+    background-color: #eeeeee;
 }
 span.diffposdst {
-    background-color: lightgrey;
+    background-color: #eeeeee;
 }
 
 
