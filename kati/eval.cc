@@ -120,6 +120,7 @@ const char *_product_var_list[] = {
     "PRODUCT_CFI_EXCLUDE_PATHS",
     "PRODUCT_COMPATIBLE_PROPERTY_OVERRIDE",
     "PRODUCT_ACTIONABLE_COMPATIBLE_PROPERTY_DISABLE",
+    "ALL_DEPS"
     NULL };
 
 map<string,int> product_var_list;
