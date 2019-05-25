@@ -50,7 +50,6 @@ class filesunder(object):
         self.filehash_onlya = self.filehash - b.filehash;
         self.filehash_onlyb = b.filehash - self.filehash;
         self.filehash_ab = self.filehash & b.filehash;
-
         for f in self.filehash_ab:
             ap = os.path.join(self.d, f);
             bp = os.path.join(b.d, f);
@@ -62,16 +61,21 @@ class filesunder(object):
                 usediff=1
             if usediff:
                 d = os.popen('diff -Naur {} {}'.format(ap,bp)).readlines()
-                _d = []; l = 0;
-                for i in d:
-                    l += len(i);
-                    _d.append(i);
-                    if (self.args.maxdiff > 10000):
-                        _d.append(" ... discard rest ...")
-                        break;
-                d = [ html.escape(i) for i in _d ]
-                d = json.dumps({'d':d});
-                self.diffhistory[f] = d;
+                if (len(d)):
+                    print("{} changed: {}".format(ap, len(d)));
+                    _d = []; l = 0;
+                    for i in d:
+                        l += len(i);
+                        _d.append(i);
+                        if (self.args.maxdiff > 10000):
+                            _d.append(" ... discard rest ...")
+                            break;
+                    d = [ html.escape(i) for i in _d ]
+                    d = json.dumps({'d':d});
+                    with open(".tmp.data","w") as h:
+                        h.write(d);
+                    d = os.popen('gzip -c .tmp.data | base64 -w0'.format(ap,bp)).read()
+                    self.diffhistory[f] = d;
 
         self.dirhash_onlya = self.dirhash - b.dirhash;
         self.dirhash_onlyb = b.dirhash - self.dirhash;

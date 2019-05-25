@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import tostring
 import os, shutil;
+from copy import deepcopy
 from pprint import pprint
 import pickle
 import pystache
@@ -121,7 +122,10 @@ class diffdirhtml(html):
     def attributes(self, a, c):
         r = []
         for f in a:
-            r.append({'path':f, 'attr': c})
+            _c = deepcopy(c)
+            if f in self.a.diffhistory:
+                _c['class'].append('diffremainchanged');
+            r.append({'path':f, 'attr': _c})
         return r
 
     def generate(self, d):

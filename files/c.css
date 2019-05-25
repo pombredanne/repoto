@@ -167,6 +167,10 @@ pre {
 .menu-tree span.diffremain {
 }
 
+.menu-tree span.diffremainchanged {
+    background-color: lightgrey;
+}
+
 .menu-tree span.diffnew {
     background-color: lightgreen;
 }
@@ -184,6 +188,9 @@ span.diffdel {
 }
 
 span.diffpossrc {
+    background-color: lightgrey;
+}
+span.diffpos {
     background-color: lightgrey;
 }
 span.diffposdst {
