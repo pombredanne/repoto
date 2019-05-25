@@ -39,3 +39,7 @@ scan:
 	cd r; \
 		$(CURDIR)/repoto.py list --json .repo/manifests/manifest.xml .; \
 	google-chrome file://$(CURDIR)/r/index.html
+
+diff:
+	$(CURDIR)/repoto.py dirdiff t/a t/b t ;
+	google-chrome file://$(CURDIR)/t/index.html
