@@ -12,4 +12,10 @@ class filesunder(object):
         self.retrieve()
 
     def retrieve(self):
-        pass
+        for root, dirs, files in os.walk(self.d):
+            if files:
+                for f in files:
+                    fn = os.path.join(root, f)
+            if dirs:
+                for d in dirs:
+                    pass
