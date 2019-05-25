@@ -101,3 +101,11 @@ class repohtml(object):
         indexout=pystache.render(index, indexparam)
         with open(i, "w") as f:
             f.write(indexout)
+
+class diffdirhtml(object):
+    def __init__(self, args, a):
+        super(diffdirhtml,self).__init__()
+        self.args = args
+        self.a = a
+    def generate(self, d):
+        pass

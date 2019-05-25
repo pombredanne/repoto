@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import os, sys, re, argparse, json
 from repo.manifest import manifest, mh_project, mh_remove_project, projar
-from repo.html import repohtml
+from repo.html import repohtml, diffdirhtml
 from repo.dirs import filesunder
 from xml.etree.ElementTree import tostring
 from json import dumps, loads, JSONEncoder, JSONDecoder
@@ -19,6 +19,9 @@ class PythonObjectEncoder(JSONEncoder):
 def diffdir(args):
     filesundera = filesunder(args, args.dira);
     filesunderb = filesunder(args, args.dirb);
+    filesundera.diff(filesunderb);
+    j = diffdirhtml(args, filesundera);
+    j.generate(args.output);
 
 def listrepos(args):
     o0 = manifest(args, args.file);
