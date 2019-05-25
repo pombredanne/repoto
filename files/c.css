@@ -81,7 +81,7 @@
 
 .mainpane {
     float: left;
-    width: 40%;
+    width: 60%;
     height: 100%;
     overflow: auto;
 }
@@ -113,6 +113,7 @@
 
 .fileview {
     margin-top: 100px;
+    width: 100%;
 }
 
 .detailfileview {
@@ -170,6 +171,29 @@ pre {
     background-color: lightgreen;
 }
 
-.menu-tree span.diffremove {
+.menu-tree span.diffremoved {
     background-color: red;
+}
+
+span.diffadd {
+    background-color: lightgreen;
+}
+
+span.diffdel {
+    background-color: red;
+}
+
+span.diffpossrc {
+    background-color: lightgrey;
+}
+span.diffposdst {
+    background-color: lightgrey;
+}
+
+
+span.diffline {
+    display: block;
+    white-space: pre;
+    font-family: monospace;
+    margin: 0;
 }

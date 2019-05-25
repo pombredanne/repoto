@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import os, sys, re, argparse, json
 from repo.manifest import manifest, mh_project, mh_remove_project, projar
 from repo.html import repohtml, diffdirhtml
@@ -315,6 +315,7 @@ def main():
     # create the parser for the "flatten" command
     parser_list = subparsers.add_parser('dirdiff', help='diff output folders')
     parser_list.add_argument('--json', '-j', dest='json', action='store_true')
+    parser_list.add_argument('--maxdiff', '-m', dest='maxdiff', type=int, default=10000)
     parser_list.add_argument('dira', type=str, help='dir a')
     parser_list.add_argument('dirb', type=str, help='dir b')
     parser_list.add_argument('output', type=str, help='output')

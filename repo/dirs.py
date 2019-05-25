@@ -1,23 +1,35 @@
-import os, shutil;
+import os, shutil, difflib;
 from pprint import pprint
-from sets import Set
-import pickle
+#from sets import Set
+import pickle, html
 import pystache
 import os, sys, re, argparse, json
+from json import dumps, loads, JSONEncoder, JSONDecoder
+
+class PythonObjectEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (list, dict, str, unicode, int, float, bool, type(None))):
+            return JSONEncoder.encode(self, obj)
+        elif isinstance(obj, set):
+            return JSONEncoder.encode(self, list(obj)) #str(obj) #"set([{}])".format(",".join([ PythonObjectEncoder.default(self,i) for i in list(obj)]))
+        return pickle.dumps(obj)
 
 class filesunder(object):
     def __init__(self, args, d):
         super(filesunder,self).__init__()
         self.args = args
         self.d = d
-        self.filehash = Set()
-        self.dirhash = Set()
+        self.filehash = set()
+        self.dirhash = set()
+        self.diffhistory = {};
         self.retrieve()
 
     def noroot(self,a):
         b = a;
         if b.startswith(self.d):
             b=b[len(self.d):]
+        if b.startswith('/'):
+            b = b[1:]
         return b;
 
     def retrieve(self):
@@ -38,6 +50,29 @@ class filesunder(object):
         self.filehash_onlya = self.filehash - b.filehash;
         self.filehash_onlyb = b.filehash - self.filehash;
         self.filehash_ab = self.filehash & b.filehash;
+
+        for f in self.filehash_ab:
+            ap = os.path.join(self.d, f);
+            bp = os.path.join(b.d, f);
+            typea = os.popen('file {}'.format(ap)).read()
+            if (typea.startswith(ap)):
+                typea = typea[len(ap):]
+            usediff = 0;
+            if re.search("ASCII", typea):
+                usediff=1
+            if usediff:
+                d = os.popen('diff -Naur {} {}'.format(ap,bp)).readlines()
+                _d = []; l = 0;
+                for i in d:
+                    l += len(i);
+                    _d.append(i);
+                    if (self.args.maxdiff > 10000):
+                        _d.append(" ... discard rest ...")
+                        break;
+                d = [ html.escape(i) for i in _d ]
+                d = json.dumps({'d':d});
+                self.diffhistory[f] = d;
+
         self.dirhash_onlya = self.dirhash - b.dirhash;
         self.dirhash_onlyb = b.dirhash - self.dirhash;
         self.dirhash_ab = self.dirhash & b.dirhash;

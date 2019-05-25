@@ -28,14 +28,21 @@ gen_tree.prototype.html = function(na) {
         var e = this.c[i];
         c.push(e.html(na));
     }
+    var func = 'noop'; var arg0 = ""; var arg1 = "file";
     var a = ['expanded'];
     if ('attr' in this.e &&
         'class' in this.e['attr']) {
         var toadd = this.e['attr']['class'];
+        func = toadd[0];
+        if ('dir' in toadd) {
+            arg1 = 'dir';
+        }
+        arg0 = this.e['path'];
         a = a.concat(toadd);
     }
     var l = c.join("\n");
-    return "<li><span class=\""+a.join(" ")+"\"><a onclick='{{func}}(\"{{arg0}}\",\"{{arg1}}\",\"{{arg2}}\",\"{{arg3}}\",\"{{arg4}}\",\"{{arg5}}\")' >" + this.n + "</a></span><ul> " + l + "</ul></li>";
+    var args = [arg0, arg1].map(function(a) { return "\""+a+"\""; }).join(",");
+    return "<li><span class=\""+a.join(" ")+"\"><a onclick='"+func+"("+args+")' >" + this.n + "</a></span><ul> " + l + "</ul></li>";
 }
 
 function init_repo_tree(b,a) {

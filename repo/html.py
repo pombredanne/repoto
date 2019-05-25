@@ -33,6 +33,7 @@ index="""
     <script src="files/code.js"></script>
     <script src="files/pako.js"></script>
     <script src="files/d3.js"></script>
+    <script src="files/{{extracode}}.js"></script>
     <link rel="stylesheet" type="text/css" href="files/jquery-ui-1.12.1.custom/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="files/jquery-ui-1.12.1.custom/jquery-ui.structure.css">
     <link rel="stylesheet" type="text/css" href="files/c.css">
@@ -42,6 +43,7 @@ index="""
     <div class="page row">
       <div class="exp" onClick='expandAll()'>[+]</div>
       <div class="exp" onClick='collapseAll()' style='display:block;'>[-]</div>
+      <div class="exp" onClick='viewOnlyChanged()'>viewchanged</div>
       <script></script>
     </div>
     <div class="page row">
@@ -54,10 +56,12 @@ index="""
       <div id="fninfo" class="floatinfo"></div>
       <div id="fileview" class="fileview"></div>
      </div>
+     <!--
      <div class="detail flex">
       <div id="detailfninfo" class="detailfloatinfo"></div>
       <div id="detailfileview" class="detailfileview"></div>
      </div>
+     -->
     </div>
     <script src="files/tree.js"></script>
     <script>
@@ -104,7 +108,8 @@ class repohtml(html):
             'prefs'  :  json.dumps(pref),
             'repodef':  j,
             'zipdata':  json.dumps(zipdata),
-            'basefunc' : 'init_repo_tree'
+            'basefunc' : 'init_repo_tree',
+            'extracode' : ''
         }
         self._generate(d, indexparam)
 
@@ -120,17 +125,18 @@ class diffdirhtml(html):
         return r
 
     def generate(self, d):
-        self.f = self.attributes(self.a.filehash_onlya,{'class':['diffremoved']}) + \
-            self.attributes(self.a.filehash_ab,{'class':['diffremain']}) + \
-            self.attributes(self.a.filehash_onlyb,{'class':['diffnew']})
+        self.f = self.attributes(self.a.filehash_onlya,{'class':['diffremoved','file']}) + \
+            self.attributes(self.a.filehash_ab,{'class':['diffremain','file']}) + \
+            self.attributes(self.a.filehash_onlyb,{'class':['diffnew','file']})
 
         j = json.dumps(self.f, sort_keys=True, indent=4, separators=(',', ': '), cls=PythonObjectEncoder);
         pref = {};
-        zipdata = [];
+        zipdata = { 'diffhistory' : self.a.diffhistory };
         indexparam={
             'prefs'  :  json.dumps(pref),
             'repodef':  j,
             'zipdata':  json.dumps(zipdata),
-            'basefunc' : 'init_diff_tree'
+            'basefunc' : 'init_diff_tree',
+            'extracode' : 'diffshow'
         }
         self._generate(d, indexparam)
