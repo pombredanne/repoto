@@ -160,3 +160,16 @@ span.assign {
 pre {
     margin: 0;
 }
+
+/************************/
+
+.menu-tree span.diffremain {
+}
+
+.menu-tree span.diffnew {
+    background-color: lightgreen;
+}
+
+.menu-tree span.diffremove {
+    background-color: red;
+}

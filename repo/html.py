@@ -66,19 +66,18 @@ index="""
      var zipdata={{{zipdata}}};
     </script>
     <script>
-     init_repo_tree('#browser',repodef);
+     {{basefunc}}('#browser',repodef);
     </script>
   </body>
 </html>
 """
 
-class repohtml(object):
-    def __init__(self, args, repodef):
-        super(repohtml,self).__init__()
+class html(object):
+    def __init__(self, args):
+        super(html,self).__init__()
         self.args = args
-        self.repodef = repodef
 
-    def generate(self, d):
+    def _generate(self, d, indexparam):
         i = os.path.join(d, "index.html")
         if not (os.path.isdir(d)):
             os.makedirs(d)
@@ -87,25 +86,51 @@ class repohtml(object):
         if (os.path.isdir(dstdir)):
             shutil.rmtree(dstdir)
         shutil.copytree(srcdir, dstdir)
+        indexout=pystache.render(index, indexparam)
+        with open(i, "w") as f:
+            f.write(indexout)
 
+
+class repohtml(html):
+    def __init__(self, args, repodef):
+        super(repohtml,self).__init__(args)
+        self.repodef = repodef
+
+    def generate(self, d):
         j = json.dumps(self.repodef, sort_keys=True, indent=4, separators=(',', ': '), cls=PythonObjectEncoder);
-
         pref = {};
         zipdata = [];
         indexparam={
             'prefs'  :  json.dumps(pref),
             'repodef':  j,
-            'zipdata':  json.dumps(zipdata)
+            'zipdata':  json.dumps(zipdata),
+            'basefunc' : 'init_repo_tree'
         }
+        self._generate(d, indexparam)
 
-        indexout=pystache.render(index, indexparam)
-        with open(i, "w") as f:
-            f.write(indexout)
-
-class diffdirhtml(object):
+class diffdirhtml(html):
     def __init__(self, args, a):
-        super(diffdirhtml,self).__init__()
-        self.args = args
+        super(diffdirhtml,self).__init__(args)
         self.a = a
+
+    def attributes(self, a, c):
+        r = []
+        for f in a:
+            r.append({'path':f, 'attr': c})
+        return r
+
     def generate(self, d):
-        pass
+        self.f = self.attributes(self.a.filehash_onlya,{'class':['diffremoved']}) + \
+            self.attributes(self.a.filehash_ab,{'class':['diffremain']}) + \
+            self.attributes(self.a.filehash_onlyb,{'class':['diffnew']})
+
+        j = json.dumps(self.f, sort_keys=True, indent=4, separators=(',', ': '), cls=PythonObjectEncoder);
+        pref = {};
+        zipdata = [];
+        indexparam={
+            'prefs'  :  json.dumps(pref),
+            'repodef':  j,
+            'zipdata':  json.dumps(zipdata),
+            'basefunc' : 'init_diff_tree'
+        }
+        self._generate(d, indexparam)

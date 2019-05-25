@@ -14,17 +14,25 @@ class filesunder(object):
         self.dirhash = Set()
         self.retrieve()
 
+    def noroot(self,a):
+        b = a;
+        if b.startswith(self.d):
+            b=b[len(self.d):]
+        return b;
+
     def retrieve(self):
         for root, dirs, files in os.walk(self.d):
-            self.dirhash.add(root)
+            r = self.noroot(root)
+            if (len(r)):
+                self.dirhash.add(r)
             if files:
                 for f in files:
                     fn = os.path.join(root, f)
-                    self.filehash.add(fn)
+                    self.filehash.add(self.noroot(fn))
             if dirs:
                 for d in dirs:
                     dn = os.path.join(root, d)
-                    self.dirhash.add(fn)
+                    self.dirhash.add(self.noroot(dn))
 
     def diff(self, b):
         self.filehash_onlya = self.filehash - b.filehash;

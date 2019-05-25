@@ -39,6 +39,7 @@ window.onload = function () {
         //$('.menu-tree ul ul').hide();
     });
     //$("#browser").resizable();
+    expandAll();
 }
 
 function expandAll(fn, ln) {
