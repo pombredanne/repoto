@@ -16,9 +16,9 @@ lineage-blobs:
 lineage-compile:
 	cd lineage; source build/envsetup.sh; breakfast jfltexx
 
+LINEAGE_BASE?=$(CURDIR)/lineage
 
-LINEAGE_BASE?=$(HOME)/lineage
-
+.PHONY:lineage
 lineage:
 	echo "lineage needs to be prepared"
 	-rm /tmp/kati.log
@@ -27,7 +27,7 @@ lineage:
 	-cp kati/ckati $(LINEAGE_BASE)/prebuilts/build-tools/linux-x86/bin/ckati
 	-cp kati/ckati $(LINEAGE_BASE)/out/host/linux-x86/bin/ckati
 	if [ -d $(LINEAGE_BASE)/build/kati ]; then \
-		cp kati/*cc $(LINEAGE_BASE)/build/kati/;  \
+		cp kati/*cc $(LINEAGE_BASE)/build/kati/;  \~
 		cp kati/*h $(LINEAGE_BASE)/build/kati/;  \
 		cp kati/Makefile* $(LINEAGE_BASE)/build/kati/;  \
 	fi
