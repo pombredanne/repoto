@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+use v5.10.1;
+use experimental 'smartmatch';
 use Data::Dumper;
 use Getopt::Long;
 use File::Basename;
@@ -37,8 +39,15 @@ while(<$fh>) {
     } else {
 	if (/LOAD-file-proj-assign: ([\[\]A-Za-z\@0-9_\-\/\.\+]+)=<\{(.*)\}> :(.*)/ ) {
 	    my ($defname,$evalstk,$content) = ($1,$2,$3);
-	    $assign{$defname} = {} if (!exists($assign{$defname}));
+	    $assign{$defname} = {'inherit' => []} if (!exists($assign{$defname}));
 	    $assign{$defname}{'cur'} = $context;
+	    foreach my $c (split(/\s+/,$context)) {
+		if ($c =~ /^\@inherit.*/) {
+		    if (!($c ~~ @{$assign{$defname}{'inherit'}})) { # perl 5.10
+			push(@{$assign{$defname}{'inherit'}}, $c);
+		    }
+		}
+	    }
 	} else {
 	    #print("Error :: '$_'\n");
 	    #exit(1);
