@@ -3,6 +3,20 @@ all:
 prepare:
 	sudo perl -MCPAN -e 'install(JSON::MaybeXS)'
 
+lineage-prepare:
+	sudo apt-get install adb
+	mkdir lineage;
+	cd lineage; repo init -u https://github.com/LineageOS/android.git -b cm-14.1 --depth=1
+	cd lineage; repo sync
+
+# vendor/samsung
+lineage-blobs:
+	cd lineage/device/samsung/jfltexx; ./extract-files.sh
+
+lineage-compile:
+	cd lineage; source build/envsetup.sh; breakfast jfltexx
+
+
 LINEAGE_BASE?=$(HOME)/lineage
 
 lineage:

@@ -25,6 +25,11 @@ aosp-process:
 	perl first_kati.pl kati_$(AOSP_LUNCH)_list_filter.txt kati_$(AOSP_LUNCH)_list_first.txt
 	perl last_kati.pl kati_$(AOSP_LUNCH)_list_filter.txt kati_$(AOSP_LUNCH)_list_last.txt
 
+
+aosp-extract:
+	cat /tmp/kati.log  | grep -ia LOAD-file > kati_$(AOSP_LUNCH)_list_filter.txt
+	perl kati-extract.pl kati_$(AOSP_LUNCH)_list_filter.txt kati_$(AOSP_LUNCH).json
+
 aosp-process-config:
 	#-rm -rf kati_lineage_config-out
 	mkdir -p kati_$(AOSP_LUNCH)_config-out
