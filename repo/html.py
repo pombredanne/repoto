@@ -31,7 +31,7 @@ index="""
   <head>
     <script src="files/jquery-ui-1.12.1.custom/external/jquery/jquery.js"></script>
     <script src="files/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
-    <script src="files/coderepo.js"></script>
+    <script src="files/codetree.js"></script>
     <script src="files/pako.js"></script>
     <script src="files/d3.js"></script>
     <script src="files/{{extracode}}.js"></script>

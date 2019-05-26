@@ -10,8 +10,6 @@ use JSON::MaybeXS qw(encode_json decode_json);
 use Cwd;
 use Carp;
 use Cwd 'abs_path';
-require "$Bin/templ.pm";
-require "$Bin/kati.pm";
 
 Getopt::Long::Configure(qw(bundling));
 GetOptions(\%OPT,qw{
@@ -58,5 +56,5 @@ while(<$fh>) {
 my $j = encode_json(\%assign);
 open(my $o, '>', $ARGV[1])
   or die "Could not open file '$filename' $!";
-print($o $j);
+adb sprint($o $j);
 close($o);
