@@ -122,6 +122,7 @@ const char *_product_var_list[] = {
     "PRODUCT_COMPATIBLE_PROPERTY_OVERRIDE",
     "PRODUCT_ACTIONABLE_COMPATIBLE_PROPERTY_DISABLE", */
     "ALL_DEPS",
+    "LOCAL_PATH",
     NULL };
 
 map<string,int> product_var_list;

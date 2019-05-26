@@ -35,7 +35,7 @@ open(my $fh, '<:encoding(UTF-8)', $filename)
 %ctxmap=();
 
 while(<$fh>) {
-    if (/LOAD-file-proj-assign: (ALL_DEPS[\[\]A-Za-z\@0-9_\-\/\.\+]+)=<\{(.*)\}> :(.*)/) {
+    if (/LOAD-file-proj-assign: (ALL_DEPS|LOCAL_PATH)[\[\]A-Za-z\@0-9_\-\/\.\+]+)=<\{(.*)\}> :(.*)/ ) {
 	my ($defname,$evalstk,$content) = ($1,$2,$3);
 	$assign{$defname} = [] if (!exists($assign{$defname}));
 	push(@{$assign{$defname}},
