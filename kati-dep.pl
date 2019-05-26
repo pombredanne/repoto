@@ -34,16 +34,22 @@ open(my $fh, '<:encoding(UTF-8)', $filename)
 %assign=();
 %ctxmap=();
 
+my $localpath ="";
+
 while(<$fh>) {
-    if (/LOAD-file-proj-assign: (ALL_DEPS|LOCAL_PATH)[\[\]A-Za-z\@0-9_\-\/\.\+]+)=<\{(.*)\}> :(.*)/ ) {
+    if (/LOAD-file-proj-assign: ((?:ALL_DEPS)[\[\]A-Za-z\@0-9_\-\/\.\+]+)=<\{(.*)\}> :(.*)/ ) {
 	my ($defname,$evalstk,$content) = ($1,$2,$3);
 	$assign{$defname} = [] if (!exists($assign{$defname}));
 	push(@{$assign{$defname}},
 	     new kati::assign($evalstk,$content));
 	print($content) if ($OPT{'verbose'});
-	if (!($defname eq "ALL_DEPS.MODULES")) {
-	    print(": $defname=$content\n") ;
+	if (!($defname eq "ALL_DEPS.MODULES" || $defname =~ /LICENSE$/)) {
+	    print(": $localpath:$defname=$content\n") ;
 	}
+    } elsif (/LOAD-file-proj-assign: (LOCAL_PATH)=<\{(.*)\}> :(.*)/ ) {
+	my ($defname,$evalstk,$content) = ($1,$2,$3);
+	#print(": $defname=$content\n") ;
+	$localpath = $content;
     } else {
 	#print("Error :: '$_'\n");
 	#exit(1);
