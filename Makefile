@@ -45,3 +45,8 @@ diffd:
 
 diffdh:
 	google-chrome file://$(CURDIR)/t/index.html
+
+
+
+initrc:
+	$(CURDIR)/repoto.py flatinit t/init.rc

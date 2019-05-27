@@ -2,6 +2,7 @@
 import os, sys, re, argparse, json
 from repo.manifest import manifest, mh_project, mh_remove_project, projar
 from repo.html import repohtml, diffdirhtml
+from repo.initrc import flatparse
 from repo.dirs import filesunder
 from xml.etree.ElementTree import tostring
 from json import dumps, loads, JSONEncoder, JSONDecoder
@@ -41,6 +42,10 @@ def listrepos(args):
     if (args.json):
         j = repohtml(args, a);
         j.generate(args.output);
+
+
+def flatinit(args):
+    f = flatparse(args)
 
 
 def flatten(args):
@@ -320,6 +325,14 @@ def main():
     parser_list.add_argument('dirb', type=str, help='dir b')
     parser_list.add_argument('output', type=str, help='output')
     parser_list.set_defaults(func=diffdir)
+
+    # create the parser for the "flatint" command
+    parser_list = subparsers.add_parser('flatinit', help='parse init files')
+    parser_list.add_argument('--json', '-j', dest='json', action='store_true')
+    parser_list.add_argument('--maxdiff', '-m', dest='maxdiff', type=int, default=10000)
+    parser_list.add_argument('--root', '-e', dest='root', type=str, default=".")
+    parser_list.add_argument('inputs', default=[], action='append', help='output')
+    parser_list.set_defaults(func=flatinit)
 
     opt = parser.parse_args()
     opt.func(opt)

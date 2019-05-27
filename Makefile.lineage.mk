@@ -43,7 +43,7 @@ lineage-process-config:
 	#-rm -rf kati_lineage_config-out
 	mkdir -p kati_lineage_config-out
 	/usr/bin/perl kati-dep-tree.pl \
-		--lineage $(HOME)/lineage \
+		--lineage $(CURDIR)/lineage \
 		--base build/core/config.mk \
 		--out kati_lineage_config-out  \
 		kati_jfltexx_list_first.txt index.html
@@ -54,7 +54,7 @@ lineage-process-main:
 	#-rm -rf kati_lineage_main-out
 	mkdir -p kati_lineage_main-out
 	/usr/bin/perl kati-dep-tree.pl \
-		--lineage $(HOME)/lineage \
+		--lineage $(CURDIR)/lineage \
 		--base build/core/main.mk \
 		--out kati_lineage_main-out  \
 		kati_jfltexx_list_last.txt index.html
