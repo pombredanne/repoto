@@ -62,8 +62,11 @@ class initrc_rule(object):
         self.expr = initrc_expr(l)
         self.cmds = []
         self.tok = []
+
     def push(self,l):
         self.cmds.append(l)
+    def __str__(self):
+        return "{} : {}".format(str(l),str(self.expr))
 
 class initrc_parse(object):
     

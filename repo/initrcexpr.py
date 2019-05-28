@@ -10,25 +10,30 @@ from json import dumps, loads, JSONEncoder, JSONDecoder
 class parserule_event_prop(object):
     def __init__(self, a,b):
         super(parserule_event_prop,self).__init__()
+        self.a = a;
+        self.b = b;
     def __str__(self):
-        pass
+        return "{}={}".format(self.a,self.b);
 
 class parserule_event_op(object):
     def __init__(self, l):
         super(parserule_event_op,self).__init__()
+        self.l = l;
     def __str__(self):
-        pass
+        return self.l
 
 class parserule_event_source(object):
     def __init__(self, l):
         super(parserule_event_source,self).__init__()
+        self.l = l;
     def __str__(self):
-        pass
+        return self.l
 
 class initrc_expr(object):
     def __init__(self, l):
         super(initrc_expr,self).__init__()
         self.tok = []
+        #print("Parse {}".format(str(l)))
         self.l = l
         self.cmds = []
         self.stack = []
@@ -37,9 +42,14 @@ class initrc_expr(object):
     def peek(self):
         if len(self.tok)==0:
             return ""
+        #print (self.tok)
         return str(self.tok[0]);
     def next(self):
-        return self.tok.pop(0);
+        print(self.tok)
+        e = self.tok.pop(0)
+        #print("+"+str(e))
+        #print("Consume : {}".format(str(e)))
+        return e;
 
     def parserule_event(self,l):
         ori = l;
@@ -47,16 +57,19 @@ class initrc_expr(object):
             l = l.strip()
             m = re.match("property:([a-zA-Z0-9\-_\.]+)=([a-zA-Z0-9\-_\.\*,]+)",l)
             if (m):
+                print("Found prop: " + m.group(0))
                 l = l[len(m.group(0)):]
                 self.tok.append(parserule_event_prop(m.group(1),m.group(2)))
                 continue
             m = re.match("(&&|\|\|)",l)
             if (m):
+                print("Found   op: " + m.group(0))
                 l = l[len(m.group(0)):]
                 self.tok.append(parserule_event_op(m.group(0)))
                 continue
             m = re.match("([a-zA-Z0-9\-_]+)",l)
             if (m):
+                print("Found event: " + m.group(0))
                 l = l[len(m.group(0)):]
                 self.tok.append(parserule_event_source(m.group(0)))
                 continue
@@ -100,3 +113,6 @@ class initrc_expr(object):
             self.parserule_service(l[len("service "):].strip())
         else:
             raise(Exception("Unknown rule"))
+
+    def __str__(self):
+        return "parsed:{}".format([ str(i) for i in self.stack ].join(" "))
