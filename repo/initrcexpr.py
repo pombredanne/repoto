@@ -101,6 +101,7 @@ class initrc_expr(object):
 
     def parse_expr(self):
         self.parse_expr_or()
+        print ("parsed: "+str(self.stack))
 
     def parserule_service(self,l):
         pass
@@ -115,4 +116,4 @@ class initrc_expr(object):
             raise(Exception("Unknown rule"))
 
     def __str__(self):
-        return "parsed:{}".format([ str(i) for i in self.stack ].join(" "))
+        return "parsed:{}".format(" ".join([ str(i) for i in self.stack ]))

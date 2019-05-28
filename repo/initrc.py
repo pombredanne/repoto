@@ -50,23 +50,34 @@ class initrc_line(object):
         return m.group(1);
     def iscomment(self):
         return re.match(r"^\s*#", self.l) or re.match(r"^\s*$", self.l);
+    def isservice(self):
+        return re.match(r"^service ", self.l);
     def isstartrule(self):
         return re.match(r"^[a-zA-Z]", self.l);
     def __str__(self):
         return "{}:{:04d}:{}".format(self.f.fn, self.lnr, self.l)
 
-class initrc_rule(object):
+class initrc_entity(object):
+    def __init__(self):
+        super(initrc_entity,self).__init__()
+        self.cmds = []
+    def push(self,l):
+        self.cmds.append(l)
+
+class initrc_rule(initrc_entity):
     def __init__(self, l):
         super(initrc_rule,self).__init__()
         self.l = l
         self.expr = initrc_expr(l)
-        self.cmds = []
-        self.tok = []
-
-    def push(self,l):
-        self.cmds.append(l)
     def __str__(self):
-        return "{} : {}".format(str(l),str(self.expr))
+        return "event {} : {}".format(str(self.l),str(self.expr))
+
+class initrc_service(initrc_entity):
+    def __init__(self, l):
+        super(initrc_service,self).__init__()
+        self.l = l
+    def __str__(self):
+        return "service {} : {}".format(str(self.l),str(self.expr))
 
 class initrc_parse(object):
     
@@ -87,14 +98,18 @@ class initrc_parse(object):
             return self.ctx['lookup'][l]
         return re.sub(r'\$\{([a-zA-Z0-9\.]+)\}', lookup, l)
     
-    def finishrule(self):
+    def finishentity(self):
         if not (self.currule == None):
             self.rules.append(self.currule)
             
     def startrule(self, l):
-        self.finishrule()
+        self.finishentity()
         self.currule = initrc_rule(l)
-    
+
+    def startservice(self, l):
+        self.finishentity()
+        self.currule = initrc_service(l)
+
     def pushrule(self,l):
         self.currule.push(l)
         
@@ -108,13 +123,15 @@ class initrc_parse(object):
                 fn = l.importfile()
                 fn = self.substituteVar(fn)
                 self.fa = initrc_file(self.ctx, fn).alllines() + self.fa;
+            elif l.isservice():
+                self.startservice(l);
             elif (l.isstartrule()):
-                dbgprint("\n----- Start rule: {} -----".format(l))
                 self.startrule(l);
+                dbgprint("\n----- Start rule: {} : {} -----".format(str(l),str(self.currule)))
             else:
                 dbgprint(str(l))
                 self.pushrule(l)
-        self.finishrule();
+        self.finishentity();
 
 class flatparse(object):
     def __init__(self, args):
