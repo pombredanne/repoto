@@ -3,6 +3,7 @@ from pprint import pprint
 #from sets import Set
 import pickle, html
 import pystache
+from repo.initrcexpr import initrc_expr
 from glob import glob;
 import os, sys, re, argparse, json
 from json import dumps, loads, JSONEncoder, JSONDecoder
@@ -58,8 +59,9 @@ class initrc_rule(object):
     def __init__(self, l):
         super(initrc_rule,self).__init__()
         self.l = l
+        self.expr = initrc_expr(l)
         self.cmds = []
-        
+        self.tok = []
     def push(self,l):
         self.cmds.append(l)
 

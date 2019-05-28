@@ -49,4 +49,4 @@ diffdh:
 
 
 initrc:
-	$(CURDIR)/repoto.py flatinit t/init.rc
+	$(CURDIR)/repoto.py flatinit --root t init.rc
