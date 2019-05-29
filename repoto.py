@@ -331,6 +331,8 @@ def main():
     parser_list.add_argument('--json', '-j', dest='json', action='store_true')
     parser_list.add_argument('--maxdiff', '-m', dest='maxdiff', type=int, default=10000)
     parser_list.add_argument('--root', '-e', dest='root', type=str, default=".")
+    parser_list.add_argument('--rootvendor', '-E', dest='rootvendor', type=str, default=".")
+    parser_list.add_argument('--rootsystem', '-F', dest='rootsystem', type=str, default=".")
     parser_list.add_argument('inputs', default=[], action='append', help='output')
     parser_list.set_defaults(func=flatinit)
 

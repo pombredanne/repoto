@@ -139,7 +139,8 @@ class flatparse(object):
                'mappings':{}, 
                'lookup':{
                    'ro.hardware' : '64',
-                   'ro.zygote' : 'zygote64'
+                   'ro.zygote' : 'zygote64',
+                   'ro.boot.swdl.session' : 'default'
                    }}
         super(flatparse,self).__init__()
         self.args = args

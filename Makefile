@@ -47,6 +47,12 @@ diffdh:
 	google-chrome file://$(CURDIR)/t/index.html
 
 
+-include Makefile.config.mk
+
+INITRC_ROOT?=t
+INITRC_ROOTSYSTEM?=t
+INITRC_ROOTVENDOR?=t
+INITRC_FILES?=init.rc
 
 initrc:
-	$(CURDIR)/repoto.py flatinit --root t init.rc
+	$(CURDIR)/repoto.py flatinit --root $(INITRC_ROOT) --rootsystem $(INITRC_ROOTSYSTEM) --rootvendor $(INITRC_ROOTVENDOR) $(INITRC_FILES)
