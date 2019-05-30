@@ -110,7 +110,7 @@ class repohtml(html):
             'repodef':  j,
             'zipdata':  json.dumps(zipdata),
             'basefunc' : 'init_repo_tree',
-            'extracode' : ''
+            'extracode' : 'reposhow'
         }
         self._generate(d, indexparam)
 
@@ -159,7 +159,7 @@ class initrchtml(html):
             'prefs'  :  json.dumps(pref),
             'repodef':  j,
             'zipdata':  json.dumps(zipdata),
-            'basefunc' : 'init_diff_tree',
+            'basefunc' : 'initrc_diff_tree',
             'extracode' : 'initrcshow'
         }
         self._generate(d, indexparam)

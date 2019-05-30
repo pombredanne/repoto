@@ -60,3 +60,4 @@ initrc:
 	$(CURDIR)/repoto.py flatinit  \
 		--output $(INITRC_OUT) \
 	setup1.json setup2.json
+	google-chrome file://$(CURDIR)/t/index.html

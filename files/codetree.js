@@ -7,6 +7,7 @@ function gen_tree(n) {
     this.n = n;
     this.e = {'color':0,'attr':{'class':[]}};
     this.color = 0;
+    this.issort = 1;
 }
 
 function ismember(a,n) {
@@ -27,8 +28,9 @@ gen_tree.prototype.gen = function(na,e) {
         c = new gen_tree(n);
         this.c.push(c);
     }
-    this.c.sort(
-        function(a, b) { return ('' + a.n).localeCompare(b.n); });
+    if (this.issort) {
+        this.c.sort(function(a, b) { return ('' + a.n).localeCompare(b.n); });
+    }
     if (_n.length != 0)
     {
         c.gen(_n,e);
@@ -157,59 +159,6 @@ gen_tree.prototype.html = function(na) {
     return "<li id=\""+id+"\" ><span class=\""+a.join(" ")+"\"><a style=\""+col+"\" onclick='"+func+"("+args+")' >" + this.n + "</a></span><ul> " + l + "</ul></li>";
 }
 
-function init_repo_tree(b,a) {
-    var treear = new gen_tree('root')
-    for (var v in a)
-    {
-        n = a[v]['n']
-        na = n.split("/");
-        if (na[0] == "a")
-        {
-            na.shift();
-        }
-        treear.gen( ['by-repos'].concat(na));
-        na = a[v]['path'].split("/");
-        treear.gen( ['by-path'].concat(na));
-    }
-    var p = treear.html();
-    $(b).append(p);
-    treear.reinstantiate(); // verify instantiation
-
-    console.log(treear)
-}
-
-function init_diff_tree(b,a) {
-    var treear = new gen_tree('root')
-    for (var v in a)
-    {
-        var e = a[v];
-        na = e['path'].split("/");
-        e.color = 0;
-        if (ismember(e.attr.class,'diffnew')) {
-            e.color = 0x4;
-        } else if (ismember(e.attr.class,'diffremainchanged')) {
-            e.color = 0x2;
-        } else if (ismember(e.attr.class,'diffremoved')) {
-            e.color = 0x1;
-        }
-        treear.gen(na, e);
-    }
-    var p = treear.html();
-    $(b).append(p);
-    treear.e.path = p;
-    treear.reinstantiate(); // verify instantiation
-
-    $(".diffnew").each(function(i,e) {
-        propagate(e,0,0x10,0);
-    });
-    $(".diffremoved").each(function(i,e) {
-        propagate(e,0x10,0,0);
-    });
-    $(".diffremainchanged").each(function(i,e) {
-        propagate(e,0x10,0x10,0x10);
-    });
-    console.log(treear)
-}
 
 function propagate(e,r,g,b) {
 
