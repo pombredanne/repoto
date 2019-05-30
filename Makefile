@@ -55,9 +55,10 @@ INITRC_ROOTVENDOR?=t
 INITRC_OUT?=t
 INITRC_FILES?=init.rc
 INITRC_DEFPROP?=defpropt.json
+INITRC_INPUTS?=t/setup1.json t/setup2.json
 
 initrc:
 	$(CURDIR)/repoto.py flatinit  \
 		--output $(INITRC_OUT) \
-	setup1.json setup2.json
+	$(INITRC_INPUTS)
 	google-chrome file://$(CURDIR)/t/index.html

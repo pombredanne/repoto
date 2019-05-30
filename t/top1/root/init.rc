@@ -1,0 +1,6 @@
+
+on early-init
+    write /proc/1/oom_score_adj -1000
+
+on init
+    sysclktz 0
