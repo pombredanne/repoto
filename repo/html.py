@@ -144,3 +144,22 @@ class diffdirhtml(html):
             'extracode' : 'diffshow'
         }
         self._generate(d, indexparam)
+
+class initrchtml(html):
+    def __init__(self, args, a):
+        super(initrchtml,self).__init__(args)
+        self.a = a
+
+    def generate(self, d):
+        f = { 'd' : [j.json() for j in self.a] };
+        j = json.dumps(f, sort_keys=True, indent=4, separators=(',', ': '), cls=PythonObjectEncoder);
+        pref = {};
+        zipdata = {  };
+        indexparam={
+            'prefs'  :  json.dumps(pref),
+            'repodef':  j,
+            'zipdata':  json.dumps(zipdata),
+            'basefunc' : 'init_diff_tree',
+            'extracode' : 'initrcshow'
+        }
+        self._generate(d, indexparam)

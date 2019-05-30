@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import os, sys, re, argparse, json
 from repo.manifest import manifest, mh_project, mh_remove_project, projar
-from repo.html import repohtml, diffdirhtml
+from repo.html import repohtml, diffdirhtml, initrchtml
 from repo.initrc import flatparse
 from repo.dirs import filesunder
 from xml.etree.ElementTree import tostring
@@ -45,7 +45,9 @@ def listrepos(args):
 
 
 def flatinit(args):
-    f = flatparse(args)
+    a = [flatparse(args, i) for i in args.inputs]
+    j = initrchtml(args, a);
+    j.generate(args.output);
 
 
 def flatten(args):
@@ -328,12 +330,8 @@ def main():
 
     # create the parser for the "flatint" command
     parser_list = subparsers.add_parser('flatinit', help='parse init files')
-    parser_list.add_argument('--json', '-j', dest='json', action='store_true')
-    parser_list.add_argument('--maxdiff', '-m', dest='maxdiff', type=int, default=10000)
-    parser_list.add_argument('--root', '-e', dest='root', type=str, default=".")
-    parser_list.add_argument('--rootvendor', '-E', dest='rootvendor', type=str, default=".")
-    parser_list.add_argument('--rootsystem', '-F', dest='rootsystem', type=str, default=".")
-    parser_list.add_argument('inputs', default=[], action='append', help='output')
+    parser_list.add_argument('--output', '-o', type=str, help='output', default=None)
+    parser_list.add_argument('inputs', nargs='*', default=[], help='output')
     parser_list.set_defaults(func=flatinit)
 
     opt = parser.parse_args()

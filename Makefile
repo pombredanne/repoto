@@ -52,7 +52,11 @@ diffdh:
 INITRC_ROOT?=t
 INITRC_ROOTSYSTEM?=t
 INITRC_ROOTVENDOR?=t
+INITRC_OUT?=t
 INITRC_FILES?=init.rc
+INITRC_DEFPROP?=defpropt.json
 
 initrc:
-	$(CURDIR)/repoto.py flatinit --root $(INITRC_ROOT) --rootsystem $(INITRC_ROOTSYSTEM) --rootvendor $(INITRC_ROOTVENDOR) $(INITRC_FILES)
+	$(CURDIR)/repoto.py flatinit  \
+		--output $(INITRC_OUT) \
+	setup1.json setup2.json
