@@ -1,0 +1,10 @@
+{
+    "name" : "top1",
+    "root" : "t/top1/root",
+    "rootvendor" : "t/top1/vendor",
+    "rootsystem" : "t/top1/system",
+    "defprop" : ["t/build1.prop",
+		 "ro.zygote=zygote64_32"
+		],
+    "input" : ["/init.rc", "/system/etc/init", "/product/etc/init", "/odm/etc/init", "/vendor/etc/init"]
+}
