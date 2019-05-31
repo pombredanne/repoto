@@ -34,6 +34,7 @@ index="""
     <script src="files/codetree.js"></script>
     <script src="files/pako.js"></script>
     <script src="files/d3.js"></script>
+    <script src="files/generic.js"></script>
     <script src="files/{{extracode}}.js"></script>
     <link rel="stylesheet" type="text/css" href="files/jquery-ui-1.12.1.custom/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="files/jquery-ui-1.12.1.custom/jquery-ui.structure.css">
@@ -81,6 +82,7 @@ class html(object):
     def __init__(self, args):
         super(html,self).__init__()
         self.args = args
+        self.zipdata = {};
 
     def _generate(self, d, indexparam):
         i = os.path.join(d, "index.html")
@@ -94,6 +96,23 @@ class html(object):
         indexout=pystache.render(index, indexparam)
         with open(i, "w") as f:
             f.write(indexout)
+
+    def addfile(self, fn, path):
+        d = os.popen('gzip -c {} | base64 -w0'.format(path)).read()
+        self.zipdata[fn] = d;
+
+    def addfile_html(self, fn, path):
+        with open(path, "r") as f:
+            a = f.readlines();
+        index = 1;
+        r = []
+        for l in a:
+            r.append("<span class=\"code\" id=\"line{}\">{}</span>".format(index,l))
+            index += 1
+        tmpfile = "/tmp/.tmp.w";
+        with open(tmpfile, "w") as f:
+            a = f.write("\n".join(r));
+        self.addfile(fn+".html", tmpfile)
 
 
 class repohtml(html):
@@ -151,10 +170,20 @@ class initrchtml(html):
         self.a = a
 
     def generate(self, d):
+        for j in self.a:
+            for k in j.parsed.files:
+                try:
+                    if not (k.fn_host is None):
+                        self.addfile_html(k.fn_host, k.fn_host);
+                        print("+++++ Loaded "+ k.fn_host);
+                except Exception as e:
+                    print("----- failed "+ str(e) + k.fn_host);
+
+
         f = { 'd' : [j.json() for j in self.a] };
         j = json.dumps(f, sort_keys=True, indent=4, separators=(',', ': '), cls=PythonObjectEncoder);
         pref = {};
-        zipdata = {  };
+        zipdata = self.zipdata;
         indexparam={
             'prefs'  :  json.dumps(pref),
             'repodef':  j,

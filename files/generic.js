@@ -1,8 +1,3 @@
-'use strict'
-
-module.exports = diff
-
-var assign = require('object-assign')
 
 /**
  * diff(a, b [, eql]) diffs the array-like objects `a` and `b`, returning
@@ -45,12 +40,12 @@ function diff (a, b, eql) {
 
       V[k] = x
       if (x >= N && y >= M) {
-        Vs[D] = assign({}, V)
+        Vs[D] = Object.assign({}, V)
         return buildEdits(Vs, a, b)
       }
     }
 
-    Vs[D] = assign({}, V)
+    Vs[D] = Object.assign({}, V)
   }
 
   // ?

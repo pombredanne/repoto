@@ -3,7 +3,7 @@ function decodeFn(fn) {
     if (fn in zipdata) {
         var data = zipdata[fn]
         var x = data;
-        //var x = pako.ungzip(atob(data), {to: 'string'})
+        var x = pako.ungzip(atob(data), {to: 'string'})
         return x;
     }
     return "not found: '" + fn + "'";

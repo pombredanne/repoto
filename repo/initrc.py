@@ -34,9 +34,11 @@ class initrc_file(object):
             fn = ctx['mappings'];
         #else:
         (root,fn) = self.mappath(fn)
+        self.fn_host = None;
         if os.path.exists(fn):
             with open(fn,"r") as f:
                 lines = f.readlines()
+            self.fn_host = fn;
         else:
             pass
             print("------ cannot open {}".format(fn))
@@ -79,6 +81,8 @@ class initrc_line(object):
         return "{}:{:04d}:{}".format(self.f.fn, self.lnr, self.l)
     def path(self):
         return "{}:{:d}".format(self.f.fn, self.lnr)
+    def hostpath(self):
+        return "{}:{:d}".format(self.f.fn_host, self.lnr)
 
 ######################################
 
@@ -115,7 +119,7 @@ class initrc_action(initrc_entity):
             'trig_event' : self.trigger_event,
             'trig_prop' : self.trigger_prop,
             'set' : self.setprops,
-            'path' : self.l.path()
+            'path' : self.l.hostpath()
         };
 
 

@@ -8,3 +8,6 @@ on init
 
 on property:vendor.prop1=1
     write /proc/1/oom_score_adj -1000
+
+on property:vendor.prop2=1
+    write /proc/1/oom_score_adj -1000
