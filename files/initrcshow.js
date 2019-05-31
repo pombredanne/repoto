@@ -129,11 +129,11 @@ function createhirarchy(rules) {
     }
 
     // others
-    trig_event['loose'] = [];
+    trig_event['__loose__'] = [];
     for (var r of rules_wrap) {
         if (r['done'])
             continue;
-        trig_event['loose'].push(r);
+        trig_event['__loose__'].push(r);
     }
 
     // ----------------- out -----------------
@@ -163,7 +163,7 @@ function propagate(e,c) {
     }
 }
 
-function diffhirarchy(a,b) {
+function diffhirarchy(a,b,order=[]) {
     var a_i = idify(a);
     var b_i = idify(b);
     console.log(a_i);
@@ -190,6 +190,21 @@ function diffhirarchy(a,b) {
             result.push(e1);
         }
     }
+    if (order.length) {
+        var head = []
+        for (var i of order) {
+            var _r = []
+            for (var j of result) {
+                if (j.n == i) {
+                    head.push(j);
+                } else {
+                    _r.push(j);
+                }
+            }
+            result = _r;
+        }
+        result = head.concat(result);
+    }
     return result;
 }
 
@@ -200,7 +215,7 @@ function initrc_diff_tree(e, d) {
     var rules_a = createhirarchy(d['d'][0]['parsed']['rules']);
     var rules_b = createhirarchy(d['d'][1]['parsed']['rules']);
 
-    var rulues_d = diffhirarchy(rules_a, rules_b);
+    var rulues_d = diffhirarchy(rules_a, rules_b, ['early-boot', 'boot', 'early-init', 'init' ]);
 
     treear.genar(rulues_d);
     /*

@@ -2,6 +2,7 @@
 on early-init
     write /proc/1/oom_score_adj -1000
     setprop vendor.prop1 1
+    start service1
 
 on init
     sysclktz 0
@@ -11,3 +12,7 @@ on property:vendor.prop1=1
 
 on property:vendor.prop2=1
     write /proc/1/oom_score_adj -1000
+
+service service1 /bin/bin1
+    critical
+    

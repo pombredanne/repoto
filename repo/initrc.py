@@ -89,6 +89,9 @@ class initrc_line(object):
 class initrc_entity(object):
     def __init__(self):
         super(initrc_entity,self).__init__()
+        self.setprops = {}
+        self.trigger_event = {}
+        self.trigger_prop = {}
         self.cmds = []
     def push(self,l):
         self.cmds.append(l)
@@ -99,15 +102,15 @@ class initrc_action(initrc_entity):
     def __init__(self, l):
         super(initrc_action,self).__init__()
         self.l = l
-        self.setprops = {}
-        self.trigger_event = {}
-        self.trigger_prop = {}
         self.expr = initrc_expr(self,l)
     def __str__(self):
         return "action {} : {}".format(str(self.l),str(self.expr))
     def close(self):
         for l in self.cmds:
-            if (l.line().strip().startswith("setprop")):
+            if (l.line().strip().startswith("start ")):
+                a = re.split(r"\s+",l.line().strip())
+                self.setprops[a[1]] = 'start';
+            elif (l.line().strip().startswith("setprop")):
                 a = re.split(r"\s+",l.line().strip())
                 self.setprops[a[1]] = a[2];
                 print ("####= {}={}".format(a[1],a[2]));
@@ -127,11 +130,19 @@ class initrc_service(initrc_entity):
     def __init__(self, l):
         super(initrc_service,self).__init__()
         self.l = l
+        a = re.split(r"\s+",l.line().strip())
+        self.name = a[1]
+        self.binary = a[2]
+        self.trigger_prop[a[1]] = 'start';
     def __str__(self):
         return "service {} : {}".format(str(self.l),str(self.expr))
     def json(self):
         return { 'typ' : 'service',
-                 'line' : self.l.line()
+                 'line' : self.l.line(),
+                 'trig_event' : self.trigger_event,
+                 'trig_prop' : self.trigger_prop,
+                 'set' : self.setprops,
+                 'path' : self.l.hostpath()
         };
 
 ######################################
