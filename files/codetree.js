@@ -23,8 +23,8 @@ gen_tree.prototype.genar = function(a) {
     var n = [];
     for (var e of a) {
         var c = new gen_tree(e['n']);
-        c.e = e['e'];
         n.push(c);
+        c.e = e;
         if ('c' in e) {
             c.genar(e.c);
         }
@@ -68,7 +68,7 @@ gen_tree.prototype.htmlid = function(na) {
     if ('path' in this.e)
     {
         id = this.e['path'];
-        id = id.replace(/[\/\s\.@]/ig, "_");
+        id = id.replace(/[\/\s\.@:]/ig, "_");
     }
     return id;
 }

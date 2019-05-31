@@ -1,6 +1,10 @@
 
 on early-init
     write /proc/1/oom_score_adj -1000
+    setprop vendor.prop1 1
 
 on init
     sysclktz 0
+
+on property:vendor.prop1=1
+    write /proc/1/oom_score_adj -1000

@@ -25,17 +25,97 @@ function unidify(d, a, b) {
     return r;
 }
 
+function createhirarchy(rules) {
+    var trig_event = {};
+    var trig_prop = {}; // listener
+    var trig_set = {}; // setter
+
+    for (var r of rules) {
+        r['done'] = 0 ;
+        r['n'] = r.line;
+        r['attr'] = {'class' : ['processaction']};
+        r['c'] = [];
+        for (var k in r['trig_prop']) {
+            if (!(k in trig_prop)) {
+                trig_prop[k] = []
+            }
+            trig_prop[k].push({'e':r, 'v': r['trig_prop'][k]});
+        }
+        for (var k in r['set']) {
+            if (!(k in trig_set)) {
+                trig_set[k] = []
+            }
+            trig_set[k].push({'e':r, 'v': r['set'][k]});
+        }
+    }
+
+    // sort in main events
+    for (var r of rules) {
+        if (r['done'])
+            continue;
+        for (var k in r['trig_event']) {
+            if (!(k in trig_event)) {
+                trig_event[k] = [];
+            }
+            trig_event[k].push(r);
+            r['done'] = 1;
+        }
+    }
+
+    function match(a, b) {
+        for (var k in a['set']) {
+            if (k in b['trig_prop'] &&
+                a['set'][k] == b['trig_prop'][k]) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    // fold
+    var found = 1;
+    while (found) {
+        found = 0;
+        for (var r0 of rules) {
+            if (r0['done']) {
+                // match r0 setter with r1 listener
+                for (var r1 of rules) {
+                    if (!r1['done'] && match(r0,r1)) {
+                        r1['done'] = 1;
+                        found = 1;
+                        r0.c.push(r1);
+                    } else {
+                        /* only link */
+                    }
+                }
+            }
+        }
+    }
+
+    // ----------------- out -----------------
+    var r = [];
+    for (var k in trig_event) {
+        var a = [];
+        for (var rule of trig_event[k]) {
+            a.push(rule);
+        }
+        r.push({'n': k, 'c' : a});
+    }
+    return r;
+}
+
+function processaction(fn, typ) {
+
+}
+
 function initrc_diff_tree(e, d) {
     var treear = new gen_tree('root');
     var seq = {};
 
     var rules = d['d'][0]['parsed']['rules'];
+    rules = createhirarchy(rules);
 
-    var a = [];
-    for (var l of rules) {
-        a.push({'n': l.line, 'e':l , 'c' : [ {'n' : 'e', 'e' : {} }]});
-    }
-    treear.genar(a);
+    treear.genar(rules);
 
     /*
     for (var i of [ 'early-boot', 'boot', 'init' ]) {

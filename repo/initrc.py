@@ -77,6 +77,8 @@ class initrc_line(object):
         return re.match(r"^[a-zA-Z]", self.l);
     def __str__(self):
         return "{}:{:04d}:{}".format(self.f.fn, self.lnr, self.l)
+    def path(self):
+        return "{}:{:d}".format(self.f.fn, self.lnr)
 
 ######################################
 
@@ -112,7 +114,8 @@ class initrc_action(initrc_entity):
             'actions' : [ l.line() for l in self.cmds ],
             'trig_event' : self.trigger_event,
             'trig_prop' : self.trigger_prop,
-            'set' : self.setprops
+            'set' : self.setprops,
+            'path' : self.l.path()
         };
 
 
