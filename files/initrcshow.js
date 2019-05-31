@@ -25,10 +25,19 @@ function unidify(d, a, b) {
     return r;
 }
 
-function initrc_diff_tree(e, a, b) {
+function initrc_diff_tree(e, d) {
     var treear = new gen_tree('root');
-    var seq = {}
+    var seq = {};
 
+    var rules = d['d'][0]['parsed']['rules'];
+
+    var a = [];
+    for (var l of rules) {
+        a.push({'n': l.line, 'e':l , 'c' : [ {'n' : 'e', 'e' : {} }]});
+    }
+    treear.genar(a);
+
+    /*
     for (var i of [ 'early-boot', 'boot', 'init' ]) {
 
 
@@ -44,7 +53,7 @@ function initrc_diff_tree(e, a, b) {
 
 
 
-    }
+    }*/
 
 
 

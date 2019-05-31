@@ -19,6 +19,19 @@ function ismember(a,n) {
     return 0;
 }
 
+gen_tree.prototype.genar = function(a) {
+    var n = [];
+    for (var e of a) {
+        var c = new gen_tree(e['n']);
+        c.e = e['e'];
+        n.push(c);
+        if ('c' in e) {
+            c.genar(e.c);
+        }
+    }
+    this.c = this.c.concat(n);
+}
+
 gen_tree.prototype.gen = function(na,e) {
     var _n = [...na]
     var n = _n.shift();
