@@ -33,32 +33,35 @@ def main():
         n = str(p)
         print (" "+n);
 
-    #<remote name="origin" fetch="../../" review="ssh://bsdvm022.debads.europe.delphiauto.net:8080"/>
-
     # add new review servers
     for r in args.addserver:
         n = r.split("=")
         a = n[1].split(":")
-        n = n[0]
-        print("addserver {} : server {} ".format(n, a[0]));
+        name = n[0]
+        url = a[0];
+        print("addserver {} : server {} ".format(name, url));
         m = mh_remote(args, None, ET.Element('remote'))
-        m.addxml('name', n);
+        m.addxml('name', name);
+        m.addxml('fetch', url);
         o0.add_remote(m);
 
     # rewrite upstream and sha field
     for r in args.rewriteproj:
         n = r.split("=")
         a = n[1].split(":")
-        n = n[0]
-        print("rewrite {} : server {} upstream {} sha {} ".format(n, a[0], a[1], a[2]));
-        if (n in h):
-            p = h[n];
-            if (len(a[0])):
-                p.addxml('remote', a[0]);
-            p.addxml('upstream', a[1]);
-            p.setxml('revision', a[2]);
+        name = n[0]
+        (server,upstream,revision) = (a[0],a[1],a[2]);
+        upstream = a[1]
+        print("rewrite {} : server {} upstream {} sha {} ".format(name, server, upstream, revision));
+        if (name in h):
+            p = h[name];
+            if (len(server)):
+                p.addxml('remote', server);
+            p.addxml('upstream', upstream);
+            p.setxml('revision', revision);
         else:
-            raise("Project {} not found".format(n));
+            raise("Project {} not found".format(name));
+
     # output
     o0.write(args.output)
 
