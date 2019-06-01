@@ -62,7 +62,7 @@ class mh_default(mh_base):
         
 class mh_project(mh_base):
     def __init__(self,args,m,xml,depth=0):
-        super(mh_project,self).__init__(args,'project',m,xml,['elem'],['name','path','revision','remote'],depth=depth)
+        super(mh_project,self).__init__(args,'project',m,xml,['elem'],['name','path','revision','remote','upstream'],depth=depth)
     def __str__(self):
         return "project name={}".format(self.name)
     def changed(self,p,args):
@@ -128,7 +128,6 @@ class logclass(object):
             with open(self.args.log,"a") as f:
                 f.write(l + "\n")
 
-
 class projar(logclass):
     def __init__(self,up,args):
         super(projar,self).__init__(args)
@@ -175,7 +174,7 @@ class projar(logclass):
         self.log("Update {} {}".format(a[0].name, e.revision))
         a[0].setxml('revision',e.revision)
         
-# clearcase like git handling via repo:
+# via repo:
 class manifest(object):
     
     def __init__(self, args, fn):
@@ -184,7 +183,11 @@ class manifest(object):
         self.doc = None
         self.tree = ftomanifest(args, fn, None, depth=0)
         self.m = self.flatten()
-        
+        self.extra_remotes = []
+
+    def add_remote(self,r):
+        self.extra_remotes.append(r)
+
     def flatten(self):
         p = projar(self,self.args)
         def touchproj(e):
@@ -233,10 +236,9 @@ class manifest(object):
                 c.addremote(e)
             self.traverse(['remote','default'], lambda x: add_remote(x))
 
-            for e in c.r:
-                f.write(" " + e.get_xml()+"\n");
+            for e in (self.extra_remotes+c.r):
+                f.write(" " + e.get_xml().decode("utf-8")+"\n");
             for e in c.a: #sorted(c.a, key=lambda x: x.name):
-                f.write(" " + e.get_xml()+"\n");
+                f.write(" " + e.get_xml().decode("utf-8")+"\n");
 
             f.write("</manifest>\n");
-

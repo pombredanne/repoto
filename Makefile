@@ -62,3 +62,15 @@ initrc:
 		--output $(INITRC_OUT) \
 	$(INITRC_INPUTS)
 	google-chrome file://$(CURDIR)/t/index.html
+
+
+
+STEP_M?=$(CURDIR)/r/.repo/manifests/manifest.xml
+STEP_R?=--rewriteproj eiselekd/repoto=review:172/2/3:b100105d66cf17a27ad7c3e408d9fb2ee7ed1a6a --addserver review=github.com
+
+step:
+	python3 step.py $(STEP_M) $(STEP_R) t/out.xml
+
+
+tar:
+	tar cvf step.tar step.py repo/manifest.py repo/__init__.py
