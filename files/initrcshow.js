@@ -2,6 +2,7 @@
 function idify(a) {
     var r = [];
     for (var i of a) {
+        console.log(i);
         var j = i.id();
         r.push(j);
     }
@@ -43,6 +44,7 @@ function actionrule (r) {
     this.c = [];
 }
 actionrule.prototype.id = function() {
+    console.log(this.actions);
     return this.n + this.actions.join("");
 };
 
@@ -213,7 +215,10 @@ function initrc_diff_tree(e, d) {
     var seq = {};
 
     var rules_a = createhirarchy(d['d'][0]['parsed']['rules']);
-    var rules_b = createhirarchy(d['d'][1]['parsed']['rules']);
+
+    var rules_b = createhirarchy(d['d'][0]['parsed']['rules']);
+    if (d['d'][1] != undefined)
+        rules_b = createhirarchy(d['d'][1]['parsed']['rules']);
 
     var rulues_d = diffhirarchy(rules_a, rules_b, ['early-boot', 'boot', 'early-init', 'init' ]);
 

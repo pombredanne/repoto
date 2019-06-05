@@ -36,7 +36,13 @@ def listrepos(args):
     for p in projects:
         n = str(p)
         if (args.json):
-            a.append({ 'n' : p.name, 'sha' : p.revision , 'path' : p.path });
+            print (p.name);
+            e = { 'n' : p.name, 'sha' : p.revision , 'path' : p.path }
+            if not (args.aosproot is None):
+                d = os.popen('cd {}; git show-ref -d'.format(os.path.join(args.aosproot,p.path))).readlines()
+                e['refs'] = d;
+            a.append(e);
+
         else:
             print (p.name);
     if (args.json):
@@ -315,6 +321,7 @@ def main():
     # create the parser for the "flatten" command
     parser_list = subparsers.add_parser('list', help='list repos')
     parser_list.add_argument('--json', '-j', dest='json', action='store_true')
+    parser_list.add_argument('--aosproot', '-a', dest='aosproot', default=None, type=str)
     parser_list.add_argument('file', type=str, help='root manifest')
     parser_list.add_argument('output', type=str, help='output')
     parser_list.set_defaults(func=listrepos)

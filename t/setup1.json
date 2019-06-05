@@ -1,8 +1,8 @@
 {
-    "name" : "top1",
-    "root" : "t/top1/root",
-    "rootvendor" : "t/top1/vendor",
-    "rootsystem" : "t/top1/system",
+    "name" : "gordon_peak",
+    "root" : "/home/eiselekd/src/android/ihu_abl_car.ww14_2019/out/target/product/gordon_peak_ull",
+    "rootvendor" : "/home/eiselekd/src/android/ihu_abl_car.ww14_2019/out/target/product/gordon_peak_ull/vendor",
+    "rootsystem" : "/home/eiselekd/src/android/ihu_abl_car.ww14_2019/out/target/product/gordon_peak_ull/system",
     "defprop" : ["t/build1.prop",
 		 "ro.zygote=zygote64_32"
 		],

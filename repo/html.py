@@ -50,13 +50,16 @@ index="""
     </div>
     <div class="page row">
      <br>
-     <div id="browser" class="menu-tree column expleft" style='position:relative;'>
-     <ul>
-      {{{dst2src}}}
-     </ul></div>
+      <div id="viewlock" class="viewlock">
+       <div id="browser" class="menu-tree column expleft" style='position:relative;'>
+        <ul>
+        {{{dst2src}}}
+        </ul></div></div>
      <div class="mainpane">
       <div id="fninfo" class="floatinfo"></div>
-      <div id="fileview" class="fileview"></div>
+      <div id="viewlock" class="viewlock">
+       <div id="fileview" class="fileview"></div>
+      </div>
      </div>
      <!--
      <div class="detail flex">

@@ -67,10 +67,18 @@ initrc:
 
 STEP_M?=$(CURDIR)/r/.repo/manifests/manifest.xml
 STEP_R?=--rewriteproj eiselekd/repoto=review:172/2/3:b100105d66cf17a27ad7c3e408d9fb2ee7ed1a6a --addserver review=github.com
+STEP_L?=--aosproot r
 
 step:
 	python3 step.py $(STEP_M) $(STEP_R) t/out.xml
 
+list:
+	mkdir -p out
+	$(CURDIR)/repoto.py list --json $(STEP_M) $(STEP_L) out/; \
+	google-chrome file://$(CURDIR)/out/index.html
 
 tar:
 	tar cvf step.tar step.py repo/manifest.py repo/__init__.py
+
+server:
+	python repotorest.py

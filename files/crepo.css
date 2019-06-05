@@ -72,11 +72,18 @@
    display: flex;
 }
 
-.column {
+.columnlock {
     width: 40%;
+    height: 800px;
+    overflow-y: hidden;
+}
+
+.column {
+    width: 100%;
     height: 100%;
     overflow: auto;
     float: left;
+    overflow-y: scroll;
 }
 
 .mainpane {
@@ -107,13 +114,20 @@
     float: left;
     flex: 1 1 auto;
     /*height: 100%;*/
-    overflow: auto;
+    /*overflow: auto;*/
 }
 
+.viewlock {
+    margin-top: 100px;
+    width: 60%;
+    height: 800px;
+    overflow-y: scroll;
+}
 
 .fileview {
-    margin-top: 100px;
     width: 100%;
+    overflow: auto;
+    overflow-y: scroll;
 }
 
 .detailfileview {

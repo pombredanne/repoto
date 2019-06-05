@@ -140,6 +140,7 @@ class initrc_service(initrc_entity):
         return { 'typ' : 'service',
                  'line' : self.l.line(),
                  'trig_event' : self.trigger_event,
+                 'actions' : [ l.line() for l in self.cmds ],
                  'trig_prop' : self.trigger_prop,
                  'set' : self.setprops,
                  'path' : self.l.hostpath()
