@@ -96,6 +96,9 @@ class html(object):
         if (os.path.isdir(dstdir)):
             shutil.rmtree(dstdir)
         shutil.copytree(srcdir, dstdir)
+        tmpl = "html0.html"
+        with open(os.path.join(os.path.dirname(__file__), tmpl),"r") as o:
+            index = o.read()
         indexout=pystache.render(index, indexparam)
         with open(i, "w") as f:
             f.write(indexout)
@@ -132,7 +135,8 @@ class repohtml(html):
             'repodef':  j,
             'zipdata':  json.dumps(zipdata),
             'basefunc' : 'init_repo_tree',
-            'extracode' : 'reposhow'
+            'extracode' : 'reposhow',
+            'templ' : 'html0.html'
         }
         self._generate(d, indexparam)
 
@@ -163,7 +167,8 @@ class diffdirhtml(html):
             'repodef':  j,
             'zipdata':  json.dumps(zipdata),
             'basefunc' : 'init_diff_tree',
-            'extracode' : 'diffshow'
+            'extracode' : 'diffshow',
+            'templ' : 'html0.html'
         }
         self._generate(d, indexparam)
 
@@ -192,6 +197,7 @@ class initrchtml(html):
             'repodef':  j,
             'zipdata':  json.dumps(zipdata),
             'basefunc' : 'initrc_diff_tree',
-            'extracode' : 'initrcshow'
+            'extracode' : 'initrcshow',
+            'templ' : 'html0.html'
         }
         self._generate(d, indexparam)

@@ -70,9 +70,10 @@ function converthexcolor(a)
     return k;
 }
 
+var index = 1;
 gen_tree.prototype.htmlid = function(na)
 {
-    var id = "undef";
+    var id = "idnum"+(index++);
     if (this.e != undefined &&
         'path' in this.e)
     {
@@ -152,18 +153,23 @@ gen_tree.prototype.html = function(na)
         var e = this.c[i];
         c.push(e.html(na));
     }
-    var func = 'noop'; var arg0 = ""; var arg1 = "file";
+    var func = 'selgroup'; var arg0 = ""; var arg1 = "file";
     var a = ['expanded'];
     if (this.e != undefined &&
         'attr' in this.e &&
         'class' in this.e['attr'])
     {
         var toadd = this.e['attr']['class'];
-        func = toadd[0];
+        if (toadd[0] != undefined)
+            func = toadd[0];
         if ('dir' in toadd) {
             arg1 = 'dir';
         }
         arg0 = this.e['path'];
+        if ('arg0' in this.e)
+            arg0 = this.e['arg0']
+        if ('arg1' in this.e)
+            arg1 = this.e['arg1']
         a = a.concat(toadd);
     }
     var col = "";
@@ -185,6 +191,8 @@ gen_tree.prototype.html = function(na)
 
     var l = c.join("\n");
     var id = this.htmlid();
+    if (arg0 == undefined)
+        arg0 = id;
     var args = [arg0, arg1].map(function(a) { return "\""+a+"\""; }).join(",");
     return "<li id=\""+id+"\" ><span class=\""+a.join(" ")+"\"><a style=\""+col+"\" onclick='"+func+"("+args+")' >" + this.n + "</a></span><ul> " + l + "</ul></li>";
 }
