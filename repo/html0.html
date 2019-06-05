@@ -1,0 +1,52 @@
+<html>
+  <head>
+    <script src="files/jquery-ui-1.12.1.custom/external/jquery/jquery.js"></script>
+    <script src="files/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
+    <script src="files/codetree.js"></script>
+    <script src="files/pako.js"></script>
+    <script src="files/d3.js"></script>
+    <script src="files/generic.js"></script>
+    <script src="files/{{extracode}}.js"></script>
+    <link rel="stylesheet" type="text/css" href="files/jquery-ui-1.12.1.custom/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="files/jquery-ui-1.12.1.custom/jquery-ui.structure.css">
+    <link rel="stylesheet" type="text/css" href="files/crepo.css">
+    <style></style>
+  </head>
+  <body>
+    <div class="page row">
+      <div class="exp" onClick='expandAll()'>[+]</div>
+      <div class="exp" onClick='collapseAll()' style='display:block;'>[-]</div>
+      <div class="exp" onClick='viewOnlyChanged()'>viewchanged</div>
+      <script></script>
+    </div>
+    <div class="page row">
+     <br>
+      <div id="viewlock" class="viewlock">
+       <div id="browser" class="menu-tree column expleft" style='position:relative;'>
+        <ul>
+        {{{dst2src}}}
+        </ul></div></div>
+     <div class="mainpane">
+      <div id="fninfo" class="floatinfo"></div>
+      <div id="viewlock" class="viewlock">
+       <div id="fileview" class="fileview"></div>
+      </div>
+     </div>
+     <!--
+     <div class="detail flex">
+      <div id="detailfninfo" class="detailfloatinfo"></div>
+      <div id="detailfileview" class="detailfileview"></div>
+     </div>
+     -->
+    </div>
+    <script src="files/tree.js"></script>
+    <script>
+     var prefs={{{prefs}}};
+     var repodef={{{repodef}}};
+     var zipdata={{{zipdata}}};
+    </script>
+    <script>
+     {{basefunc}}('#browser',repodef);
+    </script>
+  </body>
+</html>
