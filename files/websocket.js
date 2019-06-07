@@ -40,6 +40,7 @@ wss.on('connection', function (ws) {
     //send immediatly a feedback to the incoming connection    
     ws.send('Hi there, I am a WebSocket server');
 });
+
 //start our server
 server.listen(process.env.PORT || 8999, function () {
     console.log("Server started on port " + server.address().port + " :)");

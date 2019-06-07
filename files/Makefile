@@ -6,4 +6,4 @@ test:
 
 inspect:
 	google-chrome chrome://inspect/#devices &
-	node inspect reposerver.js
+	node inspect repoto.js
