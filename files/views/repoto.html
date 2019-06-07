@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="jquery-ui-1.12.1.custom/external/jquery/jquery.js"></script>
+    <script src="jquery-ui-1.12.1.custom/jquery-ui.js"></script>
+    <script src="jquery-treetable/jquery.treetable.js"></script>
+
+    <script src="codetree.js"></script>
+    <script src="pako.js"></script>
+    <script src="d3.js"></script>
+    <script src="generic.js"></script>
+    <script src="reposhow.js"></script>
+    <script src="repotoshow.js"></script>
+    <link rel="stylesheet" type="text/css" href="jquery-ui-1.12.1.custom/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-ui-1.12.1.custom/jquery-ui.structure.css">
+    <link rel="stylesheet" type="text/css" href="crepo.css">
+    <link rel="stylesheet" type="text/css" href="jquery-treetable/css/jquery.treetable.css">
+    <link rel="stylesheet" type="text/css" href="jquery-treetable/css/jquery.treetable.theme.default.css">
+    <link rel="stylesheet" type="text/css" href="jquery-treetable/css/screen.css">
+    <style></style>
+  </head>
+  <body>
+    <div id="dialog" title="Basic dialog">
+      <table id="tree">
+	<thead>
+	  <tr>
+	    <th>Name</th>
+	    <th>Date modified</th>
+	    <th>Size</th>
+	  </tr>
+	</thead>
+	<tbody>
+	  <tr data-tt-id="<%= node.id %>" data-tt-parent-id="<%= node.parent_id %>" data-tt-branch="<%= node.kind == "directory" ? "true" : "false" %>">
+	    <td>
+	      <span class="<%= node.kind %>"><%= node.name %></span>
+	    </td>
+	    <td><%= node.modified_at ? node.modified_at.strftime('%b %e, %Y %I:%M %p') : '-' %></td>
+	    <td><%= number_to_human_size(node.size) %></td>
+	  </tr>
+
+	  <%= render @nodes %>
+	</tbody>
+      </table>
+
+      <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
+    </div>
+
+
+    <div class="page row">
+    </div>
+    <script src="tree.js"></script>
+    <script>
+      var prefs={};
+    </script>
+    <script>
+      $( "#dialog" ).dialog();
+      //init_repo_tree('#browser',repodef);
+    </script>
+  </body>
+</html>

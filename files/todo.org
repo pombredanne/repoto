@@ -1,0 +1,20 @@
+
+* TODO setup mustache view 
+
+** TODO setup main view
+
+** TODO SRC DST browser
+*** TODO trigger ref-show selectbox
+**** TODO date sort 
+*** TODO trigger log searchable list select
+**** TODO implement commit view
+**** TODO date range select
+*** TODO revision fileview
+
+** TODO Select 2 manifests
+
+** TODO implement diffmanifest view
+
+
+
+
