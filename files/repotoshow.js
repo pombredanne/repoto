@@ -39,6 +39,7 @@ function setupfilebrowser(a) {
 }
 
 function setuplog(a,sha) {
+    console.log("Load "+sha);
     $.ajax({
         dataType: "json",
         async: false, // Must be false, otherwise loadBranch happens after showChildren?
@@ -68,6 +69,28 @@ function setuplog(a,sha) {
 
 function setuprefselect(a) {
 
+    var $sellog = $('#'+"select-log").selectize({
+        onChange        : function (e) {
+            if (e in this.options)
+                console.log(this.options[e].id);
+        },
+        options: [],
+        valueField: 'id',
+        labelField: 'n',
+        searchField: 'n',
+        create: false,
+        render: {
+            option: function(item, escape) {
+                return '<div><span class="title">' +
+                    '<span class="name">' + escape(item.d) + '</span>' +
+                    '<ul class="meta">' +
+                    '<li class="watchers"><span>' + escape(item.n) + '</span></li>' +
+                    '</ul></div>';
+            }
+        }
+    });
+    var sellog = $sellog[0].selectize;
+
     $.ajax({
         dataType: "json",
         async: false, // Must be false, otherwise loadBranch happens after showChildren?
@@ -76,7 +99,17 @@ function setuprefselect(a) {
         $('#'+a).selectize({
             onChange        : function (e) {
                 var sha = this.options[e].sha;
-                setuplog("select-log", sha);
+                $.ajax({
+                    dataType: "json",
+                    async: false, // Must be false, otherwise loadBranch happens after showChildren?
+                    url: "/log/" + sha + "/100"
+                }).done(function(data) {
+                    sellog.clear();
+                    sellog.clearOptions();
+                    sellog.load(callback => {
+                        callback(data);
+                    });
+                });
             },
             options: data,
             valueField: 'id',
