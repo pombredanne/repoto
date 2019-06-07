@@ -33,6 +33,25 @@ app.use(function(req, res, next) {
     next();
 });
 
+app.get('/showrefs', function(req, res, next) {
+    var refs = [];
+    dump("[G] GET /showrefs ");
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    exec( 'git show-ref',   (error, stdout, stderr) => {
+        if (error) {
+            console.error(`exec error: ${error}`);
+            return next();
+        }
+        stdout.split(/\n/).map(e => {
+            if (e.length > 40)
+                refs.push({'sha':e.substr(0,40), 'id': e.substr(41)});
+        });
+
+        res.write(JSON.stringify(refs));
+        return res.end("\n");
+    });
+});
+
 app.get('/log/:sha/:count', function(req, res, next) {
     var _refs = [];
     var sha = req.params.sha;
@@ -47,26 +66,13 @@ app.get('/log/:sha/:count', function(req, res, next) {
         var shas = [];
 
         stdout.split(/\n/).map(e => {
-            shas.push({'sha':e.substr(0,40), 'd': e.substr(41,10), 'n':e.substr(41+11)});
+            shas.push({'id':e.substr(0,40), 'd': e.substr(41,10), 'n':e.substr(41+11)});
         });
         res.write(JSON.stringify(shas));
         return res.end("\n");
     });
 });
 
-app.get('/showrefs', function(req, res, next) {
-    var _config = [];
-    dump("[G] GET /status : " + JSON.stringify(_config));
-    res.writeHead(200, {'Content-Type': 'application/json'});
-    exec( 'git show-ref',   (error, stdout, stderr) => {
-        if (error) {
-            console.error(`exec error: ${error}`);
-            return next();
-        }
-        res.write(JSON.stringify({'g' : stdout }));
-        return res.end("\n");
-    });
-});
 
 var rpath = { 0 : "/tmp/" };
 function registeredPath(id) {
@@ -84,7 +90,7 @@ app.get('/browse/:id/children', function(req, res, next) {
     var _refs = [];
     var id = req.params.id;
     var count = req.params.count;
-    dump("[G] GET /log : " + JSON.stringify(_refs));
+    dump("[G] GET /child : " + id);
     res.writeHead(200, {'Content-Type': 'application/json'});
     var p = registeredPath(id);
     fs.readdir(p, function(err, items) {
@@ -92,15 +98,16 @@ app.get('/browse/:id/children', function(req, res, next) {
         for (var f of items) {
             var abspath=fs.realpathSync(path.join(p, f));
             var stats = fs.statSync(abspath);
-            var pid = registerPath(abspath);
-            ret.push({ "id"  : id,
-                       "pid" : pid,
+            var cid = registerPath(abspath);
+            ret.push({ "id"  : cid,
+                       "pid" : id,
                        "n" : abspath,
                        "branch" : stats.isDirectory() ? "true" : "false",
                        "kind" : stats.isDirectory() ? "directory" : "file"
                      });
         }
         res.write(JSON.stringify(ret));
+        return res.end("\n");
     });
 });
 

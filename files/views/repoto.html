@@ -2,6 +2,7 @@
 <html>
   <head>
     <script src="jquery-ui-1.12.1.custom/external/jquery/jquery.js"></script>
+    <script src="selectize.js/dist/js/standalone/selectize.js"></script>
     <script src="jquery-ui-1.12.1.custom/jquery-ui.js"></script>
     <script src="jquery-treetable/jquery.treetable.js"></script>
 
@@ -17,10 +18,18 @@
     <link rel="stylesheet" type="text/css" href="jquery-treetable/css/jquery.treetable.css">
     <link rel="stylesheet" type="text/css" href="jquery-treetable/css/jquery.treetable.theme.default.css">
     <link rel="stylesheet" type="text/css" href="jquery-treetable/css/screen.css">
+    <link rel="stylesheet" type="text/css" href="selectize.js/dist/css/selectize.css">
     <style></style>
   </head>
   <body>
+
     <div id="dialog" title="Basic dialog">
+      <select id="select-repo" class="repositories selectized" placeholder="Select branch..." tabindex="-1" style="display: none;">
+	<option value="https://github.com/brianreavis/selectize.js" selected="selected">selectize.js</option>
+      </select>
+      <select id="select-log" class="repositories selectized" placeholder="Select sha..." tabindex="-1" style="display: none;">
+	<option value="https://github.com/brianreavis/selectize.js" selected="selected">selectize.js</option>
+      </select>
       <table id="tree">
 	<thead>
 	  <tr>
@@ -30,21 +39,17 @@
 	  </tr>
 	</thead>
 	<tbody>
-	  <tr data-tt-id="<%= node.id %>" data-tt-parent-id="<%= node.parent_id %>" data-tt-branch="<%= node.kind == "directory" ? "true" : "false" %>">
+	  <tr data-tt-id="0" data-tt-parent-id="-1" data-tt-branch="true">
 	    <td>
-	      <span class="<%= node.kind %>"><%= node.name %></span>
+	      <span class="directory">/tmp</span>
 	    </td>
-	    <td><%= node.modified_at ? node.modified_at.strftime('%b %e, %Y %I:%M %p') : '-' %></td>
-	    <td><%= number_to_human_size(node.size) %></td>
+	    <td></td>
+	    <td>100</td>
 	  </tr>
-
-	  <%= render @nodes %>
 	</tbody>
       </table>
-
       <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
     </div>
-
 
     <div class="page row">
     </div>
@@ -53,6 +58,8 @@
       var prefs={};
     </script>
     <script>
+      setupfilebrowser("tree");
+      setuprefselect("select-repo");
       $( "#dialog" ).dialog();
       //init_repo_tree('#browser',repodef);
     </script>
