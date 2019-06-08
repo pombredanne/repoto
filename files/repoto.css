@@ -1,0 +1,9 @@
+.selectcolumn {
+    float: left;
+    width: 50%;
+}
+
+.selectrow {
+    display: flex;
+    flex-flow: row;
+}

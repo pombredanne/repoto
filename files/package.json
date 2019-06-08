@@ -13,6 +13,7 @@
       "chai": "*",
       "chai-http": "*",
       "express": "*",
+      "atob": "*",
       "mustache": "*",
       "mustache-express": "*",
       "https": "*",

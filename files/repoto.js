@@ -33,11 +33,13 @@ app.use(function(req, res, next) {
     next();
 });
 
+var repobase="/home/eiselekd/src/android/ihu_abl_car.ww14_2019/.repo/manifests";
+
 app.get('/showrefs', function(req, res, next) {
     var refs = [];
     dump("[G] GET /showrefs ");
     res.writeHead(200, {'Content-Type': 'application/json'});
-    exec( 'git show-ref',   (error, stdout, stderr) => {
+    exec( 'cd '+repobase+';git show-ref',   (error, stdout, stderr) => {
         if (error) {
             console.error(`exec error: ${error}`);
             return next();
@@ -52,7 +54,6 @@ app.get('/showrefs', function(req, res, next) {
     });
 });
 
-var repobase = "/tmp/repoto/";
 
 function revisionbaseSync(sha) {
     var d = repobase + '.revisions/' + sha;
@@ -73,7 +74,7 @@ app.get('/log/:sha/:count', function(req, res, next) {
     var count = req.params.count;
     dump("[G] GET /log : " + JSON.stringify(_refs));
     res.writeHead(200, {'Content-Type': 'application/json'});
-    exec( 'git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + sha,   (error, stdout, stderr) => {
+    exec( 'cd '+repobase+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + sha,   (error, stdout, stderr) => {
         if (error) {
             console.error(`exec error: ${error}`);
             return next();
@@ -88,8 +89,23 @@ app.get('/log/:sha/:count', function(req, res, next) {
     });
 });
 
+app.get('/setrepo/:repo', function(req, res, next) {
+    var _refs = [];
+    var h = {success : 0};
+    var atob = require('atob');
+    var repo = atob(req.params.repo);
+    dump("[G] GET /setrepo : " + repo);
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    var rpath = path.join(repo, ".repo/manifests");
+    if (fs.existsSync(rpath)) {
+        repobase = rpath;
+        h['success'] = 1;
+    }
+    res.write(JSON.stringify(h));
+    return res.end("\n");
+});
 
-var rpath = { 0 : "/tmp/" };
+var rpath = { 0 : "/" };
 function registeredPath(id) {
     return rpath[id];
 }
@@ -109,7 +125,7 @@ app.get('/browse/:sha/:id/children', function(req, res, next) {
     dump("[G] GET /child : " + sha + ":" + id);
     res.writeHead(200, {'Content-Type': 'application/json'});
     var p = "undef";
-    if (id == 0)  {
+    if (sha != 0 && id == 0)  {
         p = revisionbaseSync(sha);
     } else {
         p = registeredPath(id);

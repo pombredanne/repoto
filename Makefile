@@ -73,9 +73,11 @@ step:
 	python3 step.py $(STEP_M) $(STEP_R) t/out.xml
 
 list:
+	mkdir -p out_a out_b
+	$(CURDIR)/repoto.py list --json $(STEP_M_A) $(STEP_L) out_a/; \
 	mkdir -p out
-	$(CURDIR)/repoto.py list --json $(STEP_M) $(STEP_L) out/; \
-	google-chrome file://$(CURDIR)/out/index.html
+	$(CURDIR)/repoto.py list --json $(STEP_M_B) $(STEP_L) out_b/; \
+	#google-chrome file://$(CURDIR)/out/index.html
 
 tar:
 	tar cvf step.tar step.py repo/manifest.py repo/__init__.py

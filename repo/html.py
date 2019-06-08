@@ -125,9 +125,14 @@ class repohtml(html):
     def __init__(self, args, repodef):
         super(repohtml,self).__init__(args)
         self.repodef = repodef
+        self.args = args
 
     def generate(self, d):
         j = json.dumps(self.repodef, sort_keys=True, indent=4, separators=(',', ': '), cls=PythonObjectEncoder);
+
+        with open(os.path.join(self.args.output, "list.json"), "w") as f:
+            f.write(json.dumps({'d': self.repodef}, sort_keys=True, indent=4, separators=(',', ': '), cls=PythonObjectEncoder))
+
         pref = {};
         zipdata = [];
         indexparam={
