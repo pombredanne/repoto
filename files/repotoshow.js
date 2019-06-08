@@ -49,15 +49,7 @@ function refselectdialog (x) {
             $.ajax({
                 dataType: "json",
                 async: false, // Must be false, otherwise loadBranch happens after showChildren?
-<<<<<<< HEAD
                 url: "/browse/"+activesha+"/" + nid + "/children"
-=======
-<<<<<<< HEAD
-                url: "/browse/"+node.sha+"/" + node.id + "/children"
-=======
-                url: "/browse/"+activesha+"/" + nid + "/children"
->>>>>>> all
->>>>>>> m2
             }).done(function(data) {
                 var items = [];
                 $.each( data, function( key, val ) {
