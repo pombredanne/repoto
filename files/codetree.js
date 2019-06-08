@@ -201,3 +201,88 @@ gen_tree.prototype.html = function(na)
 function propagate(e,r,g,b) {
 
 }
+
+/* ------------------ idify ------------------*/
+
+function idify(a) {
+    var r = [];
+    for (var i of a) {
+        console.log(i);
+        var j = i.id();
+        r.push(j);
+    }
+    return r;
+}
+
+function unidify(d, a, b) {
+    var a_i = 0;
+    var b_i = 0;
+    var r = [];
+    for (i of d) {
+        if (i.added && ! i.removed) {
+            for (var j = 0; j < i.items.length; j++)
+                r.push([undefined,b[b_i++]]);
+        } else if (!i.added &&i.removed) {
+            for (var j = 0; j < i.items.length; j++)
+                r.push([a[a_i++],undefined]);
+        } else if  (!i.added && !i.removed) {
+            for (var j = 0; j < i.items.length; j++)
+                r.push([b[b_i++],a[a_i++]]);
+        } else {
+            throw Error("Undef");
+        }
+    }
+    return r;
+}
+
+function propagate(e,c) {
+    e.attr.class.push(c);
+    for (var i of e.c) {
+        propagate(i,c);
+    }
+}
+
+function diffhirarchy(a,b,order=[]) {
+    var a_i = idify(a);
+    var b_i = idify(b);
+    console.log(a_i);
+    console.log(b_i);
+    var d = diff(a_i, b_i);
+    console.log(d);
+    var u = unidify(d, a, b);
+    console.log(u);
+    var result = [];
+    for (var e of u) {
+        if (e[0] == undefined && e[1] != undefined) {
+            propagate(e[1], "diffremoved");
+            result.push(e[1]);
+        }
+        if (e[0] != undefined && e[1] == undefined) {
+            propagate(e[0], "diffnew");
+            result.push(e[0]);
+        }
+        if (e[0] != undefined && e[1] != undefined) {
+            var e0 = e[0];
+            var e1 = e[1];
+            var c = diffhirarchy(e0.c, e1.c);
+            e1.c = c;
+            result.push(e1);
+        }
+    }
+    if (order.length) {
+        var head = []
+        for (var i of order) {
+            var _r = []
+            for (var j of result) {
+                if (j.n == i) {
+                    head.push(j);
+                } else {
+                    _r.push(j);
+                }
+            }
+            result = _r;
+        }
+        result = head.concat(result);
+    }
+    return result;
+}
