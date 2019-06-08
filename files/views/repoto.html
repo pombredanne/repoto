@@ -23,14 +23,25 @@
   </head>
   <body>
 
-    <div id="dialog" title="Basic dialog">
+
+    <div class="page row">
+    </div>
+    <script src="tree.js"></script>
+    <script>
+      var prefs={};
+    </script>
+
+  </body>
+
+
+    <template id="dialog" title="Select revision">
       <select id="select-repo" class="repositories selectized" placeholder="Select branch..." tabindex="-1" style="display: none;">
-	<option value="https://github.com/brianreavis/selectize.js" selected="selected">selectize.js</option>
+	<option value="undef" selected="selected">...</option>
       </select>
       <select id="select-log" class="repositories selectized" placeholder="Select sha..." tabindex="-1" style="display: none;">
-	<option value="https://github.com/brianreavis/selectize.js" selected="selected">selectize.js</option>
+	<option value="undef" selected="selected">...</option>
       </select>
-      <table id="tree">
+      <table id="select-tree">
 	<thead>
 	  <tr>
 	    <th>Name</th>
@@ -48,20 +59,16 @@
 	  </tr>
 	</tbody>
       </table>
-      <p>This is the default dialog which is useful for displaying information. The dialog window can be moved, resized and closed with the 'x' icon.</p>
-    </div>
+    </template>
 
-    <div class="page row">
-    </div>
-    <script src="tree.js"></script>
     <script>
-      var prefs={};
-    </script>
-    <script>
-      setupfilebrowser("tree");
-      setuprefselect("select-repo");
-      $( "#dialog" ).dialog();
+      //setupfilebrowser("tree");
+      var r0 = refselectdialog();
+      var r1 = refselectdialog();
+      //setuprefselect("select-repo");
+      //$( "#dialog" ).dialog();
       //init_repo_tree('#browser',repodef);
     </script>
-  </body>
+
+
 </html>

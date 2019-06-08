@@ -9,7 +9,7 @@ var express = require("express"),
 
 var http = require("http");
 var WebSocket = require("ws");
-const { exec } = require('child_process');
+const { exec, execSync } = require('child_process');
 var mustacheExpress = require('mustache-express');
 
 var app = express();
@@ -52,6 +52,7 @@ app.get('/showrefs', function(req, res, next) {
     });
 });
 
+<<<<<<< HEAD
 var repobase =
 function clonerepo(sha) {
     var d = '.revisions/' + sha;
@@ -67,6 +68,23 @@ function clonerepo(sha) {
 }
 
 
+=======
+var repobase = "/tmp/repoto/";
+
+function revisionbaseSync(sha) {
+    var d = repobase + '.revisions/' + sha;
+    if (!fs.existsSync(d)) {
+        var cmd = 'mkdir -p ' + repobase + '.revisions/; cd ' + repobase + '; git clone . ' + d;
+        console.log(cmd);
+        execSync( cmd );
+        var cmd = 'cd ' + d + '; git checkout ' + sha;
+        console.log(cmd);
+        execSync(cmd);
+    }
+    return d;
+}
+
+>>>>>>> all
 app.get('/log/:sha/:count', function(req, res, next) {
     var _refs = [];
     var sha = req.params.sha;
@@ -108,16 +126,23 @@ app.get('/browse/:sha/:id/children', function(req, res, next) {
     var count = req.params.count;
     dump("[G] GET /child : " + sha + ":" + id);
     res.writeHead(200, {'Content-Type': 'application/json'});
-    var p = registeredPath(id);
+    var p = "undef";
+    if (id == 0)  {
+        p = revisionbaseSync(sha);
+    } else {
+        p = registeredPath(id);
+    }
     fs.readdir(p, function(err, items) {
         var ret = [];
         for (var f of items) {
             var abspath=fs.realpathSync(path.join(p, f));
             var stats = fs.statSync(abspath);
             var cid = registerPath(abspath);
+
             ret.push({ "id"  : cid,
                        "pid" : id,
-                       "n" : abspath,
+                       "n" : f,
+                       "abspath" : abspath,
                        "branch" : stats.isDirectory() ? "true" : "false",
                        "kind" : stats.isDirectory() ? "directory" : "file"
                      });
