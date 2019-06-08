@@ -13,7 +13,7 @@ function setupfilebrowser(a) {
             $.ajax({
                 dataType: "json",
                 async: false, // Must be false, otherwise loadBranch happens after showChildren?
-                url: "/browse/" + node.id + "/children"
+                url: "/browse/"+node.sha+"/" + node.id + "/children"
             }).done(function(data) {
                 var items = [];
                 $.each( data, function( key, val ) {

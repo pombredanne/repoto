@@ -52,6 +52,21 @@ app.get('/showrefs', function(req, res, next) {
     });
 });
 
+var repobase =
+function clonerepo(sha) {
+    var d = '.revisions/' + sha;
+    var stats = fs.statSync();
+
+    exec( 'git clone . ' + d,   (error, stdout, stderr) => {
+        exec( 'git checkout -C ' + d + ' ' + sha,   (error, stdout, stderr) => {
+
+        });
+    });
+
+    return i;
+}
+
+
 app.get('/log/:sha/:count', function(req, res, next) {
     var _refs = [];
     var sha = req.params.sha;
@@ -86,11 +101,12 @@ function registerPath(p) {
     return i;
 }
 
-app.get('/browse/:id/children', function(req, res, next) {
+app.get('/browse/:sha/:id/children', function(req, res, next) {
     var _refs = [];
+    var sha = req.params.sha;
     var id = req.params.id;
     var count = req.params.count;
-    dump("[G] GET /child : " + id);
+    dump("[G] GET /child : " + sha + ":" + id);
     res.writeHead(200, {'Content-Type': 'application/json'});
     var p = registeredPath(id);
     fs.readdir(p, function(err, items) {
