@@ -185,7 +185,7 @@ gen_tree.prototype.html = function(na)
             col -= 0x003030;
         }
         col = converthexcolor(col);
-        console.log(col);
+        //console.log(col);
         col = "background-color:#"+col;
     }
 
@@ -207,7 +207,7 @@ function propagate(e,r,g,b) {
 function idify(a) {
     var r = [];
     for (var i of a) {
-        console.log(i);
+        //console.log(i);
         var j = i.id();
         r.push(j);
     }
@@ -245,12 +245,12 @@ function propagate(e,c) {
 function diffhirarchy(a,b,order=[]) {
     var a_i = idify(a);
     var b_i = idify(b);
-    console.log(a_i);
-    console.log(b_i);
+    //console.log(a_i);
+    //console.log(b_i);
     var d = diff(a_i, b_i);
-    console.log(d);
+    //console.log(d);
     var u = unidify(d, a, b);
-    console.log(u);
+    //console.log(u);
     var result = [];
     for (var e of u) {
         if (e[0] == undefined && e[1] != undefined) {
