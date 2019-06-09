@@ -206,6 +206,7 @@ function refselectdialog () {
         var from = obj.r0.getdiffmanifest();
         var to   = obj.r1.getdiffmanifest();
         console.log("From " + from + " to " + to);
+        return [from, to];
     };
 
     this.resetRepo = function() {
@@ -214,7 +215,8 @@ function refselectdialog () {
     };
 
     $("#diffmanifestbutton").click(e => {
-        obj.getdiffmanifest();
+        var r = obj.getdiffmanifest();
+        processDiffManifests(r[0], r[1]);
     });
 
 }

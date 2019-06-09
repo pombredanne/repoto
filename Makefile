@@ -37,7 +37,7 @@ prep-repo:
 
 scan:
 	cd r; \
-		$(CURDIR)/repoto.py list --json .repo/manifests/manifest.xml .; \
+		$(CURDIR)/repoto.py list --output r --json .repo/manifests/manifest.xml .; \
 	google-chrome file://$(CURDIR)/r/index.html
 
 diffd:
@@ -73,10 +73,8 @@ step:
 	python3 step.py $(STEP_M) $(STEP_R) t/out.xml
 
 list:
-	mkdir -p out_a out_b
-	$(CURDIR)/repoto.py list --json $(STEP_M_A) $(STEP_L) out_a/; \
 	mkdir -p out
-	$(CURDIR)/repoto.py list --json $(STEP_M_B) $(STEP_L) out_b/; \
+	$(CURDIR)/repoto.py list --json out/j,json $(STEP_M_A) $(STEP_M_B) ;
 	#google-chrome file://$(CURDIR)/out/index.html
 
 tar:

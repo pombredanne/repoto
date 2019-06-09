@@ -27,7 +27,21 @@
 
   <body>
     <div class="page row">
+      <div class="exp" onClick='expandAll()'>[+]</div>
+      <div class="exp" onClick='collapseAll()' style='display:block;'>[-]</div>
+      <div class="exp" onClick='viewOnlyChanged()'>viewchanged</div>
+      <script></script>
     </div>
+
+    <div class="page row">
+      <div id="viewlock" class="viewlock">
+	<div id="browser" class="menu-tree column expleft" style='position:relative;'>
+          <ul>
+	  </ul>
+	</div>
+      </div>
+    </div>
+
     <script src="tree.js"></script>
     <script>
       var prefs={};

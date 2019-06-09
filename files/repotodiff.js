@@ -69,10 +69,23 @@ function repotodiff_tree(a, d_a, d_b) {
     var h_a = createprojhirarchy(d_a['d']);
     var h_b = createprojhirarchy(d_b['d']);
 
-    var h_d = diffhirarchy(h_a, h_b, ['early-boot', 'boot', 'early-init', 'init' ]);
+    var h_d = diffhirarchy(h_a, h_b, []);
 
     var treear = new gen_tree('root');
     treear.genar(h_d);
     var p = treear.html();
-    $(a).append(p);
+    $("#"+a).empty();
+    $("#"+a).append(p);
+    treeCodeClickSetup();
+}
+
+
+function processDiffManifests(a,b) {
+    $.ajax({
+        dataType: "json",
+        url: "/projlist/" + btoa(a) + "/" + btoa(b)
+    }).done(function(data) {
+        console.log(data);
+        repotodiff_tree("browser", {d:data.d[0].projects},{d:data.d[1].projects});
+    });
 }

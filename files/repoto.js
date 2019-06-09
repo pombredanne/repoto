@@ -35,6 +35,8 @@ app.use(function(req, res, next) {
 
 var repobase="/home/eiselekd/src/android/ihu_abl_car.ww14_2019/.repo/manifests";
 
+/* ----------------- repo branch -------------------------*/
+
 app.get('/showrefs', function(req, res, next) {
     var refs = [];
     dump("[G] GET /showrefs ");
@@ -54,7 +56,6 @@ app.get('/showrefs', function(req, res, next) {
     });
 });
 
-
 function revisionbaseSync(sha) {
     var d = repobase + '.revisions/' + sha;
     if (!fs.existsSync(d)) {
@@ -68,26 +69,44 @@ function revisionbaseSync(sha) {
     return d;
 }
 
-app.get('/log/:sha/:count', function(req, res, next) {
+/* ----------------- git log -------------------------*/
+
+function gitlogcmd(cmd, res, next) {
     var _refs = [];
-    var sha = req.params.sha;
-    var count = req.params.count;
-    dump("[G] GET /log : " + JSON.stringify(_refs));
+    console.log("gitlogcmd:" + cmd);
     res.writeHead(200, {'Content-Type': 'application/json'});
-    exec( 'cd '+repobase+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + sha,   (error, stdout, stderr) => {
+    exec( cmd,   (error, stdout, stderr) => {
         if (error) {
             console.error(`exec error: ${error}`);
             return next();
         }
         var shas = [];
-
         stdout.split(/\n/).map(e => {
             shas.push({'id':e.substr(0,40), 'd': e.substr(41,10), 'n':e.substr(41+11)});
         });
         res.write(JSON.stringify(shas));
         return res.end("\n");
     });
+}
+
+app.get('/log/:sha/:count', function(req, res, next) {
+    var _refs = [];
+    var sha = req.params.sha;
+    var count = req.params.count;
+    dump("[G] GET /log : " + JSON.stringify(_refs));
+    gitlogcmd( 'cd '+repobase+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + sha, res, next);
 });
+
+app.get('/logdiff/:shafrom/:shato', function(req, res, next) {
+    var _refs = [];
+    var shafrom = req.params.shafrom;
+    var shato = req.params.shato;
+    dump("[G] GET /logdiff : " + shafrom + ".." + shato);
+    gitlogcmd( 'cd '+repobase+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + shafrom + ".." + shato, res, next);
+
+});
+
+/* ----------------- browse repo -------------------------*/
 
 app.get('/setrepo/:repo', function(req, res, next) {
     var _refs = [];
@@ -148,6 +167,24 @@ app.get('/browse/:sha/:id/children', function(req, res, next) {
         res.write(JSON.stringify(ret));
         return res.end("\n");
     });
+});
+
+/* ----------------- projlist  -------------------------*/
+
+app.get('/projlist/:repoa/:repob', function(req, res, next) {
+    var _refs = [];
+    var h = {success : 0};
+    var atob = require('atob');
+    var repoa = atob(req.params.repoa);
+    var repob = atob(req.params.repob);
+    dump("[G] GET /projlist : " + repoa + " -> " + repob);
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    var cmd = __dirname+"/../repoto.py list --json /tmp/.j,json "+repoa+" "+repob;
+    console.log(cmd);
+    var o = execSync(cmd);
+    var h = fs.readFileSync("/tmp/.j,json");
+    res.write(h);
+    return res.end("\n");
 });
 
 app.get('/', function(req, res) {

@@ -25,27 +25,33 @@ def diffdir(args):
     j.generate(args.output);
 
 def listrepos(args):
-    o0 = manifest(args, args.file);
-    p = projar(None,args)
-    def touchproj(e):
-        if isinstance(e,mh_project):
-            p.add(e)
-    o0.traverse(['elem'], lambda x: touchproj(x))
-    projects = p.p
-    a = []
-    for p in projects:
-        n = str(p)
-        if (args.json):
+    mar = []
+    for fn in args.inputs:
+        o0 = manifest(args, fn);
+        p = projar(None,args)
+        def touchproj(e):
+            if isinstance(e,mh_project):
+                p.add(e)
+        o0.traverse(['elem'], lambda x: touchproj(x))
+        projects = p.p
+        a = []
+        for p in projects:
+            n = str(p)
             print (p.name);
             e = { 'n' : p.name, 'sha' : p.revision , 'path' : p.path }
             if not (args.aosproot is None):
                 d = os.popen('cd {}; git show-ref -d'.format(os.path.join(args.aosproot,p.path))).readlines()
                 e['refs'] = d;
             a.append(e);
+        mar.append({'fn':fn,
+                    'projects':a});
 
-        else:
-            print (p.name);
     if (args.json):
+        with open(args.json, "w") as f:
+            j = json.dumps({'d':mar}, sort_keys=True, indent=4, separators=(',', ': '), cls=PythonObjectEncoder);
+            f.write(j);
+
+    if (args.html):
         j = repohtml(args, a);
         j.generate(args.output);
 
@@ -320,10 +326,11 @@ def main():
     
     # create the parser for the "flatten" command
     parser_list = subparsers.add_parser('list', help='list repos')
-    parser_list.add_argument('--json', '-j', dest='json', action='store_true')
+    parser_list.add_argument('--json', '-j', dest='json', type=str)
+    parser_list.add_argument('--html', dest='html', action='store_true')
     parser_list.add_argument('--aosproot', '-a', dest='aosproot', default=None, type=str)
-    parser_list.add_argument('file', type=str, help='root manifest')
-    parser_list.add_argument('output', type=str, help='output')
+    parser_list.add_argument('--output', '-o', type=str, help='output')
+    parser_list.add_argument('inputs', nargs='*', default=[], help='input list')
     parser_list.set_defaults(func=listrepos)
 
     # create the parser for the "flatten" command
