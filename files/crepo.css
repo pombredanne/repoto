@@ -69,7 +69,9 @@
 
 .page {
     /*width: 100%;*/
-   display: flex;
+    display: flex;
+    height: 100%;
+    min-height: 100%;
 }
 
 .columnlock {
@@ -117,10 +119,15 @@
     /*overflow: auto;*/
 }
 
+.body {
+    height: 100%; /*800px;*/
+    overflow: auto;
+};
+
 .viewlock {
     margin-top: 32px;
     width: 60%;
-    height: 800px;
+    height: 100vh; /*800px;*/
     overflow-y: scroll;
 }
 
@@ -221,3 +228,12 @@ span.diffline {
     font-family: monospace;
     margin: 0;
 }
+
+/* ---- screen ------ */
+
+body {
+    height: 100vh;
+    min-height: 100vh;
+    /*height: 100vh;*/ /*800px;*/
+    overflow: auto;
+};

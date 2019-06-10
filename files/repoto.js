@@ -33,7 +33,8 @@ app.use(function(req, res, next) {
     next();
 });
 
-var repobase="/home/eiselekd/src/android/ihu_abl_car.ww14_2019/.repo/manifests";
+//var repobase="/home/eiselekd/src/android/ihu_abl_car.ww14_2019/.repo/manifests";
+var repobase="/data/slimbsp/slimbsp-test/.repo/manifests"
 
 /* ----------------- repo branch -------------------------*/
 
@@ -152,17 +153,21 @@ app.get('/browse/:sha/:id/children', function(req, res, next) {
     fs.readdir(p, function(err, items) {
         var ret = [];
         for (var f of items) {
-            var abspath=fs.realpathSync(path.join(p, f));
-            var stats = fs.statSync(abspath);
-            var cid = registerPath(abspath);
+            try {
+                var abspath=fs.realpathSync(path.join(p, f));
+                var stats = fs.statSync(abspath);
+                var cid = registerPath(abspath);
 
-            ret.push({ "id"  : cid,
-                       "pid" : id,
-                       "n" : f,
-                       "abspath" : abspath,
-                       "branch" : stats.isDirectory() ? "true" : "false",
-                       "kind" : stats.isDirectory() ? "directory" : "file"
-                     });
+                ret.push({ "id"  : cid,
+                           "pid" : id,
+                           "n" : f,
+                           "abspath" : abspath,
+                           "branch" : stats.isDirectory() ? "true" : "false",
+                           "kind" : stats.isDirectory() ? "directory" : "file"
+                         });
+            } catch (e) {
+                console.log(e);
+            }
         }
         res.write(JSON.stringify(ret));
         return res.end("\n");
