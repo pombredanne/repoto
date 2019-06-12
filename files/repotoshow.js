@@ -1,3 +1,6 @@
+var d0 = "/home/eiselekd/src/android/ihu_abl_car.ww14_2019/.repo/manifests.revisions/4275e8471f959c75f0d3ccbd555afb0cfc775ce2/manifest-full-20180925-2018_ww38_c_delphi_rel_c.xml";
+var d1 = "/home/eiselekd/src/android/ihu_abl_car.ww14_2019/.repo/manifests.revisions/4275e8471f959c75f0d3ccbd555afb0cfc775ce2/manifest-full-20181221-2018_ww50_b_aptiv_rel_b.xml";
+
 
 function refselect (idx) {
 
@@ -190,7 +193,7 @@ function refselectdialog () {
     $('body').append($('<div id="dialog-' + this.dialogidx + '" title="Select revision"> ' + d + '</div>'));
     $( "#dialog-" + this.dialogidx ).dialog({width:"1200px",height:500}).dialogExtend(
         {
-            "closable" : true,
+            "closable" : false,
             "maximizable" : true,
             "minimizable" : true,
             "collapsable" : true,
@@ -303,3 +306,9 @@ function initBrowser(resetdiag) {
         switchRepo();
     });
 }
+
+setTimeout(
+    function() {
+        processDiffManifests(d0, d1);
+    },
+    500);

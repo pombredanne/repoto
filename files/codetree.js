@@ -78,7 +78,7 @@ gen_tree.prototype.htmlid = function(na)
         'path' in this.e)
     {
         id = this.e['path'];
-        id = id.replace(/[\/\s\.@:]/ig, "_");
+        id = id.replace(/[\/\s\.@:\-]/ig, "_");
     }
     return id;
 }
@@ -193,7 +193,7 @@ gen_tree.prototype.html = function(na)
     var id = this.htmlid();
     if (arg0 == undefined)
         arg0 = id;
-    var args = [arg0, arg1].map(function(a) { return "\""+a+"\""; }).join(",");
+    var args = [arg0, arg1, id].map(function(a) { return "\""+a+"\""; }).join(",");
     return "<li id=\""+id+"\" ><span class=\""+a.join(" ")+"\"><a style=\""+col+"\" onclick='"+func+"("+args+")' >" + this.n + "</a></span><ul> " + l + "</ul></li>";
 }
 
@@ -242,7 +242,7 @@ function propagate(e,c) {
     }
 }
 
-function diffhirarchy(a,b,order=[]) {
+function diffhirarchy(a,b,order=[],register=[]) {
     var a_i = idify(a);
     var b_i = idify(b);
     //console.log(a_i);
@@ -256,17 +256,20 @@ function diffhirarchy(a,b,order=[]) {
         if (e[0] == undefined && e[1] != undefined) {
             propagate(e[1], "diffremoved");
             result.push(e[1]);
+            try { if (e[1].gid()) register.push(e); } catch(e) {};
         }
         if (e[0] != undefined && e[1] == undefined) {
             propagate(e[0], "diffnew");
             result.push(e[0]);
+            try { if (e[0].gid()) register.push(e); } catch(e) {};
         }
         if (e[0] != undefined && e[1] != undefined) {
             var e0 = e[0];
             var e1 = e[1];
-            var c = diffhirarchy(e0.c, e1.c);
+            var c = diffhirarchy(e0.c, e1.c,order,register);
             e1.c = c;
             result.push(e1);
+            try { if (e[0].gid()) register.push(e); } catch(e) {};
         }
     }
     if (order.length) {

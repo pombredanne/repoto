@@ -33,8 +33,8 @@ app.use(function(req, res, next) {
     next();
 });
 
-//var repobase="/home/eiselekd/src/android/ihu_abl_car.ww14_2019/.repo/manifests";
-var repobase="/data/slimbsp/slimbsp-test/.repo/manifests"
+var repobase="/home/eiselekd/src/android/ihu_abl_car.ww14_2019/.repo/manifests";
+//var repobase="/data/slimbsp/slimbsp-test/.repo/manifests"
 
 /* ----------------- repo branch -------------------------*/
 
