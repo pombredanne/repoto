@@ -1,6 +1,7 @@
 "use strict";
 exports.__esModule = true;
 
+var atob = require('atob');
 const path = require('path');
 var fs = require('fs');
 var express = require("express"),
@@ -98,12 +99,13 @@ app.get('/log/:sha/:count', function(req, res, next) {
     gitlogcmd( 'cd '+repobase+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + sha, res, next);
 });
 
-app.get('/logdiff/:shafrom/:shato', function(req, res, next) {
+app.get('/logdiff/:path/:shafrom/:shato', function(req, res, next) {
     var _refs = [];
+    var gitpath = atob(req.params.path);
     var shafrom = req.params.shafrom;
     var shato = req.params.shato;
     dump("[G] GET /logdiff : " + shafrom + ".." + shato);
-    gitlogcmd( 'cd '+repobase+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + shafrom + ".." + shato, res, next);
+    gitlogcmd( 'cd '+repobase+'/../../'+gitpath+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + shafrom + ".." + shato, res, next);
 
 });
 

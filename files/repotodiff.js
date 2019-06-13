@@ -15,6 +15,7 @@ pathvar.prototype.id = function() {
 
 function repovar (r) {
     this.n = r['n'];
+    this.path = r['path'];
     this.gn = r['gid'];
     this.sha = r['sha'];
     this.attr = {'class' : ['selrepovar','sha'+r['sha']]};
@@ -41,6 +42,31 @@ function selpathvar(a,typ,e) {
     selShas(shas);
 }
 
+var updatejobs = [];
+var updatejob_idx = 0;
+var updatejob_ongoing = 0;
+
+function updatejob_add(id, path, sha0, sha1) {
+    updatejobs.push([id, path, sha0, sha1]);
+    if (!updatejob_ongoing)
+        updatejob_next();
+}
+
+function updatejob_next() {
+    if (!updatejobs.length)
+        return;
+    updatejob_ongoing = 1;
+    var e = updatejobs.shift();
+    $.ajax({
+        dataType: "json",
+        url: "/logdiff/" + btoa(e[1]) + "/" + e[2] + "/" +e[3]
+    }).done(function(data) {
+        console.log(data);
+        updatejob_ongoing = 0;
+        updatejob_next();
+    });
+}
+
 function selShas(shas) {
     var found = {};
     for (var a of shas) {
@@ -63,16 +89,22 @@ function selShas(shas) {
     $.each( diffsets, function( key, val ) {
         var n = "";
         var a = "<td></td>";
+        var repodiff = "";
         if (val[0] != undefined) {
-            n = val[0].gid();
+            n = val[0].path;
             a = "<td>"+val[0].sha+"</td>";
         }
         var b = "<td> </td>";
         if (val[1] != undefined) {
-            n = val[1].gid();
+            n = val[1].path;
             b = "<td>"+val[1].sha+"</td>";
         }
-        items.push("<tr><td>"+n+"</td>" + a + b + "</tr>");
+        if (val[0] != undefined && val[1] != undefined && val[0].path == val[1].path) {
+            var i = updatejob_idx++;
+            repodiff = "<td id=\"update"+i+"\">" + "</td>";
+            updatejob_add(i, val[0].path, val[0].sha, val[1].sha);
+        }
+        items.push("<tr><td>"+n+"</td>" + repodiff + a + b + "</tr>");
     });
 
     var tablear = items.join("\n");
@@ -80,9 +112,9 @@ function selShas(shas) {
     $("#repo-list-table").html(tablear);
 }
 
-function selrepovar(a,typ) {
+function selrepovar(a,typ,b) {
     var shas = [];
-    selpathvar(a,typ,a);
+    selpathvar(a,typ,b);
 }
 
 /* ----------------------------- */
@@ -100,7 +132,7 @@ function threadpath(r, a, p, upto) {
             e = new pathvar({'n': cn, path: upto.join("/")});
             r.push(e);
         } else {
-            e = new repovar({'n': cn,'gid': p.n, 'sha': p.sha})
+            e = new repovar({'n': cn, 'gid': p.n, 'sha': p.sha, 'path': p.path})
             r.push(e);
         }
         r.sort(function(a, b) { return ('' + a.n).localeCompare(b.n); });
