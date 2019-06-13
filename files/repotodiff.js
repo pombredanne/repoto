@@ -64,6 +64,11 @@ function updatejob_next() {
         console.log(data);
         updatejob_ongoing = 0;
         updatejob_next();
+    }).fail(function(jqXHR, textStatus) {
+        console.log(jqXHR);
+        console.log(textStatus);
+        updatejob_ongoing = 0;
+        updatejob_next();
     });
 }
 
