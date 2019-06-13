@@ -105,8 +105,34 @@ app.get('/logdiff/:path/:shafrom/:shato', function(req, res, next) {
     var shafrom = req.params.shafrom;
     var shato = req.params.shato;
     dump("[G] GET /logdiff : " + shafrom + ".." + shato);
-    gitlogcmd( 'cd '+repobase+'/../../'+gitpath+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + shafrom + ".." + shato, res, next);
+    res.writeHead(200, {'Content-Type': 'application/json'});
 
+    var cmd0 = 'cd '+repobase+'/../../'+gitpath+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + shafrom + ".." + shato;
+    var cmd1 = 'cd '+repobase+'/../../'+gitpath+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + shato + ".." + shafrom;
+
+    console.log("gitlogcmd:" + cmd);
+    exec( cmd0,   (error, stdout, stderr) => {
+        if (error) {
+            console.error(`exec error: ${error}`);
+            return next();
+        }
+        var shas0 = [];
+        stdout.split(/\n/).map(e => {
+            shas0.push({'id':e.substr(0,40), 'd': e.substr(41,10), 'n':e.substr(41+11)});
+        });
+        exec( cmd1,   (error, stdout, stderr) => {
+            if (error) {
+                console.error(`exec error: ${error}`);
+                return next();
+            }
+            var shas1 = [];
+            stdout.split(/\n/).map(e => {
+                shas1.push({'id':e.substr(0,40), 'd': e.substr(41,10), 'n':e.substr(41+11)});
+            });
+            res.write(JSON.stringify({'add':shas0,'rem':shas1}));
+            return res.end("\n");
+        });
+    });
 });
 
 /* ----------------- browse repo -------------------------*/
