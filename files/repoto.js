@@ -99,6 +99,8 @@ app.get('/log/:sha/:count', function(req, res, next) {
     gitlogcmd( 'cd '+repobase+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + sha, res, next);
 });
 
+var cachedir = ".cache";
+
 app.get('/logdiff/:path/:shafrom/:shato', function(req, res, next) {
     var _refs = [];
     var gitpath = atob(req.params.path);
@@ -106,8 +108,17 @@ app.get('/logdiff/:path/:shafrom/:shato', function(req, res, next) {
     var shato = req.params.shato;
     dump("[G] GET /logdiff : " + shafrom + ".." + shato);
 
-    var cmd0 = 'cd '+repobase+'/../../'+gitpath+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + shafrom + ".." + shato;
-    var cmd1 = 'cd '+repobase+'/../../'+gitpath+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + shato + ".." + shafrom;
+    /* cache json */
+    var cfile = cachedir + "/" + shafrom + "_" + shato + ".json";
+    if (fs.existsSync(cfile)) {
+        var j = fs.readFileSync(cfile);
+        res.writeHead(200, {'Content-Type': 'application/json'});
+        res.write(j);
+        return res.end("\n");
+    }
+
+    var cmd0 = 'cd '+repobase+'/../../'+gitpath+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + shafrom + ".." + shato;  /* added */
+    var cmd1 = 'cd '+repobase+'/../../'+gitpath+';git log --date=format:"%Y-%m-%d" --pretty=format:"%H %ad %s" ' + shato + ".." + shafrom;  /* removed */
 
     console.log("gitlogcmd:" + cmd0);
     exec( cmd0,   (error, stdout, stderr) => {
@@ -131,8 +142,12 @@ app.get('/logdiff/:path/:shafrom/:shato', function(req, res, next) {
                     shas1.push({'id':e.substr(0,40), 'd': e.substr(41,10), 'n':e.substr(41+11)});
             });
             res.writeHead(200, {'Content-Type': 'application/json'});
-            res.write(JSON.stringify({'add':shas0,'rem':shas1}));
-            return res.end("\n");
+            var j = JSON.stringify({'add':shas0,'rem':shas1});
+            res.write(j);
+            res.end("\n");
+
+            fs.writeFile(cfile, j, (err) => {} );
+            return;
         });
     });
 });
