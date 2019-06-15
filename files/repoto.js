@@ -154,6 +154,16 @@ app.get('/logdiff/:path/:shafrom/:shato', function(req, res, next) {
 
 /* ----------------- browse repo -------------------------*/
 
+app.get('/getrepo', function(req, res, next) {
+    dump("[G] GET /getrepo : " + repobase);
+
+    var v = repobase.replace(".repo/manifests","");
+
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    res.write(JSON.stringify({repo:v} ));
+    return res.end("\n");
+});
+
 app.get('/setrepo/:repo', function(req, res, next) {
     var _refs = [];
     var h = {success : 0};

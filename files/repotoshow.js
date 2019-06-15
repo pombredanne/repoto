@@ -189,6 +189,7 @@ function refselectdialog () {
         d = d.replace("_select-log-"  +i, select_log);
         d = d.replace("_select-tree-" +i, select_tree);
     }
+    d = d.replace("_dialog_idx", ""+this.dialogidx);
 
     $('body').append($('<div id="dialog-' + this.dialogidx + '" title="Select revision"> ' + d + '</div>'));
     $( "#dialog-" + this.dialogidx ).dialog({width:"1200px",height:500}).dialogExtend(
@@ -215,12 +216,23 @@ function refselectdialog () {
     this.resetRepo = function() {
         obj.r0.resetRepo();
         obj.r1.resetRepo();
+        obj.updateCurrentRepo();
     };
 
     $("#diffmanifestbutton").click(e => {
         var r = obj.getdiffmanifest();
         processDiffManifests(r[0], r[1]);
     });
+
+    this.updateCurrentRepo = function () {
+        $.ajax({
+            dataType: "json",
+            url: "/getrepo"
+        }).done(function(data) {
+            $("#repo-current-"+obj.dialogidx).html(data['repo']);
+        });
+    };
+    obj.updateCurrentRepo();
 
 }
 
