@@ -152,6 +152,25 @@ app.get('/logdiff/:path/:shafrom/:shato', function(req, res, next) {
     });
 });
 
+app.get('/logrefs/:path/', function(req, res, next) {
+    var refs = [];
+    var gitpath = atob(req.params.path);
+    dump("[G] GET /logrefs " + gitpath);
+    res.writeHead(200, {'Content-Type': 'application/json'});
+    exec( 'cd '+repobase+'/../../'+gitpath+';git show-ref',   (error, stdout, stderr) => {
+        if (error) {
+            console.log(`exec error: ${error}`);
+            return next();
+        }
+        stdout.split(/\n/).map(e => {
+            if (e.length > 40)
+                refs.push({'sha':e.substr(0,40), 'id': e.substr(41)});
+        });
+        res.write(JSON.stringify(refs));
+        return res.end("\n");
+    });
+});
+
 /* ----------------- browse repo -------------------------*/
 
 app.get('/getrepo', function(req, res, next) {
