@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="jquery-ui-1.12.1.custom/external/jquery/jquery.js"></script>
+    <script src="selectize.js/dist/js/standalone/selectize.js"></script>
+    <script src="jquery-ui-1.12.1.custom/jquery-ui.js"></script>
+    <script src="jquery-treetable/jquery.treetable.js"></script>
+    <script src="jquery.dialogextend.js"></script>
+
+    <script src="codetree.js"></script>
+    <script src="pako.js"></script>
+    <script src="d3.js"></script>
+    <script src="generic.js"></script>
+    <script src="reposhow.js"></script>
+    <script src="repotoshow.js"></script>
+    <script src="repotodiff.js"></script>
+    <script src="logvis.js"></script>
+    <link rel="stylesheet" type="text/css" href="jquery-ui-1.12.1.custom/jquery-ui.css">
+    <link rel="stylesheet" type="text/css" href="jquery-ui-1.12.1.custom/jquery-ui.structure.css">
+    <link rel="stylesheet" type="text/css" href="crepo.css">
+    <link rel="stylesheet" type="text/css" href="repoto.css">
+    <link rel="stylesheet" type="text/css" href="jquery-treetable/css/jquery.treetable.css">
+    <link rel="stylesheet" type="text/css" href="jquery-treetable/css/jquery.treetable.theme.default.css">
+    <link rel="stylesheet" type="text/css" href="jquery-treetable/css/screen.css">
+    <link rel="stylesheet" type="text/css" href="selectize.js/dist/css/selectize.css">
+    <style></style>
+  </head>
+
+  <body>
+
+    <div class="page row">
+      <div class="treecmd" onClick='expandAll()'>[+]</div>
+      <div class="treecmd" onClick='collapseAll()' style='display:block;'>[-]</div>
+      <div class="treecmd" onClick='viewOnlyChanged()'>viewchanged</div>
+      <script></script>
+      <div id="viewlock" class="viewlock">
+	<div id="browser" class="menu-tree column expleft" style='position:relative;'>
+          <ul>
+	  </ul>
+	</div>
+      </div>
+
+      <div class="column">
+	<table id="_select-tree-1">
+	  <thead>
+	    <tr>
+	      <th>Name</th>
+	      <th>from</th>
+	      <th>to</th>
+	    </tr>
+	  </thead>
+	  <tbody id="repo-list-table">
+	    <tr data-tt-id="0" data-tt-parent-id="-1" data-tt-branch="true">
+	    </tr>
+	  </tbody>
+	</table>
+      </div>
+    </div>
+
+    <script src="tree.js"></script>
+    <script>
+      var prefs={};
+    </script>
+
+    <div id="dialog-browser-select-tree">
+      <div class="selectrow">
+	<table id="browser-select-tree">
+	  <thead>
+	    <tr>
+	      <th>Name</th>
+	      <th>Date modified</th>
+	      <th>Size</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    <tr data-tt-id="0" data-tt-parent-id="-1" data-tt-branch="true">
+	      <td>
+		<span class="directory">/</span>
+	      </td>
+	      <td></td>
+	      <td>100</td>
+	    </tr>
+	  </tbody>
+	</table>
+      </div>
+      <div class="selectrow">
+	<button id="switchrepo" ">switch</button>
+      </div>
+    </div>
+  </body>
+
+  <template id="dialog" title="Select revision">
+    
+    <div class="selectrow">
+      <button id="diffmanifestbutton">diff manifest</button>
+      <script>
+	function browseResult(e){
+	    $( "#dialog-browser-select-tree" ).dialog( "open" );
+	}
+      </script>
+      <button onclick="browseResult()">browse</button>
+      <div id="repo-current-_dialog_idx"></div>
+    </div>
+    <div class="selectrow">
+      <div class="selectcolumn">
+	<select id="_select-repo-0" class="repositories selectized" placeholder="Select branch..." tabindex="-1" style="display: none;">
+	  <option value="undef" selected="selected">...</option>
+	</select>
+	<select id="_select-log-0" class="repositories selectized" placeholder="Select sha..." tabindex="-1" style="display: none;">
+	  <option value="undef" selected="selected">...</option>
+	</select>
+	<table id="_select-tree-0">
+	  <thead>
+	    <tr>
+	      <th>Name</th>
+	      <th>Date modified</th>
+	      <th>Size</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    <tr data-tt-id="0" data-tt-parent-id="-1" data-tt-branch="true">
+	      <td>
+		<span class="directory">/tmp</span>
+	      </td>
+	      <td></td>
+	      <td>100</td>
+	    </tr>
+	  </tbody>
+	</table>
+      </div>
+      <div class="selectcolumn">
+	<select id="_select-repo-1" class="repositories selectized" placeholder="Select branch..." tabindex="-1" style="display: none;">
+	  <option value="undef" selected="selected">...</option>
+	</select>
+	<select id="_select-log-1" class="repositories selectized" placeholder="Select sha..." tabindex="-1" style="display: none;">
+	  <option value="undef" selected="selected">...</option>
+	</select>
+	<table id="_select-tree-1">
+	  <thead>
+	    <tr>
+	      <th>Name</th>
+	      <th>Date modified</th>
+	      <th>Size</th>
+	    </tr>
+	  </thead>
+	  <tbody>
+	    <tr data-tt-id="0" data-tt-parent-id="-1" data-tt-branch="true">
+	      <td>
+		<span class="directory">/</span>
+	      </td>
+	      <td></td>
+	      <td>100</td>
+	    </tr>
+	  </tbody>
+	</table>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    //setupfilebrowser("tree");
+    var r0 = new refselectdialog();
+    initBrowser(r0);
+    //setuprefselect("select-repo");
+    //$( "#dialog" ).dialog();
+    //init_repo_tree('#browser',repodef);
+  </script>
+
+</html>
