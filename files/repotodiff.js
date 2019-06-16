@@ -7,6 +7,7 @@ function pathvar (r) {
     this.n = r['n'];
     this.attr = {'class' : ['selpathvar']};
     this.path = r.path;
+    this.stopregister = r['stopregister'];
     this.c = [];
 }
 pathvar.prototype.id = function() {
@@ -61,10 +62,16 @@ function updatejob_next() {
         dataType: "json",
         url: "/logdiff/" + btoa(e[1]) + "/" + e[2] + "/" +e[3]
     }).done(function(data) {
+        if (data.add.length == 0 && data.rem.length == 0) {
+            $("#update"+e[0]).html("add:" + data.add.length + " rem:" + data.rem.length);
+        } else {
+            $("#update"+e[0]).html("<b> add:" + data.add.length + " rem:" + data.rem.length + "</b>");
+        }
         console.log(data);
         updatejob_ongoing = 0;
         updatejob_next();
     }).fail(function(jqXHR, textStatus) {
+        $("#update"+e[0]).html("fail");
         console.log(jqXHR);
         console.log(textStatus);
         updatejob_ongoing = 0;
@@ -94,7 +101,7 @@ function selShas(shas) {
     $.each( diffsets, function( key, val ) {
         var n = "";
         var a = "<td></td>";
-        var repodiff = "";
+        var repodiff = "<td></td>";
         if (val[0] != undefined) {
             n = val[0].path;
             a = "<td>"+val[0].sha+"</td>";
@@ -155,7 +162,7 @@ function createprojhirarchy(projects) {
         new pathvar({'n':'by-name','path':'by-name',
                      'c':[]}),
         new pathvar({'n':'by-proj','path':'by-proj',
-                     'c':[]})
+                     'c':[], 'stopregister' : 1})
     ];
     for (var p of projects) {
         var n = p['n'];

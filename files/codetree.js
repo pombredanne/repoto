@@ -227,7 +227,7 @@ function unidify(d, a, b) {
                 r.push([a[a_i++],undefined]);
         } else if  (!i.added && !i.removed) {
             for (var j = 0; j < i.items.length; j++)
-                r.push([b[b_i++],a[a_i++]]);
+                r.push([a[a_i++],b[b_i++]]);
         } else {
             throw Error("Undef");
         }
@@ -266,7 +266,12 @@ function diffhirarchy(a,b,order=[],register=[]) {
         if (e[0] != undefined && e[1] != undefined) {
             var e0 = e[0];
             var e1 = e[1];
+            if (e0.stopregister || e1.stopregister)
+                register = [];
             var c = diffhirarchy(e0.c, e1.c,order,register);
+            try {
+                e1 = e1.clone();
+            } catch(e) {};
             e1.c = c;
             result.push(e1);
             try { if (e[0].gid()) register.push(e); } catch(e) {};
