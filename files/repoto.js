@@ -106,7 +106,7 @@ app.get('/logdiff/:path/:shafrom/:shato', function(req, res, next) {
     var gitpath = atob(req.params.path);
     var shafrom = req.params.shafrom;
     var shato = req.params.shato;
-    dump("[G] GET /logdiff : " + shafrom + ".." + shato);
+    dump("[G] GET /logdiff : " + gitpath + " = " + shafrom + ".." + shato);
 
     /* cache json */
     var cfile = cachedir + "/" + shafrom + "_" + shato + ".json";

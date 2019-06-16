@@ -51,6 +51,7 @@
 	  </thead>
 	  <tbody id="repo-list-table">
 	    <tr data-tt-id="0" data-tt-parent-id="-1" data-tt-branch="true">
+	      <td id="test"> Test </td>
 	    </tr>
 	  </tbody>
 	</table>
@@ -64,6 +65,12 @@
 
 
   <script>
+    setTimeout(
+    function() {
+        processLogdiff("test", bionic_path, bionic_from, bionic_to);
+    },
+    500);
+
     
   </script>
 
