@@ -319,8 +319,3 @@ function initBrowser(resetdiag) {
     });
 }
 
-setTimeout(
-    function() {
-        processDiffManifests(d0, d1);
-    },
-    500);

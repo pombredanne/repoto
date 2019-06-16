@@ -14,7 +14,7 @@
     <script src="reposhow.js"></script>
     <script src="repotoshow.js"></script>
     <script src="repotodiff.js"></script>
-    <script src="logvis.js"></script>
+    <script src="repotologviz.js"></script>
     <link rel="stylesheet" type="text/css" href="jquery-ui-1.12.1.custom/jquery-ui.css">
     <link rel="stylesheet" type="text/css" href="jquery-ui-1.12.1.custom/jquery-ui.structure.css">
     <link rel="stylesheet" type="text/css" href="crepo.css">
@@ -62,108 +62,9 @@
       var prefs={};
     </script>
 
-    <div id="dialog-browser-select-tree">
-      <div class="selectrow">
-	<table id="browser-select-tree">
-	  <thead>
-	    <tr>
-	      <th>Name</th>
-	      <th>Date modified</th>
-	      <th>Size</th>
-	    </tr>
-	  </thead>
-	  <tbody>
-	    <tr data-tt-id="0" data-tt-parent-id="-1" data-tt-branch="true">
-	      <td>
-		<span class="directory">/</span>
-	      </td>
-	      <td></td>
-	      <td>100</td>
-	    </tr>
-	  </tbody>
-	</table>
-      </div>
-      <div class="selectrow">
-	<button id="switchrepo" ">switch</button>
-      </div>
-    </div>
-  </body>
-
-  <template id="dialog" title="Select revision">
-    
-    <div class="selectrow">
-      <button id="diffmanifestbutton">diff manifest</button>
-      <script>
-	function browseResult(e){
-	    $( "#dialog-browser-select-tree" ).dialog( "open" );
-	}
-      </script>
-      <button onclick="browseResult()">browse</button>
-      <div id="repo-current-_dialog_idx"></div>
-    </div>
-    <div class="selectrow">
-      <div class="selectcolumn">
-	<select id="_select-repo-0" class="repositories selectized" placeholder="Select branch..." tabindex="-1" style="display: none;">
-	  <option value="undef" selected="selected">...</option>
-	</select>
-	<select id="_select-log-0" class="repositories selectized" placeholder="Select sha..." tabindex="-1" style="display: none;">
-	  <option value="undef" selected="selected">...</option>
-	</select>
-	<table id="_select-tree-0">
-	  <thead>
-	    <tr>
-	      <th>Name</th>
-	      <th>Date modified</th>
-	      <th>Size</th>
-	    </tr>
-	  </thead>
-	  <tbody>
-	    <tr data-tt-id="0" data-tt-parent-id="-1" data-tt-branch="true">
-	      <td>
-		<span class="directory">/tmp</span>
-	      </td>
-	      <td></td>
-	      <td>100</td>
-	    </tr>
-	  </tbody>
-	</table>
-      </div>
-      <div class="selectcolumn">
-	<select id="_select-repo-1" class="repositories selectized" placeholder="Select branch..." tabindex="-1" style="display: none;">
-	  <option value="undef" selected="selected">...</option>
-	</select>
-	<select id="_select-log-1" class="repositories selectized" placeholder="Select sha..." tabindex="-1" style="display: none;">
-	  <option value="undef" selected="selected">...</option>
-	</select>
-	<table id="_select-tree-1">
-	  <thead>
-	    <tr>
-	      <th>Name</th>
-	      <th>Date modified</th>
-	      <th>Size</th>
-	    </tr>
-	  </thead>
-	  <tbody>
-	    <tr data-tt-id="0" data-tt-parent-id="-1" data-tt-branch="true">
-	      <td>
-		<span class="directory">/</span>
-	      </td>
-	      <td></td>
-	      <td>100</td>
-	    </tr>
-	  </tbody>
-	</table>
-      </div>
-    </div>
-  </template>
 
   <script>
-    //setupfilebrowser("tree");
-    var r0 = new refselectdialog();
-    initBrowser(r0);
-    //setuprefselect("select-repo");
-    //$( "#dialog" ).dialog();
-    //init_repo_tree('#browser',repodef);
+    
   </script>
 
 </html>

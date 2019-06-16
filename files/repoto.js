@@ -270,6 +270,10 @@ app.get('/', function(req, res) {
     res.render('repoto');
 });
 
+app.get('/l', function(req, res) {
+    res.render('logview');
+});
+
 app.use('/', express.static('.'));
 
 //start our server
