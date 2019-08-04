@@ -1,7 +1,12 @@
+test-manifests:
+	@python repoto.py genmirrors test-manifests/clonespec.json
+
+
+
 mk:
 	python make.py unit t/grammar.mk
 
-.PHONY: mk
+.PHONY: mk test-manifests
 
 flat:
 	python repoto.py flatten ${MAINMANIFEST}        m0.xml > log0.txt

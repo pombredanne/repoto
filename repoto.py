@@ -1,11 +1,12 @@
 #!/usr/bin/python3
 import os, sys, re, argparse, json
-from repo.manifest import manifest, mh_project, mh_remove_project, projar
+from repo.manifest import manifest, mh_project, mh_remove_project, projar, multirepolist, multirepo
 from repo.html import repohtml, diffdirhtml, initrchtml
 from repo.initrc import flatparse
 from repo.dirs import filesunder
 from xml.etree.ElementTree import tostring
 from json import dumps, loads, JSONEncoder, JSONDecoder
+from pprint import pprint
 import pickle
 import pystache
 
@@ -37,7 +38,8 @@ def listrepos(args):
         a = []
         for p in projects:
             n = str(p)
-            print (p.name);
+            if args.verbose:
+                print (p.name);
             e = { 'n' : p.name, 'sha' : p.revision , 'path' : p.path }
             if not (args.aosproot is None):
                 d = os.popen('cd {}; git show-ref -d'.format(os.path.join(args.aosproot,p.path))).readlines()
@@ -259,7 +261,40 @@ def getrev(args):
             sys.stdout.write(p.revision)
             break;
     
-    
+def genmirrors(args):
+    mp = multirepolist(args);
+    for fn in args.inputs:
+        with open(fn,"rb") as f:
+            a = json.load(f)
+            for m in a:
+                if args.verbose:
+                    print("+ Load {}".format(m['manifest']));
+                m0 = manifest(args, m['manifest']);
+                p0 = m0.get_projar();
+                # rewrite repository name if prefix matches
+                if "prefix" in m:
+                    pl = len(m['prefix'])
+                    for e in p0.p:
+                        if e.name.startswith(m['prefix']):
+                            on = e.name;
+                            oserver = e.xml.attrib['_gitserver_']
+                            n = on[pl:]
+                            server = oserver
+                            if not (server.endswith("/")):
+                                server = server + "/"
+                            server = oserver + m['prefix']
+                            if (server.endswith("/")):
+                                server = server[0:-1]
+                            e.xml.attrib['_gitserver_'] = server
+                            e.name = n
+                            if args.verbose:
+                                print ("Rewrite {}+{} to {}+{}".format(oserver,on,e.xml.attrib['_gitserver_'],e.name))
+                for e in p0.p:
+                    p = mp.regProj(e.path);
+                    p.addremote(m['vendor'], e.xml.attrib['_gitserver_'], e.name);
+
+    print(mp.clonescript());
+
 def main():
 
     parser = argparse.ArgumentParser(prog='repoto')
@@ -347,6 +382,13 @@ def main():
     parser_list.add_argument('--output', '-o', type=str, help='output', default=None)
     parser_list.add_argument('inputs', nargs='*', default=[], help='output')
     parser_list.set_defaults(func=flatinit)
+
+    # create the parser for the "genmirrors" command
+    parser_list = subparsers.add_parser('genmirrors', help='genmirrors')
+    parser_list.add_argument('inputs', nargs='*', default=[], help='input')
+    parser_list.set_defaults(func=genmirrors)
+
+
 
     opt = parser.parse_args()
     opt.func(opt)

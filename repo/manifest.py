@@ -48,12 +48,16 @@ class mh_base(object):
             n = n.replace(args.removepath,"")
         return n
 
+class mh_scope(mh_base):
+    def __init__(self,args,direction,m,depth=0):
+        super(mh_scope,self).__init__(args,'_scope_', m, None, ['elem'], depth=depth)
+        self.direction = direction
+
 class mh_remote(mh_base):
     def __init__(self,args,m,xml,depth=0):
         super(mh_remote,self).__init__(args,'remote',m,xml,['elem'],['name','pushurl','review','fetch'],depth=depth)
         if ('fetch' in self.xml.attrib) and (self.xml.attrib['fetch'] == "../../"):
-            if 'GITBASE' in os.environ:
-                self.xml.attrib['fetch']=os.environ['GITBASE']
+            self.xml.attrib['fetch']=args.gitbase
 
 class mh_default(mh_base):
     def __init__(self,args,m,xml,depth=0):
@@ -62,7 +66,7 @@ class mh_default(mh_base):
         
 class mh_project(mh_base):
     def __init__(self,args,m,xml,depth=0):
-        super(mh_project,self).__init__(args,'project',m,xml,['elem'],['name','path','revision','remote','upstream'],depth=depth)
+        super(mh_project,self).__init__(args,'project',m,xml,['elem'],['name','path','revision','remote','upstream','_gitserver_'],depth=depth)
     def __str__(self):
         return "project name={}".format(self.name)
     def changed(self,p,args):
@@ -114,8 +118,11 @@ def ftomanifest(args,n,mp,depth=0):
         print((" " * depth)+("+%s" %(n)))
     afn = os.path.abspath(n);
     tree = ET.parse(n)
-    root = tree.getroot()  
-    return [ mh_manifest(args,{'abspath': afn }, mp, xml, depth) for xml in root.iter('manifest') ];
+    root = tree.getroot()
+    pf = {'abspath': afn }
+    return [ mh_scope(args,'enter',pf, depth) ] + \
+        [ mh_manifest(args, pf, mp, xml, depth) for xml in root.iter('manifest') ] + \
+        [ mh_scope(args,'exit', pf, depth) ];
     
 #################################################
 
@@ -173,7 +180,115 @@ class projar(logclass):
             raise Exception("Project not present");
         self.log("Update {} {}".format(a[0].name, e.revision))
         a[0].setxml('revision',e.revision)
-        
+
+
+class multirepo(logclass):
+    def __init__(self,p,path):
+        super(multirepo,self).__init__(p.args)
+        self._p = p
+        self.path = path
+        self.remotes = []
+    def addremote(self, v, url, n ):
+        for r in self.remotes:
+            if r['v'] == v:
+                r['urls'].append(url);
+                return
+        self.remotes.append({'v':v, 'urls':[{'url':url,'n':n}]});
+    def __str__(self):
+        return ",".join([ "v:{},urls:{}".format(r['v'],r['urls'])  for r in self.remotes])+",path:"+self.path
+
+    def urlof(self,n,ui):
+        v = self.remotes[n]['urls'][ui]
+        return v['url'] + "/" + v['n'];
+
+    def clonescript(self):
+        cmd = []
+        id = self.path.replace("/","_");
+        url0 = self.urlof(0,0);
+        cmd.append("clone_repo {} {}\n".format(id, url0));
+        for i in range(len(self.remotes)):
+            cmd.append(" clone_repo_new {} {} {}\n".format(id, self.remotes[i]['v'], self.urlof(i,0)));
+            for j in range(1,len(self.remotes[i]['urls'])):
+                cmd.append(" clone_repo_more_url {} {} {}\n".format(id, self.remotes[i]['v'], self.urlof(i,j)));
+        cmd.append("clone_repo_fetch {} \n".format(id));
+
+        return "".join(cmd);
+
+class multirepolist(logclass):
+    def __init__(self,args):
+        super(multirepolist,self).__init__(args)
+        self.args = args
+        self.p = []
+        self.ptop = {}
+    def add(self,e):
+        self.p.append(e)
+
+    def regProj(self,p):
+        if p in self.ptop:
+            return self.ptop[p];
+        pr = multirepo(self,p);
+        self.ptop[p] = pr;
+        self.p.append(pr);
+        return pr;
+    def __str__(self):
+        return "\n".join([str(i) for i in self.p]);
+
+    def clonescript(self):
+        i = """#!/bin/bash -x
+
+base=$1
+if [ -z ${base} ]; then echo "specify base "; exit 1; fi
+
+function clone_repo {
+    local path=${base}${1}
+    local repo=${2}
+    echo "$1 : ${repo} => ${path}"
+
+    if ! git clone --bare ${repo} ${path}; then
+        echo "------------- !!! unable to clone ${repo} into ${path} ------------- "; exit 1;
+    fi
+}
+
+function clone_repo_new {
+    local path=${base}${1}
+    local n=${2}
+    local url=${3}
+    (cd ${path};
+     if ! git remote add ${n} ${url}; then
+        echo "------------- !!! unable to add remote ${n} ${url} ------------- "; exit 1;
+     fi
+    )
+}
+
+function clone_repo_more {
+    local path=${base}${1}
+    local n=${2}
+    local url=${3}
+    (cd ${path};
+     if ! git remote set-url ${n} --add ${url}; then
+        echo "------------- !!! unable to add more remote ${n} : ${url} --------------"; exit 1;
+     fi
+    )
+}
+
+function clone_repo_fetch {
+    local path=${base}${1}
+    (cd ${path};
+     if ! git remote remove origin; then
+        echo "------------- !!! unable to remove origin ${n}"; exit 1;
+     fi
+     if ! git fetch --all; then
+        echo "------------- !!! unable to fetch all ------------- "; exit 1;
+     fi
+    )
+}
+
+
+""";
+        return i+"\n".join(p.clonescript() for p in self.p);
+
+    
+
 # via repo:
 class manifest(object):
     
@@ -206,7 +321,48 @@ class manifest(object):
                 a = e._c + a #retain order 
             if (e.match(tags)):
                 fn(e)
-    
+
+    def get_projar(self):
+        p = projar(None,self.args)
+        nstack = [{}]
+
+        def searchup(n):
+            for h in nstack:
+                if (not(n is None)) and (n in h):
+                    return h[n]
+                elif ('__default__' in h):
+                    #print(h['__default__'])
+                    return h[h['__default__']]
+            return None
+
+        # traverse over elements and process remove-project and project
+        def touchproj(e):
+            if isinstance(e,mh_project):
+                p.add(e)
+                remote = None
+                try:
+                    remote = e.remote
+                except:
+                    pass
+                v = searchup(remote);
+                e.xml.attrib['_gitserver_'] = v
+            elif isinstance(e,mh_remove_project):
+                p.rem(e)
+            elif isinstance(e,mh_remote):
+                #print(e.get_xml().decode("utf-8"))
+                nstack[0][e.name] = e.fetch
+            elif isinstance(e,mh_default):
+                #print(e.get_xml().decode("utf-8"))
+                nstack[0]['__default__'] = e.remote
+            elif isinstance(e,mh_scope):
+                if e.direction == "enter":
+                    nstack.append({});
+                elif e.direction == "exit":
+                    nstack.pop();
+
+        self.traverse(['elem'], lambda x: touchproj(x))
+        return p
+
     def write(self, fn):
         with open(fn,"w") as f:
             f.write("""<?xml version=\"1.0\" encoding=\"UTF-8\"?>
