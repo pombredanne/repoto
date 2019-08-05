@@ -424,6 +424,8 @@ class manifest(object):
             for e in (self.extra_remotes+c.r):
                 f.write(" " + e.get_xml().decode("utf-8")+"\n");
             for e in c.a: #sorted(c.a, key=lambda x: x.name):
+                if self.args.pathasname:
+                    e.setxml('name',e.path)
                 f.write(" " + e.get_xml().decode("utf-8")+"\n");
 
             f.write("</manifest>\n");

@@ -63,9 +63,8 @@ def flatinit(args):
     j = initrchtml(args, a);
     j.generate(args.output);
 
-
-def flatten(args):
-    o0 = manifest(args, args.file);
+def do_flatten(args,fin,fout):
+    o0 = manifest(args, fin);
     p = projar(None,args)
     def touchproj(e):
         if isinstance(e,mh_project):
@@ -76,13 +75,16 @@ def flatten(args):
     projects = p.p
     if args.sort:
         projects = sorted(projects, key=lambda x: x.name)
-    
+
     for p in projects:
         n = str(p)
         if not (args.removepath is None):
             n = n.replace(args.removepath,"")
-        print (" "+n);
-    o0.write(args.output)
+        #print (" "+n);
+    o0.write(fout)
+
+def flatten(args):
+    o0 = do_flatten(args, args.file, args.output);
 
 def convbare(args):
     o0 = manifest(args, args.file);
@@ -296,6 +298,20 @@ def genmirrors(args):
                     for e in p0.p:
                         p = mp.regProj(e.path);
                         p.addremote(m['vendor'], e.xml.attrib['_gitserver_'], e.name);
+                    if 'manifest-repo' in mfnh:
+                        mfr = mfnh['manifest-repo']
+                        p = mp.regProj(mfr['path']);
+                        p.addremote(m['vendor'], mfr['url'], mfr['name']);
+            # rewrite manifest
+            for m in a:
+                for mfnh in m['manifests']:
+                    mfn = mfnh['n']
+                    if 'gitbase' in mfnh:
+                        args.gitbase = mfnh['gitbase']
+                    if args.verbose:
+                        print("+ Load {}:{}".format(m['vendor'],mfn));
+                    do_flatten(args, mfn, mfn+".flatten.xml");
+
 
     print(mp.clonescript());
 
@@ -312,6 +328,7 @@ def main():
     # create the parser for the "flatten" command
     parser_a = subparsers.add_parser('flatten', help='flatten and sort projects')
     parser_a.add_argument('--sort', '-x', action='count')
+    parser_a.add_argument('--pathasname', '-n', action='count', default=0)
     parser_a.add_argument('--remove-path', '-r', dest='removepath', default=None)
     parser_a.add_argument('file', type=str, help='root maifest')
     parser_a.add_argument('output', type=str, help='flattend output')
@@ -373,25 +390,25 @@ def main():
     parser_list.set_defaults(func=listrepos)
 
     # create the parser for the "flatten" command
-    parser_list = subparsers.add_parser('dirdiff', help='diff output folders')
-    parser_list.add_argument('--json', '-j', dest='json', action='store_true')
-    parser_list.add_argument('--maxdiff', '-m', dest='maxdiff', type=int, default=10000)
-    parser_list.add_argument('dira', type=str, help='dir a')
-    parser_list.add_argument('dirb', type=str, help='dir b')
-    parser_list.add_argument('output', type=str, help='output')
-    parser_list.set_defaults(func=diffdir)
+    parser_dd = subparsers.add_parser('dirdiff', help='diff output folders')
+    parser_dd.add_argument('--json', '-j', dest='json', action='store_true')
+    parser_dd.add_argument('--maxdiff', '-m', dest='maxdiff', type=int, default=10000)
+    parser_dd.add_argument('dira', type=str, help='dir a')
+    parser_dd.add_argument('dirb', type=str, help='dir b')
+    parser_dd.add_argument('output', type=str, help='output')
+    parser_dd.set_defaults(func=diffdir)
 
     # create the parser for the "flatint" command
-    parser_list = subparsers.add_parser('flatinit', help='parse init files')
-    parser_list.add_argument('--output', '-o', type=str, help='output', default=None)
-    parser_list.add_argument('inputs', nargs='*', default=[], help='output')
-    parser_list.set_defaults(func=flatinit)
+    parser_fi = subparsers.add_parser('flatinit', help='parse init files')
+    parser_fi.add_argument('--output', '-o', type=str, help='output', default=None)
+    parser_fi.add_argument('inputs', nargs='*', default=[], help='output')
+    parser_fi.set_defaults(func=flatinit)
 
     # create the parser for the "genmirrors" command
-    parser_list = subparsers.add_parser('genmirrors', help='genmirrors')
-    parser_list.add_argument('inputs', nargs='*', default=[], help='input')
-    parser_list.set_defaults(func=genmirrors)
-
+    parser_genm = subparsers.add_parser('genmirrors', help='genmirrors')
+    parser_genm.add_argument('--pathasname', '-n', action='count', default=1)
+    parser_genm.add_argument('inputs', nargs='*', default=[], help='input')
+    parser_genm.set_defaults(func=genmirrors)
 
 
     opt = parser.parse_args()
