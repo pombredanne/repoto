@@ -6,19 +6,24 @@ test-clone:
 	mkdir -p test-repos/gerrit
 	make test-gerrit
 	@python repoto.py genmirrors test-manifests/clonespec.json > test-repos/test.sh
-	cd test-repos; bash -x test.sh -nofetch repos gerrit-bin/git/
+	cd test-repos; bash -x test.sh -nofetch repos gerrit
 
 test-gerrit-get:
 	wget https://gerrit-releases.storage.googleapis.com/gerrit-2.15.13.war
 
-GERRIT_SITE=$(CURDIR)/test-repos/gerrit-bin
+GERRIT_SITE=$(CURDIR)/test-gerrit
 
 test-gerrit:
-	export GERRIT_SITE=$(CURDIR)/test-repos/gerrit-bin; \
+	-killall java
+	export GERRIT_SITE=$(CURDIR)/test-gerrit; \
 	java -jar gerrit-2.15.13.war init --batch --dev -d $$GERRIT_SITE;
 	echo "google-chrome http://localhost:8080"
+	-git config -f $(GERRIT_SITE)/etc/gerrit.config gerrit.basePath $(CURDIR)/test-repos/gerrit
 	-git config -f $(GERRIT_SITE)/etc/gerrit.config gitweb.type gitweb
 	-git config -f $(GERRIT_SITE)/etc/gerrit.config gitweb.cgi /usr/share/gitweb/gitweb.cgi
+	mv $(GERRIT_SITE)/git/All-Projects.git $(CURDIR)/test-repos/gerrit/
+	mv $(GERRIT_SITE)/git/All-Users.git $(CURDIR)/test-repos/gerrit/
+	$(GERRIT_SITE)/bin/gerrit.sh restart
 
 mk:
 	python make.py unit t/grammar.mk

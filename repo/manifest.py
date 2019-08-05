@@ -257,7 +257,7 @@ if [ -z ${base} ]; then echo "specify base"; exit 1; fi
 if [ -z ${symlinkbase} ]; then echo "specify symlinkbase"; exit 1; fi
 
 function clone_repo {
-    local path=${base}/${1}
+    local path=${base}/${1}.git
     local repo=${2}
     local linkpath=${3}
     echo "$1 : ${repo} => ${path} (${linkpath})"
@@ -269,11 +269,11 @@ function clone_repo {
     dfn=$(readlink -f ${path})
     lfn=${curbase}/${symlinkbase}/${linkpath}
     mkdir -p $(dirname ${lfn})
-    ln -s ${dfn} ${lfn}
+    ln -s ${dfn} ${lfn}.git
 }
 
 function clone_repo_new {
-    local path=${base}/${1}
+    local path=${base}/${1}.git
     local n=${2}
     local url=${3}
     (cd ${path};
@@ -291,7 +291,7 @@ function clone_repo_new {
 }
 
 function clone_repo_more {
-    local path=${base}/${1}
+    local path=${base}/${1}.git
     local n=${2}
     local url=${3}
     (cd ${path};
@@ -302,7 +302,7 @@ function clone_repo_more {
 }
 
 function clone_repo_fetch {
-    local path=${base}/${1}
+    local path=${base}/${1}.git
     if [ "${nofetch}" = "0" ]; then
       (cd ${path};
        if ! git fetch --all; then
