@@ -1,3 +1,5 @@
+-include Makefile.test.mk
+
 test-clone:
 	rm -rf test-repos
 	mkdir -p test-repos/repos

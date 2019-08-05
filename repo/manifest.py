@@ -210,7 +210,7 @@ class multirepo(logclass):
         cmd = []
         id = self.path.replace("/","_");
         url0 = self.urlof(0,0);
-        cmd.append("clone_repo {} {}\n".format(id, url0,self.path));
+        cmd.append("clone_repo {} {} {}\n".format(id, url0, self.path));
         for i in range(len(self.remotes)):
             cmd.append(" clone_repo_new {} {} {}\n".format(id, self.remotes[i]['v'], self.urlof(i,0)));
             for j in range(1,len(self.remotes[i]['urls'])):
@@ -250,11 +250,11 @@ while [ $# -gt 0 ]; do
     esac
 done
 
+curbase=$(dirname $(readlink -f $0))
 base=$1
 symlinkbase=$2
 if [ -z ${base} ]; then echo "specify base"; exit 1; fi
 if [ -z ${symlinkbase} ]; then echo "specify symlinkbase"; exit 1; fi
-symlinkbase=$(readlink -f ${symlinkbase})
 
 function clone_repo {
     local path=${base}/${1}
@@ -267,7 +267,7 @@ function clone_repo {
     fi
     )
     dfn=$(readlink -f ${path})
-    lfn=$(readlink -f ${symlinkbase}/${linkpath})
+    lfn=${curbase}/${symlinkbase}/${linkpath}
     mkdir -p $(dirname ${lfn})
     ln -s ${dfn} ${lfn}
 }
