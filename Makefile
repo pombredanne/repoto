@@ -1,20 +1,29 @@
+GERRIT_SITE=$(CURDIR)/test-gerrit
+
 -include Makefile.test.mk
 
 test-clone:
 	rm -rf test-repos
 	mkdir -p test-repos/repos
 	mkdir -p test-repos/gerrit
-	make test-gerrit
+	-$(GERRIT_SITE)/bin/gerrit.sh stop
 	@python repoto.py genmirrors test-manifests/clonespec.json > test-repos/test.sh
 	cd test-repos; bash -x test.sh -nofetch repos gerrit
+
 
 test-gerrit-get:
 	wget https://gerrit-releases.storage.googleapis.com/gerrit-2.15.13.war
 
-GERRIT_SITE=$(CURDIR)/test-gerrit
+
+test-gerrit-start:
+	export GERRIT_SITE=$(CURDIR)/test-gerrit; \
+	$(GERRIT_SITE)/bin/gerrit.sh restart
+
 
 test-gerrit:
+	-$(GERRIT_SITE)/bin/gerrit.sh stop
 	-killall java
+	-rm -rf test-gerrit
 	export GERRIT_SITE=$(CURDIR)/test-gerrit; \
 	java -jar gerrit-2.15.13.war init --batch --dev -d $$GERRIT_SITE;
 	echo "google-chrome http://localhost:8080"
@@ -24,11 +33,12 @@ test-gerrit:
 	mv $(GERRIT_SITE)/git/All-Projects.git $(CURDIR)/test-repos/gerrit/
 	mv $(GERRIT_SITE)/git/All-Users.git $(CURDIR)/test-repos/gerrit/
 	$(GERRIT_SITE)/bin/gerrit.sh restart
+	$(GERRIT_SITE)/bin/gerrit.sh stop
 
 mk:
 	python make.py unit t/grammar.mk
 
-.PHONY: mk test-manifests
+.PHONY: mk test-manifests test-gerrit
 
 flat:
 	python repoto.py flatten ${MAINMANIFEST}        m0.xml > log0.txt

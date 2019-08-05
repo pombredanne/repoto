@@ -312,6 +312,8 @@ function clone_repo_fetch {
     fi;
 }
 
+localip=$(ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1  -d'/')
+clone_repo manifests_flattened ssh://${localip}:29418/manifests/flattened manifests/flattened
 
 """;
         return i+"\n".join(p.clonescript() for p in self.p);
