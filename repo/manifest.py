@@ -191,14 +191,19 @@ class multirepo(logclass):
     def addremote(self, v, url, n ):
         for r in self.remotes:
             if r['v'] == v:
-                r['urls'].append(url);
+                for u in r['urls']:
+                    if u['url'] == url and u['n'] == n:
+                        return
+                r['urls'].append({'url':url,'n':n});
                 return
         self.remotes.append({'v':v, 'urls':[{'url':url,'n':n}]});
     def __str__(self):
         return ",".join([ "v:{},urls:{}".format(r['v'],r['urls'])  for r in self.remotes])+",path:"+self.path
 
     def urlof(self,n,ui):
+
         v = self.remotes[n]['urls'][ui]
+        #print("+++++++ {} {}".format(n,ui) + str(v))
         return v['url'] + "/" + v['n'];
 
     def clonescript(self):
@@ -236,32 +241,49 @@ class multirepolist(logclass):
     def clonescript(self):
         i = """#!/bin/bash -x
 
+# Option parsing
+nofetch=0
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -nofetch)   nofetch=1; shift ;;
+        *)          break ;;
+    esac
+done
+
 base=$1
-if [ -z ${base} ]; then echo "specify base "; exit 1; fi
+if [ -z ${base} ]; then echo "specify base"; exit 1; fi
 
 function clone_repo {
-    local path=${base}${1}
+    local path=${base}/${1}
     local repo=${2}
     echo "$1 : ${repo} => ${path}"
-
-    if ! git clone --bare ${repo} ${path}; then
-        echo "------------- !!! unable to clone ${repo} into ${path} ------------- "; exit 1;
+    (mkdir -p ${path}; cd ${path};
+    if ! git init --bare ; then
+        echo "------------- !!! unable to init ${path} ------------- "; exit 1;
     fi
+    )
 }
 
 function clone_repo_new {
-    local path=${base}${1}
+    local path=${base}/${1}
     local n=${2}
     local url=${3}
     (cd ${path};
      if ! git remote add ${n} ${url}; then
         echo "------------- !!! unable to add remote ${n} ${url} ------------- "; exit 1;
      fi
+     if ! git config --add remote.${n}.fetch +refs/heads/*:refs/heads/_${n}/*; then
+        echo "------------- !!! unable to configure remote fetch ${n} ${url} ------------- "; exit 1;
+     fi
+     if ! git config --add remote.${n}.fetch +refs/heads/*:refs/heads/*; then
+        echo "------------- !!! unable to configure remote fetch to origin ------------- "; exit 1;
+     fi
+
     )
 }
 
 function clone_repo_more {
-    local path=${base}${1}
+    local path=${base}/${1}
     local n=${2}
     local url=${3}
     (cd ${path};
@@ -272,15 +294,14 @@ function clone_repo_more {
 }
 
 function clone_repo_fetch {
-    local path=${base}${1}
-    (cd ${path};
-     if ! git remote remove origin; then
-        echo "------------- !!! unable to remove origin ${n}"; exit 1;
-     fi
-     if ! git fetch --all; then
-        echo "------------- !!! unable to fetch all ------------- "; exit 1;
-     fi
-    )
+    local path=${base}/${1}
+    if [ "${nofetch}" = "0" ]; then
+      (cd ${path};
+       if ! git fetch --all; then
+          echo "------------- !!! unable to fetch all ------------- "; exit 1;
+       fi
+      )
+    fi;
 }
 
 

@@ -267,31 +267,35 @@ def genmirrors(args):
         with open(fn,"rb") as f:
             a = json.load(f)
             for m in a:
-                if args.verbose:
-                    print("+ Load {}".format(m['manifest']));
-                m0 = manifest(args, m['manifest']);
-                p0 = m0.get_projar();
-                # rewrite repository name if prefix matches
-                if "prefix" in m:
-                    pl = len(m['prefix'])
+                for mfnh in m['manifests']:
+                    mfn = mfnh['n']
+                    if 'gitbase' in mfnh:
+                        args.gitbase = mfnh['gitbase']
+                    if args.verbose:
+                        print("+ Load {}:{}".format(m['vendor'],mfn));
+                    m0 = manifest(args, mfn);
+                    p0 = m0.get_projar();
+                    # rewrite repository name if prefix matches
+                    if "prefix" in m:
+                        pl = len(m['prefix'])
+                        for e in p0.p:
+                            if e.name.startswith(m['prefix']):
+                                on = e.name;
+                                oserver = e.xml.attrib['_gitserver_']
+                                n = on[pl:]
+                                server = oserver
+                                if not (server.endswith("/")):
+                                    server = server + "/"
+                                server = oserver + m['prefix']
+                                if (server.endswith("/")):
+                                    server = server[0:-1]
+                                e.xml.attrib['_gitserver_'] = server
+                                e.name = n
+                                if args.verbose:
+                                    print ("Rewrite {}+{} to {}+{}".format(oserver,on,e.xml.attrib['_gitserver_'],e.name))
                     for e in p0.p:
-                        if e.name.startswith(m['prefix']):
-                            on = e.name;
-                            oserver = e.xml.attrib['_gitserver_']
-                            n = on[pl:]
-                            server = oserver
-                            if not (server.endswith("/")):
-                                server = server + "/"
-                            server = oserver + m['prefix']
-                            if (server.endswith("/")):
-                                server = server[0:-1]
-                            e.xml.attrib['_gitserver_'] = server
-                            e.name = n
-                            if args.verbose:
-                                print ("Rewrite {}+{} to {}+{}".format(oserver,on,e.xml.attrib['_gitserver_'],e.name))
-                for e in p0.p:
-                    p = mp.regProj(e.path);
-                    p.addremote(m['vendor'], e.xml.attrib['_gitserver_'], e.name);
+                        p = mp.regProj(e.path);
+                        p.addremote(m['vendor'], e.xml.attrib['_gitserver_'], e.name);
 
     print(mp.clonescript());
 
