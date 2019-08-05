@@ -1,6 +1,9 @@
-test-manifests:
-	@python repoto.py genmirrors test-manifests/clonespec.json
-
+test-clone:
+	rm -rf test-repos
+	mkdir -p test-repos/repos
+	mkdir -p test-repos/gerrit
+	@python repoto.py genmirrors test-manifests/clonespec.json > test-repos/test.sh
+	cd test-repos; bash test.sh -nofetch repos gerrit
 
 
 mk:

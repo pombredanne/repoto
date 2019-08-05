@@ -210,7 +210,7 @@ class multirepo(logclass):
         cmd = []
         id = self.path.replace("/","_");
         url0 = self.urlof(0,0);
-        cmd.append("clone_repo {} {}\n".format(id, url0));
+        cmd.append("clone_repo {} {}\n".format(id, url0,self.path));
         for i in range(len(self.remotes)):
             cmd.append(" clone_repo_new {} {} {}\n".format(id, self.remotes[i]['v'], self.urlof(i,0)));
             for j in range(1,len(self.remotes[i]['urls'])):
@@ -251,17 +251,25 @@ while [ $# -gt 0 ]; do
 done
 
 base=$1
+symlinkbase=$2
 if [ -z ${base} ]; then echo "specify base"; exit 1; fi
+if [ -z ${symlinkbase} ]; then echo "specify symlinkbase"; exit 1; fi
+symlinkbase=$(readlink -f ${symlinkbase})
 
 function clone_repo {
     local path=${base}/${1}
     local repo=${2}
-    echo "$1 : ${repo} => ${path}"
+    local linkpath=${2}
+    echo "$1 : ${repo} => ${path} (${linkpath})"
     (mkdir -p ${path}; cd ${path};
     if ! git init --bare ; then
         echo "------------- !!! unable to init ${path} ------------- "; exit 1;
     fi
     )
+    dfn=$(readlink -f ${path})
+    lfn=$(readlink -f ${symlinkbase}/${linkpath})
+    mkdir -p $(dirname ${lfn})
+    ln -s ${dfn} ${lfn}
 }
 
 function clone_repo_new {
