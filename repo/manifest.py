@@ -421,8 +421,15 @@ class manifest(object):
                 c.addremote(e)
             self.traverse(['remote','default'], lambda x: add_remote(x))
 
-            for e in (self.extra_remotes+c.r):
-                f.write(" " + e.get_xml().decode("utf-8")+"\n");
+            if self.args.pathasname:
+                f.write("""
+ <remote name="origin" fetch="../../" />
+ <default remote="origin" sync-c="true" sync-j="5"/>
+
+""");
+            else:
+                for e in (self.extra_remotes+c.r):
+                    f.write(" " + e.get_xml().decode("utf-8")+"\n");
             for e in c.a: #sorted(c.a, key=lambda x: x.name):
                 if self.args.pathasname:
                     e.setxml('name',e.path)
