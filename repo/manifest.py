@@ -259,7 +259,7 @@ symlinkbase=$(readlink -f ${symlinkbase})
 function clone_repo {
     local path=${base}/${1}
     local repo=${2}
-    local linkpath=${2}
+    local linkpath=${3}
     echo "$1 : ${repo} => ${path} (${linkpath})"
     (mkdir -p ${path}; cd ${path};
     if ! git init --bare ; then

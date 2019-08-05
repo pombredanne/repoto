@@ -3,7 +3,7 @@ test-clone:
 	mkdir -p test-repos/repos
 	mkdir -p test-repos/gerrit
 	@python repoto.py genmirrors test-manifests/clonespec.json > test-repos/test.sh
-	cd test-repos; bash test.sh -nofetch repos gerrit
+	cd test-repos; bash -x test.sh -nofetch repos gerrit
 
 
 mk:
