@@ -312,8 +312,9 @@ def genmirrors(args):
                         print("+ Load {}:{}".format(m['vendor'],mfn));
                     do_flatten(args, mfn, mfn+".flatten.xml");
 
-
-    print(mp.clonescript());
+    if args.clonescript:
+        with open(args.clonescript,"w") as f:
+            f.write(mp.clonescript());
 
 def main():
 
@@ -407,6 +408,7 @@ def main():
     # create the parser for the "genmirrors" command
     parser_genm = subparsers.add_parser('genmirrors', help='genmirrors')
     parser_genm.add_argument('--pathasname', '-n', action='count', default=1)
+    parser_genm.add_argument('--clonescript', '-o', type=str, help='clonescript', default=None)
     parser_genm.add_argument('inputs', nargs='*', default=[], help='input')
     parser_genm.set_defaults(func=genmirrors)
 
