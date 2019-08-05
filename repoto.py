@@ -7,7 +7,7 @@ from repo.dirs import filesunder
 from xml.etree.ElementTree import tostring
 from json import dumps, loads, JSONEncoder, JSONDecoder
 from pprint import pprint
-import pickle
+import pickle, shutil
 import pystache
 
 class PythonObjectEncoder(JSONEncoder):
@@ -266,11 +266,12 @@ def getrev(args):
 def genmirrors(args):
     mp = multirepolist(args);
     for fn in args.inputs:
+        fnbase=os.path.dirname(fn)
         with open(fn,"rb") as f:
             a = json.load(f)
             for m in a:
                 for mfnh in m['manifests']:
-                    mfn = mfnh['n']
+                    mfn = os.path.join(fnbase,mfnh['n'])
                     if 'gitbase' in mfnh:
                         args.gitbase = mfnh['gitbase']
                     if args.verbose:
@@ -305,14 +306,19 @@ def genmirrors(args):
             # rewrite manifest
             for m in a:
                 for mfnh in m['manifests']:
-                    mfn = mfnh['n']
+                    mfn = os.path.join(fnbase,mfnh['n'])
+                    mfnbase = os.path.basename(mfnh['n'])
                     if 'gitbase' in mfnh:
                         args.gitbase = mfnh['gitbase']
                     if args.verbose:
                         print("+ Load {}:{}".format(m['vendor'],mfn));
-                    do_flatten(args, mfn, mfn+".flatten.xml");
+                    if args.flattenrepo:
+                        do_flatten(args, mfn, os.path.join(args.flattenrepo,mfnbase+".flatten.xml"));
 
     if args.clonescript:
+        dstbase=os.path.join(os.path.dirname(args.clonescript),"base.sh")
+        if not os.path.exists(dstbase):
+            shutil.copyfile(os.path.join(os.path.dirname(os.path.abspath(__file__)),"repo/base.sh"),dstbase)
         with open(args.clonescript,"w") as f:
             f.write(mp.clonescript());
 
@@ -409,6 +415,7 @@ def main():
     parser_genm = subparsers.add_parser('genmirrors', help='genmirrors')
     parser_genm.add_argument('--pathasname', '-n', action='count', default=1)
     parser_genm.add_argument('--clonescript', '-o', type=str, help='clonescript', default=None)
+    parser_genm.add_argument('--flattenrepo', '-f', type=str, help='flattenrepo', default=None)
     parser_genm.add_argument('inputs', nargs='*', default=[], help='input')
     parser_genm.set_defaults(func=genmirrors)
 
