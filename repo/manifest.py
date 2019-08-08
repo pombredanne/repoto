@@ -2,6 +2,17 @@ import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import tostring
 import os;
 from pprint import pprint
+import json
+from json import dumps, loads, JSONEncoder, JSONDecoder
+import pickle
+
+class PythonObjectEncoder(JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, (list, dict, str, unicode, int, float, bool, type(None))):
+            return JSONEncoder.encode(self, obj)
+        elif isinstance(obj, set):
+            return JSONEncoder.encode(self, list(obj)) #str(obj) #"set([{}])".format(",".join([ PythonObjectEncoder.default(self,i) for i in list(obj)]))
+        return pickle.dumps(obj)
 
 ############# hirarchical model ##############
 
@@ -219,6 +230,18 @@ class multirepo(logclass):
 
         return "".join(cmd);
 
+    def jsonscript(self):
+        remotes = []
+        for i in range(len(self.remotes)):
+            urls = []
+            for j in range(0,len(self.remotes[i]['urls'])):
+                urls.append(self.urlof(i,j));
+            remotes.append( {'name' : self.remotes[i]['v'], 'urls' : urls } )
+        d = {   'id' : self.path.replace("/","_"),
+                'gerritpath' : self.path,
+                'remotes' : remotes }
+        return d
+
 class multirepolist(logclass):
     def __init__(self,args):
         super(multirepolist,self).__init__(args)
@@ -243,6 +266,13 @@ class multirepolist(logclass):
 . "$(dirname $0)/base.sh"
 """;
         return i+"\n".join(p.clonescript() for p in self.p);
+
+    def jsonscript(self):
+        d = [ p.jsonscript() for p in self.p];
+        return json.dumps(d, sort_keys=True, indent=4, separators=(',', ': '), cls=PythonObjectEncoder);
+
+
+
 
 # via repo:
 class manifest(object):

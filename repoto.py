@@ -321,6 +321,8 @@ def genmirrors(args):
             shutil.copyfile(os.path.join(os.path.dirname(os.path.abspath(__file__)),"repo/base.sh"),dstbase)
         with open(args.clonescript,"w") as f:
             f.write(mp.clonescript());
+        with open(args.clonescript+".json","w") as f:
+            f.write(mp.jsonscript());
 
 def main():
 
