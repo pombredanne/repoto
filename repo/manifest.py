@@ -379,7 +379,7 @@ class manifest(object):
 
             if self.args.pathasname:
                 f.write("""
- <remote name="origin" fetch="../../" />
+ <remote name="origin" fetch="ssh://localhost:29418" />
  <default remote="origin" sync-c="true" sync-j="5"/>
 
 """);
