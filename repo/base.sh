@@ -24,6 +24,8 @@ function clone_repo {
     if ! git init --bare ; then
         echo "------------- !!! unable to init ${path} ------------- "; exit 1;
     fi
+    git config uploadpack.allowTipSha1InWant true
+    git config uploadpack.allowReachableSHA1InWant true
     )
     dfn=$(readlink -f ${path})
     lfn=${curbase}/${symlinkbase}/${linkpath}
