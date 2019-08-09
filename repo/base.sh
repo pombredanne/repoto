@@ -20,7 +20,7 @@ if [ -z ${base} ]; then echo "specify base"; exit 1; fi
 if [ -z ${symlinkbase} ]; then echo "specify symlinkbase"; exit 1; fi
 
 function mayberun () {
-    if [[ $dryrun == 0 ]]; then
+    if [[ $dryrun == 1 ]]; then
 	echo "dry-run: $*"
     else
 	$@
@@ -352,8 +352,8 @@ local -a r_jq_remotes
 local -a r_newremotes
 local -a r_existingremotes
 local -a r_undefremotes
-r_remotes=(${r_remotes[@]})
-r_jq_remotes=(${r_jq_remotes[@]})
+r_remotes=(${remotes[@]})
+r_jq_remotes=(${jq_remotes[@]})
 r_newremotes=(${r_newremotes[@]})
 r_existingremotes=(${r_existingremotes[@]})
 r_undefremotes=(${r_undefremotes[@]})
@@ -398,7 +398,7 @@ function jq_get_newurls () {
 	local -a r_newremotes
 	local -a r_existingremotes
 	local -a r_undefremotes
-	. .tmp/${i}/remote//env.txt
+	. .tmp/${i}/remote/env.txt
 
 	for r in ${r_existingremotes[@]}; do
 	    local -a jq_urls
@@ -441,11 +441,11 @@ function jq_get_newurls_update () {
 	local -a r_newremotes
 	local -a r_existingremotes
 	local -a r_undefremotes
-	. .tmp/${i}/remote//env.txt
+	. .tmp/${i}/remote/env.txt
 
 	# remove all remotes
 	for r in ${r_remotes[@]}; do
-	    clone_repo_remove_remote ${i} ${r}
+	    echo "clone_repo_remove_remote ${i} ${r}"
 	done
 
 	# re-add all remotes
@@ -458,8 +458,6 @@ function jq_get_newurls_update () {
 	    done
 
 	done
-
-
 
     done
 }
