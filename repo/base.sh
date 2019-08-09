@@ -79,6 +79,16 @@ function clone_repo_more {
     )
 }
 
+function clone_repo_remove_remote {
+    local path=${base}/${1}.git
+    local r=${2}
+    (cd ${path};
+     if ! mayberun git remote remote ${r} ; then
+        echo "------------- !!! unable to remove remote ${r}  --------------"; exit 1;
+     fi
+    )
+}
+
 function clone_repo_fetch {
     local path=${base}/${1}.git
     if [ "${nofetch}" = "0" ]; then
@@ -168,6 +178,7 @@ function asjson_ar {
     printf " ]"
 }
 
+# compare 2 arrays of urls, return 0 if they differ, ignore / char in comapre
 function diff_url_arrays {
     local i; local j
     local -n lar0
@@ -177,8 +188,7 @@ function diff_url_arrays {
     lar0=$1
     lar1=$2
     if [[ $(( ${#lar0[@]} == ${#lar1[@]} )) == 0 ]]; then
-	echo "different size ${#lar0[@]} == ${#lar1[@]}"
-	return 1
+	return 0
     fi
     for i in $( (for j in ${lar0[@]}; do echo ${j//\//}; done) | sort ); do
 	lar0sorted+=($i)
@@ -188,11 +198,10 @@ function diff_url_arrays {
     done
     for i in $(seq 0 $(( ${#lar0sorted[@]}-1 )) ); do
 	if [[ ! "${lar0sorted[$i]}" == "${lar1sorted[$i]}" ]]; then
-	    echo "different url ${lar0sorted[$i]}" == "${lar1sorted[$i]}"
-	    return 1
+	    return 0
 	fi
     done
-    return 0
+    return 1
 }
 
 ####################################
@@ -338,9 +347,13 @@ function jq_get_newremotes () {
 	d=.tmp/${i}/remote
 	mkdir -p ${d}
 	cat <<EOF > ${d}/env.txt
+local -a r_remotes
+local -a r_jq_remotes
 local -a r_newremotes
 local -a r_existingremotes
 local -a r_undefremotes
+r_remotes=(${r_remotes[@]})
+r_jq_remotes=(${r_jq_remotes[@]})
 r_newremotes=(${r_newremotes[@]})
 r_existingremotes=(${r_existingremotes[@]})
 r_undefremotes=(${r_undefremotes[@]})
@@ -376,7 +389,9 @@ function jq_get_newremotes_add () {
 function jq_get_newurls () {
     local i; local r
     local -n l_existingremotes
+    local -n l_needupdate
     l_existingremotes=$1
+    l_needupdate=$2
     for i in ${l_existingremotes[@]}; do
 
 	# reload context
@@ -388,14 +403,15 @@ function jq_get_newurls () {
 	for r in ${r_existingremotes[@]}; do
 	    local -a jq_urls
 	    local -a urls
-	    jq_url_of_remote jq_urls ${i} ${r} ${2}
+	    jq_url_of_remote jq_urls ${i} ${r} ${3}
 	    url_of_remotes   urls ${base}/${i}.git ${r}
 
 	    if diff_url_arrays jq_urls urls; then
 
-		echo "remote $r: "
-		echo " j:${jq_urls[@]}"
-		echo " r:${urls[@]}"
+		l_needupdate+=("${i}:${r}")
+		#echo "remote $r: "
+		#echo " j:${jq_urls[@]}"
+		#echo " r:${urls[@]}"
 	    fi
 
 
@@ -403,6 +419,47 @@ function jq_get_newurls () {
     done
 }
 
-function jq_get_newurls_add () {
-    true
+# given an array of update pairs, reinitialize remotes
+function jq_get_newurls_update () {
+    local u; local r; local i
+    local -n lupdate
+    lupdate=$1
+    for u in ${lupdate[@]}; do
+	local IFS; local oldIFS
+	local -a parts
+	oldIFS=${IFS}
+	IFS=":";
+	parts=(${u})
+	IFS=${oldIFS}
+	i=${parts[0]}
+	r=${parts[1]}
+	echo "update: ${i} remote ${r}"
+
+	# reload context
+	local -a r_remotes
+	local -a r_jq_remotes
+	local -a r_newremotes
+	local -a r_existingremotes
+	local -a r_undefremotes
+	. .tmp/${i}/remote//env.txt
+
+	# remove all remotes
+	for r in ${r_remotes[@]}; do
+	    clone_repo_remove_remote ${i} ${r}
+	done
+
+	# re-add all remotes
+	for r in ${r_jq_remotes[@]}; do
+
+	    jq_url_of_remote jq_urls ${i} ${r} ${2}
+	    echo "clone_repo_new  : ${i} ${r} ${jq_urls[0]}"
+	    for u in ${jq_urls[@]:1:$((${#jq_urls[@]}-1))}; do
+		echo "clone_repo_more : ${i} ${r} ${u}"
+	    done
+
+	done
+
+
+
+    done
 }
