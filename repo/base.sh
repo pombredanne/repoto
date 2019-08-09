@@ -177,6 +177,7 @@ function diff_url_arrays {
     lar0=$1
     lar1=$2
     if [[ $(( ${#lar0[@]} == ${#lar1[@]} )) == 0 ]]; then
+	echo "different size ${#lar0[@]} == ${#lar1[@]}"
 	return 1
     fi
     for i in $( (for j in ${lar0[@]}; do echo ${j//\//}; done) | sort ); do
@@ -186,7 +187,8 @@ function diff_url_arrays {
 	lar1sorted+=($i)
     done
     for i in $(seq 0 $(( ${#lar0sorted[@]}-1 )) ); do
-	if [[ "${lar0sorted[$i]}" == "${lar1sorted[$i]}" ]]; then
+	if [[ ! "${lar0sorted[$i]}" == "${lar1sorted[$i]}" ]]; then
+	    echo "different url ${lar0sorted[$i]}" == "${lar1sorted[$i]}"
 	    return 1
 	fi
     done
