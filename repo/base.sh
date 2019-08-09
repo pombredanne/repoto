@@ -168,7 +168,30 @@ function asjson_ar {
     printf " ]"
 }
 
-
+function diff_url_arrays {
+    local i; local j
+    local -n lar0
+    local -n lar1
+    local -a lar0sorted
+    local -a lar1sorted
+    lar0=$1
+    lar1=$2
+    if [[ $(( ${#lar0[@]} == ${#lar1[@]} )) == 0 ]]; then
+	return 1
+    fi
+    for i in $( (for j in ${lar0[@]}; do echo ${j//\//}; done) | sort ); do
+	lar0sorted+=($i)
+    done
+    for i in $( (for j in ${lar1[@]}; do echo ${j//\//}; done) | sort ); do
+	lar1sorted+=($i)
+    done
+    for i in $(seq 0 $(( ${#lar0sorted[@]}-1 )) ); do
+	if [[ "${lar0sorted[$i]}" == "${lar1sorted[$i]}" ]]; then
+	    return 1
+	fi
+    done
+    return 0
+}
 
 ####################################
 
@@ -246,22 +269,52 @@ function jq_remotes_of () {
     done
 }
 
+# retrieve the urls od a defined git remote of $2
+function url_of_remotes () {
+    local i;
+    local -n l_url
+    local regex="^remote\.${3}\.url=(.+)"
+    l_url=$1
+    l_url=()
+    for i in $(git -C $2 config -l ) ; do
+	if [[ $i =~ $regex ]]; then
+            l_url+=("${BASH_REMATCH[1]}")
+	fi
+    done
+}
+
+function jq_url_of_remote () {
+    local u
+    local -n l_url
+    l_url=$1
+    l_url=()
+    for u in $(cat $4 | jq -r ".[] | select(.id==\"${2}\") | .remotes | .[] | select(.name==\"${3}\") | .urls | .[] "); do
+	l_url+=("$u")
+    done
+}
+
 function jq_get_newremotes () {
     local i; local d; local idx
     local -n r_existingrepos
-    local -n r_newremotes
-    local -n r_existingremotes
-    local -n r_undefremotes
+    local -n ret_newremotes
+    local -n ret_existingremotes
+    local -n ret_undefremotes
 
     r_existingrepos=$1
-    r_newremotes=$2
-    r_existingremotes=$3
-    r_undefremotes=$4
+
+    ret_newremotes=$2
+    ret_existingremotes=$3
+    ret_undefremotes=$4
 
     idx=0
     for i in ${r_existingrepos[@]}; do
 	local -a remotes
 	local -a jq_remotes
+
+	local -a r_newremotes
+	local -a r_existingremotes
+	local -a r_undefremotes
+
 	remotes_of remotes ${base}/${i}.git
 	jq_remotes_of jq_remotes ${i} ${5}
 
@@ -269,6 +322,17 @@ function jq_get_newremotes () {
 	array_and    r_existingremotes jq_remotes remotes
 	array_restof r_undefremotes    remotes    jq_remotes
 
+	if [[ 1 == $(( ${#r_newremotes[@]} > 0 )) ]]; then
+	    ret_newremotes+=($i)
+	fi
+	if [[ 1 == $(( ${#r_existingremotes[@]} > 0 )) ]]; then
+	    ret_existingremotes+=($i)
+	fi
+	if [[ 1 == $(( ${#r_undefremotes[@]} > 0 )) ]]; then
+	    ret_undefremotes+=($i)
+	fi
+
+	# save conext to reload
 	d=.tmp/${i}/remote
 	mkdir -p ${d}
 	cat <<EOF > ${d}/env.txt
@@ -285,13 +349,56 @@ EOF
 }
 
 function jq_get_newremotes_add () {
-    true
+    local d; local r; local u
+    local -n l_newremotes
+    l_newremotes=$1
+    for i in ${l_newremotes[@]}; do
+
+	local -a r_newremotes
+	local -a r_existingremotes
+	local -a r_undefremotes
+	. .tmp/${i}/remote/env.txt
+
+	local -a jq_urls
+
+	for r in ${r_newremotes[@]}; do
+	    jq_url_of_remote jq_urls ${i} ${r} ${2}
+	    echo "clone_repo_new  : ${i} ${r} ${jq_urls[0]}"
+	    for u in ${jq_urls[@]:1:$((${#jq_urls[@]}-1))}; do
+		echo "clone_repo_more : ${i} ${r} ${u}"
+	    done
+	done
+    done
 }
 
 function jq_get_newurls () {
+    local i; local r
+    local -n l_existingremotes
+    l_existingremotes=$1
+    for i in ${l_existingremotes[@]}; do
+
+	# reload context
+	local -a r_newremotes
+	local -a r_existingremotes
+	local -a r_undefremotes
+	. .tmp/${i}/remote//env.txt
+
+	for r in ${r_existingremotes[@]}; do
+	    local -a jq_urls
+	    local -a urls
+	    jq_url_of_remote jq_urls ${i} ${r} ${2}
+	    url_of_remotes   urls ${base}/${i}.git ${r}
+
+	    if diff_url_arrays jq_urls urls; then
+
+		echo "remote $r: "
+		echo " j:${jq_urls[@]}"
+		echo " r:${urls[@]}"
+	    fi
 
 
-    true
+	done
+    done
 }
 
 function jq_get_newurls_add () {
