@@ -1,0 +1,9 @@
+<manifest>
+
+  <remote fetch="https://github.com/" name="origin"  />
+  <default remote="origin" sync-c="true" sync-j="5" />
+
+  <project name="eiselekd/repoto"   path="repos/repoto"   revision="52f11339aeb5ca880050996d596c6423d27fed40" />
+  <project name="eiselekd/dotfiles" path="repos/dotfiles" revision="d5f013fd6d35238a829205a4a336c45b80842757" />
+
+</manifest>

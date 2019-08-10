@@ -1,0 +1,10 @@
+[
+    { "vendor"   : "v0",
+      "manifests" : [
+	  {"n" : "v0/repo0.xml"}]
+    },
+    { "vendor"   : "v1",
+      "manifests" : [
+	  {"n" : "v1/repo1.xml"}]
+    }
+]
