@@ -5,6 +5,8 @@
 case "$1" in
     status) shift;
 	    ;;
+    apply) shift;
+	    ;;
     fetch) ;;
 esac
 
@@ -13,6 +15,7 @@ declare -a existingrepos
 declare -a delrepos
 jq_get_newrepos      newrepos existingrepos delrepos $mirrordef
 jq_get_newreposclone newrepos $mirrordef
+echo "newrepos :" ${newrepos[@]}
 
 declare -a newremotes
 declare -a existingremotes

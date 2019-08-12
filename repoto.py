@@ -297,7 +297,10 @@ def genmirrors(args):
                                 if args.verbose:
                                     print ("Rewrite {}+{} to {}+{}".format(oserver,on,e.xml.attrib['_gitserver_'],e.name))
                     for e in p0.p:
-                        p = mp.regProj(e.path);
+                        rpath=e.path
+                        if rpath==None:
+                            rpath = e.name
+                        p = mp.regProj(rpath);
                         p.addremote(m['vendor'], e.xml.attrib['_gitserver_'], e.name);
                     if 'manifest-repo' in mfnh:
                         mfr = mfnh['manifest-repo']
@@ -338,6 +341,7 @@ def main():
     parser_a = subparsers.add_parser('flatten', help='flatten and sort projects')
     parser_a.add_argument('--sort', '-x', action='count')
     parser_a.add_argument('--pathasname', '-n', action='count', default=0)
+    parser_a.add_argument('--addmissingpath', '-m', action='count', default=0)
     parser_a.add_argument('--remove-path', '-r', dest='removepath', default=None)
     parser_a.add_argument('file', type=str, help='root maifest')
     parser_a.add_argument('output', type=str, help='flattend output')
@@ -415,6 +419,7 @@ def main():
 
     # create the parser for the "genmirrors" command
     parser_genm = subparsers.add_parser('genmirrors', help='genmirrors')
+    parser_genm.add_argument('--addmissingpath', '-m', action='count', default=1)
     parser_genm.add_argument('--pathasname', '-n', action='count', default=1)
     parser_genm.add_argument('--clonescript', '-o', type=str, help='clonescript', default=None)
     parser_genm.add_argument('--flattenrepo', '-f', type=str, help='flattenrepo', default=None)

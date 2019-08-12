@@ -26,6 +26,7 @@ class mh_base(object):
         self.tags = [n]+tags 
         self.attrs = attrs
         self.depth = depth
+        self.addnew = 0
         
     def __getattr__(self,n):
         if n in self.attrs:
@@ -37,7 +38,7 @@ class mh_base(object):
             raise AttributeError
     def setxml(self,n,v):
         if n in self.attrs:
-            if n in self.xml.attrib:
+            if self.addnew or (n in self.xml.attrib):
                 self.xml.attrib[n] = v
         else:
             raise AttributeError
@@ -387,8 +388,15 @@ class manifest(object):
                 for e in (self.extra_remotes+c.r):
                     f.write(" " + e.get_xml().decode("utf-8")+"\n");
             for e in c.a: #sorted(c.a, key=lambda x: x.name):
-                if self.args.pathasname:
-                    e.setxml('name',e.path)
+                if e.path == None:
+                    e.path = e.name
+                    if self.args.addmissingpath:
+                        e.addnew = 1
+                    e.setxml('path',e.name)
+                else:
+                    #print (e.path)
+                    if self.args.pathasname:
+                        e.setxml('name',e.path)
                 f.write(" " + e.get_xml().decode("utf-8")+"\n");
 
             f.write("</manifest>\n");

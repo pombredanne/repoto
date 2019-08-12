@@ -23,6 +23,7 @@ function mayberun () {
     if [[ $dryrun == 1 ]]; then
 	echo "dry-run: $*"
     else
+	echo "execute: $*"
 	$@
     fi
     # return exit code of last command
@@ -252,7 +253,29 @@ function jq_get_newrepos () {
 }
 
 function jq_get_newreposclone () {
-    true
+    local d; local r; local u
+    local -n l_newrepos
+    l_newrepos=$1
+
+    for i in ${l_newrepos[@]}; do
+	local -a jq_remotes
+	local -a jq_urls
+	local gpath
+	gpath="$(cat ${2} | jq -r ".[] | select(.id==\"${i}\") | .gerritpath")"
+
+	jq_remotes_of jq_remotes ${i} ${2}
+	jq_url_of_remote jq_urls ${i} ${jq_remotes[0]} ${2}
+	clone_repo ${i} ${jq_urls[0]} ${gpath}
+
+	for r in ${jq_remotes[@]}; do
+	    jq_url_of_remote jq_urls ${i} ${r} ${2}
+	    clone_repo_new  ${i} ${r} ${jq_urls[0]}
+	    for u in ${jq_urls[@]:1:$((${#jq_urls[@]}-1))}; do
+		clone_repo_more ${i} ${r} ${u}
+	    done
+	done
+
+    done
 }
 
 # retrieve the defined git remotes of $2
@@ -363,6 +386,7 @@ EOF
     done
 }
 
+
 function jq_get_newremotes_add () {
     local d; local r; local u
     local -n l_newremotes
@@ -378,9 +402,9 @@ function jq_get_newremotes_add () {
 
 	for r in ${r_newremotes[@]}; do
 	    jq_url_of_remote jq_urls ${i} ${r} ${2}
-	    echo "clone_repo_new  : ${i} ${r} ${jq_urls[0]}"
+	    clone_repo_new  ${i} ${r} ${jq_urls[0]}
 	    for u in ${jq_urls[@]:1:$((${#jq_urls[@]}-1))}; do
-		echo "clone_repo_more : ${i} ${r} ${u}"
+		clone_repo_more ${i} ${r} ${u}
 	    done
 	done
     done
