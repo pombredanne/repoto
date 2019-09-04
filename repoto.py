@@ -316,6 +316,8 @@ def genmirrors(args):
                     if args.verbose:
                         print("+ Load {}:{}".format(m['vendor'],mfn));
                     if args.flattenrepo:
+                        if 'flattened-suffix' in mfnh:
+                            mfnbase = mfnbase+mfnh['flattened-suffix']
                         do_flatten(args, mfn, os.path.join(args.flattenrepo,mfnbase+".flatten.xml"));
 
     if args.clonescript:

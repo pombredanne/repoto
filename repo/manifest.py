@@ -216,7 +216,10 @@ class multirepo(logclass):
 
         v = self.remotes[n]['urls'][ui]
         #print("+++++++ {} {}".format(n,ui) + str(v))
-        return v['url'] + "/" + v['n'];
+        r = v['url'] + v['n']
+        if not (v['n'].startswith("/") or v['url'].endswith("/")):
+            r = v['url'] + "/" + v['n']
+        return r;
 
     def clonescript(self):
         cmd = []
