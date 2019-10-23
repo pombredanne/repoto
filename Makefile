@@ -67,6 +67,10 @@ prep:
 	git clone r.git _r
 	cp manifest*.xml _r/; cd _r; git add manifest*.xml; git commit -m 'all' --all;  git push origin master
 
+
+prep-m:
+	cd android; repo init -u https://android.googlesource.com/platform/manifest -b android-4.0.1_r1 --depth=10
+
 prep-repo:
 	mkdir -p r
 	cd r; python $(CURDIR)/git-repo/repo init -u $(CURDIR)/r.git -b master -m manifest.xml; \
