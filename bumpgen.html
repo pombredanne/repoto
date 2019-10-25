@@ -9,7 +9,9 @@
 		ws = new WebSocket("ws://" + document.domain + ":5000/api");
 		ws.onmessage = function (msg) {
 		    $("#log").append("<p>"+msg.data+"</p>")
+		    
 		};
+		we.send("start");
 	    } else {
 		alert("WebSocket not supported");
 	    }

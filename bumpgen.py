@@ -1,4 +1,7 @@
 import os
+# apt install python-git
+from git import Repo
+# apt install python-flask
 from flask import (
     Flask,
     request,
@@ -8,8 +11,11 @@ from flask import (
 
 cdir=os.path.dirname(os.path.abspath(__file__))
 
+# git clone https://gitlab.com/noppo/gevent-websocket.git
 from geventwebsocket.handler import WebSocketHandler
+# git clone https://github.com/fgallaire/wsgiserver
 from gevent.pywsgi import WSGIServer
+
 
 app = Flask(__name__, template_folder=".")
 
@@ -17,12 +23,18 @@ app = Flask(__name__, template_folder=".")
 def static_file(path):
     return send_from_directory(cdir, path)
 
+repodir="/data/repo"
+
+# sub get remote
+#r.git.branch('-r')
+
 @app.route('/api')
 def api():
     if request.environ.get('wsgi.websocket'):
         ws = request.environ['wsgi.websocket']
         while True:
             r = Repo(repodir)
+            r.remotes[0].fetch();
             # 1: request repo branches
             send(list(r.branches))
             # 2: select repo branch
