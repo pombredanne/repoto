@@ -2,16 +2,73 @@
 <html>
 <head>
     <title>Generate menifest bump</title>
-    <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+    <script src="files/jquery-ui-1.12.1.custom/external/jquery/jquery.js"></script>
+    <script src="files/jquery-ui-1.12.1.custom/jquery-ui.js"></script>
+    <script src="files/jquery-treetable/jquery.treetable.js"></script>
+    <script src="bumpgen.js"></script>
+    <link rel="stylesheet" type="text/css" href="files/jquery-treetable/css/jquery.treetable.css">
+    <link rel="stylesheet" type="text/css" href="files/jquery-treetable/css/jquery.treetable.theme.default.css">
+    <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script type="text/javascript" charset="utf-8">
 	$(document).ready(function(){
 	    if ("WebSocket" in window) {
 		ws = new WebSocket("ws://" + document.domain + ":5000/api");
 		ws.onmessage = function (msg) {
-		    $("#log").append("<p>"+msg.data+"</p>")
-		    
+		    var obj = JSON.parse(msg.data);
+		    var obj_val = [];
+		    console.log("> got reply");console.log(obj);
+		    if (obj.type == "mrbranches") {
+			$("#log").html("Manifest repo branches<br><p>"+obj.data.join("<br>\n")+"</p>")
+			var idx = 0;
+			$('#mrbranches').empty();
+			$('#manifestfiles').empty();
+			for (const e of obj.data) {
+			    obj_val[idx] = e;
+			    $('#mrbranches').append(new Option(e.mrb,idx));
+			    idx += 1;
+			};
+			$("#mrbranches").unbind("click");
+			$("#mrbranches").click(function() {
+			    var val = $('#mrbranches').val();
+			    req = {'type': 'mrbsel', 'data' : obj_val[val]}
+			    ws.send(JSON.stringify(req));
+			    req.dir = "send request mrbsel";
+			    console.log(req);
+			});
+		    } else if (obj.type == "manifestfiles") {
+			$("#log").html("manifests files<br><p>"+obj.data.join("<br>\n")+"</p>")
+			var idx = 0;
+			$('#manifestfiles').empty();
+			for (const e of obj.data) {
+			    obj_val[idx] = e;
+			    $('#manifestfiles').append(new Option(e.mfn,idx));
+			    idx += 1;
+			};
+			$("#manifestfiles").unbind("click");
+			$("#manifestfiles").click(function() {
+			    var val = $('#manifestfiles').val();
+			    req = {'type': 'mfnsel', 'data' : obj_val[val]};
+			    ws.send(JSON.stringify(req));
+			    req.dir = "send request mfnsel";
+			    console.log(req);
+			    
+			});
+		    } else if (obj.type == "repolist") {
+			$("#log").html("manifests files<br><p>"+obj.data.join("<br>\n")+"</p>")
+			var idx = 0;
+			$('#manifestfiles').empty();
+			for (const e of obj.data) {
+			    obj_val[idx] = e;
+			    $('#manifestfiles').append(new Option(e.mfn,idx));
+			    idx += 1;
+			};
+			
+		    }
 		};
-		we.send("start");
+		ws.onopen = function () {
+		    ws.send(JSON.stringify({'type': 'start'}));
+		};
+		
 	    } else {
 		alert("WebSocket not supported");
 	    }
@@ -19,12 +76,9 @@
     </script>
 </head>
 <body>
-    <h1>Send:</h1>
-    <form method='POST' action='#'>
-	<textarea name='data' id="data"></textarea>
-	<div><input type='submit'></div>
-    </form>
-    <h1>Receive:</h1>
+    <select id="mrbranches"></select><br>
+    <select id="manifestfiles"></select><br>
+    <div id="repolist">repo list</div><br>
     <div id="log"></div>
 </body>
 </html>
