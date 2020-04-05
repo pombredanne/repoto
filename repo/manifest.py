@@ -79,8 +79,8 @@ class mh_default(mh_base):
 class mh_project(mh_base):
     def __init__(self,args,m,xml,depth=0):
         super(mh_project,self).__init__(args,'project',m,xml,['elem'],['name','path','revision','remote','upstream','_gitserver_'],depth=depth)
-        if 'path' in self.xml.attrib and self.xml.attrib.endswith("/"):
-            self.xml.attrib['path'] = self.xml.attrib[:-1]
+        if 'path' in self.xml.attrib and self.xml.attrib['path'].endswith("/"):
+            self.xml.attrib['path'] = self.xml.attrib['path'][:-1]
     def __str__(self):
         return "project name={}".format(self.name)
     def changed(self,p,args):
