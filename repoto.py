@@ -301,11 +301,16 @@ def genmirrors(args):
                         if rpath==None:
                             rpath = e.name
                         p = mp.regProj(rpath);
+                        if 'alias' in mfnh:
+                            if e.path != e.name:
+                                p.alias = e.name
                         p.addremote(m['vendor'], e.xml.attrib['_gitserver_'], e.name);
                     if 'manifest-repo' in mfnh:
                         mfr = mfnh['manifest-repo']
                         p = mp.regProj(mfr['path']);
                         p.addremote(m['vendor'], mfr['url'], mfr['name']);
+
+
             # rewrite manifest
             for m in a:
                 for mfnh in m['manifests']:

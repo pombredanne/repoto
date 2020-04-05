@@ -200,6 +200,7 @@ class multirepo(logclass):
         self._p = p
         self.path = path
         self.remotes = []
+        self.alias = None
     def addremote(self, v, url, n ):
         for r in self.remotes:
             if r['v'] == v:
@@ -226,6 +227,8 @@ class multirepo(logclass):
         id = self.path.replace("/","_");
         url0 = self.urlof(0,0);
         cmd.append("clone_repo {} {} {}\n".format(id, url0, self.path));
+        if self.alias is not None:
+            cmd.append(" clone_alias {} {}\n".format(id, self.alias));
         for i in range(len(self.remotes)):
             cmd.append(" clone_repo_new {} {} {}\n".format(id, self.remotes[i]['v'], self.urlof(i,0)));
             for j in range(1,len(self.remotes[i]['urls'])):
@@ -244,6 +247,8 @@ class multirepo(logclass):
         d = {   'id' : self.path.replace("/","_"),
                 'gerritpath' : self.path,
                 'remotes' : remotes }
+        if self.alias is not None:
+            d['alias'] = self.alias
         return d
 
 class multirepolist(logclass):
