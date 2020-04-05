@@ -4,8 +4,10 @@
 nofetch=1
 dryrun=1
 mirrordef=
+singlerepo=
 while [ $# -gt 0 ]; do
     case "$1" in
+        --repo)      singlerepo="$2"; shift 2 ;;
         --fetch)     nofetch=0; shift ;;
         --nodry-run) dryrun=0; shift ;;
         --def)       mirrordef="$2"; shift 2 ;;
@@ -83,10 +85,15 @@ function clone_repo_more {
 function clone_repo_remove_remote {
     local path=${base}/${1}.git
     local r=${2}
+    local regex="^${r}(__[0-9]+)?\$"
     (cd ${path};
-     if ! mayberun git remote remote ${r} ; then
-        echo "------------- !!! unable to remove remote ${r}  --------------"; exit 1;
-     fi
+     for i in $(git remote); do
+	 if [[ $i =~ $regex ]]; then
+	     if ! mayberun git remote remove ${i} ; then
+		 echo "------------- !!! unable to remove remote ${i} (regex: ${r})  --------------"; exit 1;
+	     fi
+	 fi
+     done
     )
 }
 
@@ -283,16 +290,16 @@ function jq_get_newreposclone () {
     done
 }
 
-# retrieve the defined git remotes of $2
+# retrieve the defined git remotes of $2, merge x__0 indexes
 function remotes_of () {
     local i;
     local -n l_remotes
-    local regex="^remote\.([a-z_0-9\-]+)\.url=(.*)"
+    local regex="^remote\.(([a-z_0-9\-]+)(__[0-9]+)?)\.url=(.*)"
     l_remotes=$1
     l_remotes=()
     for i in $(git -C $2 config -l ) ; do
 	if [[ $i =~ $regex ]]; then
-            l_remotes+=("${BASH_REMATCH[1]}")
+            l_remotes+=("${BASH_REMATCH[2]}")
 	fi
     done
 }
@@ -312,12 +319,14 @@ function jq_remotes_of () {
 function url_of_remotes () {
     local i;
     local -n l_url
-    local regex="^remote\.${3}\.url=(.+)"
+    local regex="^remote\.${3}(__[0-9]+)?\.url=(.+)"
+    #local regex="^remote\.${3}\.url=(.+)"
     l_url=$1
     l_url=()
     for i in $(git -C $2 config -l ) ; do
 	if [[ $i =~ $regex ]]; then
-            l_url+=("${BASH_REMATCH[1]}")
+            l_url+=("${BASH_REMATCH[2]}")
+            #l_url+=("${BASH_REMATCH[1]}")
 	fi
     done
 }
@@ -438,9 +447,9 @@ function jq_get_newurls () {
 	    if diff_url_arrays jq_urls urls; then
 
 		l_needupdate+=("${i}:${r}")
-		#echo "remote $r: "
-		#echo " j:${jq_urls[@]}"
-		#echo " r:${urls[@]}"
+		echo "remote $r of ${i}, urls changed: "
+		echo " json: ${jq_urls[@]}"
+		echo " repo: ${urls[@]}"
 	    fi
 
 
@@ -448,21 +457,29 @@ function jq_get_newurls () {
     done
 }
 
+function split_rep_remote ()
+{
+    local IFS; local oldIFS
+    local -n l_parts
+    l_parts=$1
+    oldIFS=${IFS}
+    IFS=":";
+    l_parts=(${2})
+    IFS=${oldIFS}
+}
+
 # given an array of update pairs, reinitialize remotes
-function jq_get_newurls_update () {
+function jq_get_newurls_update ()
+{
     local u; local r; local i
     local -n lupdate
     lupdate=$1
     for u in ${lupdate[@]}; do
-	local IFS; local oldIFS
 	local -a parts
-	oldIFS=${IFS}
-	IFS=":";
-	parts=(${u})
-	IFS=${oldIFS}
+	split_rep_remote parts ${u}
 	i=${parts[0]}
 	r=${parts[1]}
-	echo "update: ${i} remote ${r}"
+	echo; echo "update: ${i} remote ${r}"
 
 	# reload context
 	local -a r_remotes
@@ -474,19 +491,19 @@ function jq_get_newurls_update () {
 
 	# remove all remotes
 	for r in ${r_remotes[@]}; do
-	    echo "clone_repo_remove_remote ${i} ${r}"
+	    echo " clone_repo_remove_remote ${i} ${r}"
 	done
 
 	# re-add all remotes
 	for r in ${r_jq_remotes[@]}; do
 
+	    local -a jq_urls
 	    jq_url_of_remote jq_urls ${i} ${r} ${2}
-	    echo "clone_repo_new  : ${i} ${r} ${jq_urls[0]}"
+	    echo " clone_repo_new  : ${i} ${r} ${jq_urls[0]} "
 	    for u in ${jq_urls[@]:1:$((${#jq_urls[@]}-1))}; do
-		echo "clone_repo_more : ${i} ${r} ${u}"
+		echo " +clone_repo_more : ${i} ${r} ${u} "
 	    done
 
 	done
-
     done
 }
