@@ -100,6 +100,11 @@ function clone_repo_fetch {
       )
     fi;
 }
+
+function clone_alias {
+    local rep=${1}
+    local aliaspath=${2}
+}
 ####################################
 
 
