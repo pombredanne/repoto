@@ -299,11 +299,14 @@ function jq_get_newreposclone () {
 function remotes_of () {
     local i;
     local -n l_remotes
-    local regex="^remote\.(([a-z_0-9\-]+)(__[0-9]+)?)\.url=(.*)"
+    local regexi="^remote\.(([a-z_0-9\-]+)(__[0-9]+))\.url=(.*)"
+    local  regex="^remote\.(([a-z_0-9\-]+))\.url=(.*)"
     l_remotes=$1
     l_remotes=()
     for i in $(git -C $2 config -l ) ; do
-	if [[ $i =~ $regex ]]; then
+	if [[ $i =~ $regexi ]]; then
+            l_remotes+=("${BASH_REMATCH[2]}")
+	elif [[ $i =~ $regex ]]; then
             l_remotes+=("${BASH_REMATCH[2]}")
 	fi
     done
@@ -383,6 +386,9 @@ function jq_get_newremotes () {
 	fi
 	if [[ 1 == $(( ${#r_undefremotes[@]} > 0 )) ]]; then
 	    ret_undefremotes+=($i)
+
+	    echo "undef: ${jq_remotes[@]} , ${remotes[@]}"
+
 	fi
 
 	# save conext to reload
