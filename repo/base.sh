@@ -76,9 +76,14 @@ function clone_repo_more {
     local n=${2}
     local url=${3}
     (cd ${path};
-     if ! mayberun git remote set-url ${n} --add ${url}; then
-        echo "------------- !!! unable to add more remote ${n} : ${url} --------------"; exit 1;
-     fi
+     for i in $(seq 1 100); do
+	 if  git remote get-url "${n}__${i}" 2> /dev/null; then
+	     true
+	 else
+	     clone_repo_new $1 ${n}__${i} ${3};
+	     break
+	 fi
+     done
     )
 }
 
@@ -491,7 +496,7 @@ function jq_get_newurls_update ()
 
 	# remove all remotes
 	for r in ${r_remotes[@]}; do
-	    echo " clone_repo_remove_remote ${i} ${r}"
+	    clone_repo_remove_remote ${i} ${r}
 	done
 
 	# re-add all remotes
@@ -499,9 +504,9 @@ function jq_get_newurls_update ()
 
 	    local -a jq_urls
 	    jq_url_of_remote jq_urls ${i} ${r} ${2}
-	    echo " clone_repo_new  : ${i} ${r} ${jq_urls[0]} "
+	    clone_repo_new  ${i} ${r} ${jq_urls[0]}
 	    for u in ${jq_urls[@]:1:$((${#jq_urls[@]}-1))}; do
-		echo " +clone_repo_more : ${i} ${r} ${u} "
+		clone_repo_more  ${i} ${r} ${u}
 	    done
 
 	done
