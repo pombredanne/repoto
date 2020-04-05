@@ -235,7 +235,7 @@ function jq_get_newrepos () {
     r_newrepo=$1
     r_existingrepos=$2
     r_undefrepo=$3
-    for i in $(cat $4  | jq -r '.[] | .id'); do
+    for i in $(cat $4 | jq -r '.[] | .id'); do
 	repos["${i}"]="${i}"
     done
     for i in $( (for j in ${repos[@]}; do echo $j; done) | sort ); do
