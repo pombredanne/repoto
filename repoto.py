@@ -303,9 +303,11 @@ def genmirrors(args):
                         p = mp.regProj(rpath);
                         if 'alias' in mfnh:
                             if e.path != e.name:
-                                if p.alias is not None:
-                                    print("!! overwrite previouse alias for {} : {} !!".format(e.name, p.alias))
-                                p.alias = e.name
+                                if p.alias is None:
+                                    p.alias = []
+                                    #print("!! overwrite previouse alias for {} : {} !!".format(e.name, p.alias))
+                                if e.name not in p.alias:
+                                    p.alias.append(e.name)
                         p.addremote(m['vendor'], e.xml.attrib['_gitserver_'], e.name);
                     if 'manifest-repo' in mfnh:
                         mfr = mfnh['manifest-repo']
