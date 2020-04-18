@@ -324,7 +324,8 @@ def genmirrors(args):
                         mfr = mfnh['manifest-repo']
                         p = mp.regProj(mfr['path']);
                         p.addremote(m['vendor'], mfr['url'], mfr['name']);
-
+                        if ('alias' in mfr) and (_mfr['alias'] not in p.alias):
+                            p.alias.append(mfr['alias'])
 
             # rewrite manifest
             for m in a:
