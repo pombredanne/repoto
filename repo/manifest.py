@@ -249,6 +249,7 @@ class multirepo(logclass):
             urls = []
             for j in range(0,len(self.remotes[i]['urls'])):
                 urls.append(self.urlof(i,j));
+            urls = list(set(urls))
             remotes.append( {'name' : self.remotes[i]['v'], 'urls' : urls } )
         d = {   'id' : self.path.replace("/","_"),
                 'gerritpath' : self.path,
