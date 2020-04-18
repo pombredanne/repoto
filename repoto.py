@@ -274,8 +274,9 @@ def genmirrors(args):
                     mfn = os.path.join(fnbase,mfnh['n'])
                     if 'gitbase' in mfnh:
                         args.gitbase = mfnh['gitbase']
-                    if args.verbose:
-                        print("+ Load {}:{}".format(m['vendor'],mfn));
+                    #if args.verbose:
+                    print("+ Load {}:{}".format(m['vendor'],mfn));
+
                     m0 = manifest(args, mfn);
                     p0 = m0.get_projar();
                     # rewrite repository name if prefix matches
