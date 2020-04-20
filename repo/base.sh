@@ -50,7 +50,8 @@ function clone_repo {
 	lfn=${curbase}/${symlinkbase}/${linkpath}
     fi
     mkdir -p $(dirname ${lfn})
-    mayberun ln -s ${dfn} ${lfn}.git
+    #mayberun ln -s ${dfn} ${lfn}.git
+    mayberun ln -s $(realpath --relative-to=$(dirname ${lfn}) ${dfn}) ${lfn}.git
 }
 
 function clone_repo_new {
