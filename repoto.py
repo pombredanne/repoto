@@ -299,13 +299,20 @@ def genmirrors(args):
                                     print ("Rewrite {}+{} to {}+{}".format(oserver,on,e.xml.attrib['_gitserver_'],e.name))
                     for e in p0.p:
                         rpath=e.path
+                        if rpath == "." or rpath == "./":
+                            rpath = None
                         if rpath==None:
                             rpath = e.name
+                        elif 'path-prefix' in m:
+                            #print(m['path-prefix'])
+                            if rpath.startswith(m['path-prefix']):
+                                rpath = rpath[len(m['path-prefix']):]
                         p = mp.regProj(rpath);
                         if 'alias' in mfnh:
                             if p.alias is None:
                                 p.alias = []
                             if mfnh['alias'] == 1:
+                                #print ("%s n: %s " %(e.path,e.name))
                                 if e.path != e.name:
                                         #print("!! overwrite previouse alias for {} : {} !!".format(e.name, p.alias))
                                     if e.name not in p.alias:
@@ -313,9 +320,11 @@ def genmirrors(args):
                             else:
                                 _a = mfnh['alias']
                                 _p = re.compile('\$\{name\}')
-                                _a = _p.sub(e.name, _a);
+                                if e.name is not None:
+                                    _a = _p.sub(e.name, _a);
                                 _p = re.compile('\$\{path\}')
-                                _a = _p.sub(e.path, _a);
+                                if e.path is not None:
+                                    _a = _p.sub(e.path, _a);
                                 if _a not in p.alias:
                                     p.alias.append(_a)
 
